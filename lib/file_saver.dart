@@ -5,6 +5,10 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart' as path;
+import 'package:path_provider_windows/path_provider_windows.dart'
+    as pathProvderWindows;
+import 'package:path_provider_linux/path_provider_linux.dart'
+    as pathProviderLinux;
 
 enum MimeType {
   AVI,
@@ -107,8 +111,8 @@ class FileSaver {
         String args = jsonEncode(data);
         await _channel.invokeMethod<void>('saveFile', args);
       } else if (Platform.isAndroid) {
-        Directory directory =
-            (await path.getExternalStorageDirectory() as FutureOr<Directory>) as Directory;
+        Directory directory = (await path.getExternalStorageDirectory()
+            as FutureOr<Directory>) as Directory;
         final String filePath = directory.path + '/' + name + '.' + ext;
         final File file = File(filePath);
         await file.writeAsBytes(bytes);
@@ -122,8 +126,23 @@ class FileSaver {
         final File file = File(filePath);
         await file.writeAsBytes(bytes);
       } else if (Platform.isMacOS) {
-        final Directory macDir = await (path.getDownloadsDirectory() as FutureOr<Directory>);
+        final Directory macDir =
+            await (path.getDownloadsDirectory() as FutureOr<Directory>);
         final String filePath = macDir.path + '/' + name + '.' + ext;
+        final File file = File(filePath);
+        await file.writeAsBytes(bytes);
+      } else if (Platform.isWindows) {
+        pathProvderWindows.PathProviderWindows pathWindows =
+            pathProvderWindows.PathProviderWindows();
+        String? path = await pathWindows.getDownloadsPath();
+        final String filePath = path! + '/' + name + '.' + ext;
+        final File file = File(filePath);
+        await file.writeAsBytes(bytes);
+      } else if (Platform.isLinux) {
+        pathProviderLinux.PathProviderLinux pathLinux =
+            pathProviderLinux.PathProviderLinux();
+        String? path = await pathLinux.getDownloadsPath();
+        final String filePath = path! + '/' + name + '.' + ext;
         final File file = File(filePath);
         await file.writeAsBytes(bytes);
       } else {
