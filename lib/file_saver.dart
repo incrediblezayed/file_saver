@@ -132,12 +132,13 @@ class FileSaver {
         final File file = File(filePath);
         await file.writeAsBytes(bytes);
       } else if (Platform.isWindows) {
-        pathProvderWindows.PathProviderWindows pathWindows =
+        _channel.invokeListMethod('saveFile');
+        /* pathProvderWindows.PathProviderWindows pathWindows =
             pathProvderWindows.PathProviderWindows();
         String? path = await pathWindows.getDownloadsPath();
         final String filePath = path! + '/' + name + '.' + ext;
         final File file = File(filePath);
-        await file.writeAsBytes(bytes);
+        await file.writeAsBytes(bytes); */
       } else if (Platform.isLinux) {
         pathProviderLinux.PathProviderLinux pathLinux =
             pathProviderLinux.PathProviderLinux();
