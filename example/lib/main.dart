@@ -37,7 +37,6 @@ class _MyAppState extends State<MyApp> {
             ),
             ElevatedButton(
               onPressed: () async {
-     
                 Excel execl = Excel.createExcel();
                 for (int i = 0; i < 10; i++)
                   execl.insertRowIterables("Sheet 1", ['a', i], i);
@@ -48,7 +47,7 @@ class _MyAppState extends State<MyApp> {
                       ? "File"
                       : textEditingController.text,
                   sheets,
-                  ".xls",
+                  "xlsx",
                   mimeType: type,
                 );
               },
