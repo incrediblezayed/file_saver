@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart' as path;
-import 'package:path_provider_windows/path_provider_windows.dart'
-    as pathProvderWindows;
 import 'package:path_provider_linux/path_provider_linux.dart'
     as pathProviderLinux;
+import 'package:path_provider_windows/path_provider_windows.dart'
+    as pathProvderWindows;
 
 enum MimeType {
   AVI,
@@ -78,14 +79,11 @@ class FileSaver {
       case MimeType.ZIP:
         return 'application/zip';
       case MimeType.MICROSOFTEXCEL:
-        return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8";
-
+        return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
       case MimeType.MICROSOFTPRESENTATION:
         return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-
       case MimeType.MICROSOFTWORD:
         return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-
       case MimeType.OTHER:
         return "application/octet-stream";
       case MimeType.TEXT:
@@ -97,7 +95,7 @@ class FileSaver {
     }
   }
 
-  Future<void> saveFile(String name, List<int> bytes, String ext,
+  Future<void> saveFileFromList(String name, List<int> bytes, String ext,
       {MimeType mimeType = MimeType.OTHER}) async {
     String mime = _getType(mimeType);
     try {
@@ -108,7 +106,7 @@ class FileSaver {
           "ext": ext,
           "type": mime
         };
-        String args = jsonEncode(data);
+        String args = json.encode(data);
         await _channel.invokeMethod<void>('saveFile', args);
       } else if (Platform.isAndroid) {
         Directory directory = (await path.getExternalStorageDirectory()
@@ -133,12 +131,12 @@ class FileSaver {
         await file.writeAsBytes(bytes);
       } else if (Platform.isWindows) {
         _channel.invokeListMethod('saveFile');
-        /* pathProvderWindows.PathProviderWindows pathWindows =
+        pathProvderWindows.PathProviderWindows pathWindows =
             pathProvderWindows.PathProviderWindows();
         String? path = await pathWindows.getDownloadsPath();
         final String filePath = path! + '/' + name + '.' + ext;
         final File file = File(filePath);
-        await file.writeAsBytes(bytes); */
+        await file.writeAsBytes(bytes);
       } else if (Platform.isLinux) {
         pathProviderLinux.PathProviderLinux pathLinux =
             pathProviderLinux.PathProviderLinux();

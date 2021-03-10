@@ -19,12 +19,8 @@ and call saveFile() with respective parameter.
 This saveFile() method takes 3 Positional Arguments.
 _String name_ which takes the name of the file, _List<int> bytes_ which will be your actual encoded file, _String ext_ this will be your file extension.
 1 Named Argument _MimeType type_ which will be your file type,
-MimeType is also included in my Package, I've included types for **Sheets, Presentation, Word, Plain Text, and Optional Octect Stream for other Types of files**
+MimeType is also included in my Package, I've included types for **Sheets, Presentation, Word, Plain Text, PDF, MP3, MP4 and many other common formats**
 
-
-```dart
-saver.saveFile("File", bytes,'xlsx', mimeType: MimeType.MICROSOFTEXCEL);
-```
 
 #### And You're done
 

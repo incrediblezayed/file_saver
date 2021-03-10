@@ -5,6 +5,7 @@ import 'dart:convert';
 // package as the core of your plugin.
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
@@ -28,11 +29,12 @@ class FileSaverWeb {
   Future<dynamic> handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'saveFile':
-        String json = call.arguments;
-        Map data = jsonDecode(json);
+        String args = call.arguments;
+        Map<String, dynamic> data = json.decode(args);
         List<int> bytes = List<int>.from(data['bytes']);
+        Uint8List uint8list = Uint8List.fromList(bytes);
         return downloadFile(
-          bytes,
+          uint8list,
           data['name'],
           data['type'],
           data['ext'],
