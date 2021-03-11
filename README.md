@@ -48,6 +48,7 @@ and add the following key:
 	<key>com.apple.security.files.downloads.read-write</key>
 	<true/>
 ```
+![MacOS](https://raw.githubusercontent.com/incrediblezayed/file_saver/main/images/macos.png)
 
 
 #### And You're done
