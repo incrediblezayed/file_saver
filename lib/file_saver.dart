@@ -95,6 +95,15 @@ class FileSaver {
     }
   }
 
+  ///name: Name of your file.
+  ///
+  /// bytes: Encoded File for saving.
+  ///
+  /// ext: Extension of file.
+  ///
+  /// mimeType (Mainly required for web): MimeType from enum MimeType..
+  ///
+  /// More Mimetypes will be added in future
   Future<void> saveFile(String name, Uint8List bytes, String ext,
       {MimeType mimeType = MimeType.OTHER}) async {
     String mime = _getType(mimeType);
