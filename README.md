@@ -37,6 +37,18 @@ Go to your project folder, ios/Runner/info.plist and Add these keys:
 <key>UIFileSharingEnabled</key>
 <true />
 ```
+![iOS](https://raw.githubusercontent.com/incrediblezayed/file_saver/main/images/ios.png)
+
+#### macOS:
+Go to your project folder, macOS/Runner/DebugProfile.entitlements
+> For release you need to open 'YOUR_PROJECT_NAMEProfile.entitlements
+
+and add the following key:
+```xml
+	<key>com.apple.security.files.downloads.read-write</key>
+	<true/>
+```
+
 
 #### And You're done
 
