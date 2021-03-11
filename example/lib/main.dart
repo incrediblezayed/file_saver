@@ -23,7 +23,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Saver'),
+          title: const Text('File Saver'),
         ),
         body: Column(
           children: [

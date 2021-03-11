@@ -11,37 +11,65 @@ import 'package:path_provider_linux/path_provider_linux.dart'
 import 'package:path_provider_windows/path_provider_windows.dart'
     as pathProvderWindows;
 
+///[MimeType] is an enum for adding filetype for HTML Blob
 enum MimeType {
+  ///[AVI] for .avi extension
   AVI,
-  BMP,
+  ///[BMP] for .bmp extension
+  BMP,   
+  ///[EPUB] for .epub extention
   EPUB,
+  ///[GIF] for .gif extension
   GIF,
+  ///[JSON] for .json extension
   JSON,
+  ///[MPEG] for .mpeg extension
   MPEG,
+  ///[MP3] for .mp3 extension
   MP3,
+  ///[OTF] for .otf extension
   OTF,
+  ///[PNG] for .png extension
   PNG,
+  ///[ZIP] for .zip extension
   ZIP,
+  ///[TTF] for .ttf extension
   TTF,
+  ///[RAR] for .rar extension
   RAR,
+  ///[JPEG] for .jpeg extension
   JPEG,
+  ///[AAC] for .aac extension
   AAC,
+  ///[PDF] for .pdf extension
   PDF,
+  ///[OPENDOCSHEETS] for .ods extension
   OPENDOCSHEETS,
+  ///[OPENDOCPRESENTATION] for .odp extension
   OPENDOCPRESENTATION,
+  ///[OPENDOCTEXT] for .odt extension
   OPENDOCTEXT,
+  ///[MICROSOFTWORD] for .docx extension
   MICROSOFTWORD,
+  ///[MICROSOFTEXCEL] for .xlsx extension
   MICROSOFTEXCEL,
+  ///[MICROSOFTPRESENTATION] for .pptx extension
   MICROSOFTPRESENTATION,
+  ///[TEXT] for .txt extension
   TEXT,
+  ///[CSV] for .csv extension
   CSV,
+  ///[OTHER] for other extension
   OTHER
 }
 
 class FileSaver {
   static const MethodChannel _channel = const MethodChannel('file_saver');
+  ///instance of file saver
   static FileSaver get instance => FileSaver();
 
+
+  ///This method will return String value of respective [MimeType]
   String _getType(MimeType type) {
     switch (type) {
       case MimeType.AVI:
@@ -95,6 +123,7 @@ class FileSaver {
     }
   }
 
+  ///[saveFile] main method which saves the file for all platforms.
   ///name: Name of your file.
   ///
   /// bytes: Encoded File for saving.

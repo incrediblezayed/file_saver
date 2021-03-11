@@ -45,7 +45,7 @@ class FileSaverWeb {
   }
 
   void downloadFile(
-      List<int> bytes, String name, String type, String ext) async {
+      Uint8List bytes, String name, String type, String ext) async {
     String url;
     AnchorElement anchor;
     try {
