@@ -27,7 +27,16 @@ And add this above the application tag:
 ```xml
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 ```
+![AndroidManifest.xml](https://raw.githubusercontent.com/incrediblezayed/file_saver/e43220a4b49dd6f3316adce7ccb808264538b3ad/images/android.png)
 
+#### iOS:
+Go to your project folder, ios/Runner/info.plist and Add these keys:
+```xml
+<key>LSSupportsOpeningDocumentsInPlace</key>
+<true />
+<key>UIFileSharingEnabled</key>
+<true />
+```
 
 #### And You're done
 
