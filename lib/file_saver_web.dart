@@ -28,7 +28,8 @@ class FileSaverWeb {
       case 'saveFile':
         String args = call.arguments;
         Map<String, dynamic> data = json.decode(args);
-        Uint8List uint8list = data['bytes'];
+        List<dynamic> bytes = data['bytes'];
+        Uint8List uint8list = Uint8List.fromList(List<int>.from(bytes));
         return downloadFile(
           uint8list,
           data['name'],
