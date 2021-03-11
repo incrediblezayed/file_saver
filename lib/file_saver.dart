@@ -95,7 +95,7 @@ class FileSaver {
     }
   }
 
-  Future<void> saveFileFromList(String name, List<int> bytes, String ext,
+  Future<void> saveFile(String name, Uint8List bytes, String ext,
       {MimeType mimeType = MimeType.OTHER}) async {
     String mime = _getType(mimeType);
     try {
@@ -123,12 +123,20 @@ class FileSaver {
         final String filePath = iosDir.path + '/' + name + '.' + ext;
         final File file = File(filePath);
         await file.writeAsBytes(bytes);
+        bool exist = await file.exists();
+        if (exist) {
+          print("File saved at: ${file.path}");
+        }
       } else if (Platform.isMacOS) {
         final Directory macDir =
             await (path.getDownloadsDirectory() as FutureOr<Directory>);
         final String filePath = macDir.path + '/' + name + '.' + ext;
         final File file = File(filePath);
         await file.writeAsBytes(bytes);
+        bool exist = await file.exists();
+        if (exist) {
+          print("File saved at: ${file.path}");
+        }
       } else if (Platform.isWindows) {
         _channel.invokeListMethod('saveFile');
         pathProvderWindows.PathProviderWindows pathWindows =
@@ -137,6 +145,10 @@ class FileSaver {
         final String filePath = path! + '/' + name + '.' + ext;
         final File file = File(filePath);
         await file.writeAsBytes(bytes);
+        bool exist = await file.exists();
+        if (exist) {
+          print("File saved at: ${file.path}");
+        }
       } else if (Platform.isLinux) {
         pathProviderLinux.PathProviderLinux pathLinux =
             pathProviderLinux.PathProviderLinux();
@@ -144,6 +156,10 @@ class FileSaver {
         final String filePath = path! + '/' + name + '.' + ext;
         final File file = File(filePath);
         await file.writeAsBytes(bytes);
+        bool exist = await file.exists();
+        if (exist) {
+          print("File saved at: ${file.path}");
+        }
       } else {
         throw UnimplementedError(
             "Sorry but the plugin only supports web, ios and android");

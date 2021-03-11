@@ -23,16 +23,12 @@ class FileSaverWeb {
     channel.setMethodCallHandler(pluginInstance.handleMethodCall);
   }
 
-  /// Handles method calls over the MethodChannel of this plugin.
-  /// Note: Check the "federated" architecture for a new way of doing this:
-  /// https://flutter.dev/go/federated-plugins
   Future<dynamic> handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'saveFile':
         String args = call.arguments;
         Map<String, dynamic> data = json.decode(args);
-        List<int> bytes = List<int>.from(data['bytes']);
-        Uint8List uint8list = Uint8List.fromList(bytes);
+        Uint8List uint8list = data['bytes'];
         return downloadFile(
           uint8list,
           data['name'],

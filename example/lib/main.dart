@@ -2,7 +2,9 @@ import 'dart:typed_data';
 
 import 'package:excel/excel.dart';
 import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(MyApp());
@@ -43,17 +45,20 @@ class _MyAppState extends State<MyApp> {
                 for (int i = 0; i < 10; i++)
                   execl.insertRowIterables("Sheet1", ['a', i], i);
                 List<int> sheets = await execl.encode();
-                Uint8List uint8list = Uint8List.fromList(sheets);
+                Uint8List data = Uint8List.fromList(sheets);
                 MimeType type = MimeType.MICROSOFTEXCEL;
-                FileSaver.instance.saveFileFromList(
+                if (!kIsWeb) {
+                  bool status = await Permission.storage.isGranted;
+                  if (!status) await Permission.storage.request();
+                }
+                FileSaver.instance.saveFile(
                   textEditingController?.text == ""
                       ? "File"
                       : textEditingController.text,
-                  sheets,
+                  data,
                   "xlsx",
                   mimeType: type,
                 );
- 
               },
               child: Text("Generate Excel And Download"),
             )
