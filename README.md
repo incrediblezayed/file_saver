@@ -21,6 +21,9 @@ _String name_ which takes the name of the file, _Uint8List bytes_ which will be 
 MimeType is also included in my Package, I've included types for **Sheets, Presentation, Word, Plain Text, PDF, MP3, MP4 and many other common formats**
 
 ### Storage Permissions:
+
+> ##### _These Settings are optional for Android and iOS, as in Android the file will be saved in "storage/Android/data/you.package.name/file" and in iOS the file will be saved in application documents directory but will not be visible in Files application, to make your file visible in iOS Files application, make the changes mentioned below._
+
 #### Android:
 Go to your project folder, android/src/main/AndroidMaifest.xml
 And add this above the application tag:
@@ -39,9 +42,20 @@ Go to your project folder, ios/Runner/info.plist and Add these keys:
 ```
 ![iOS](https://raw.githubusercontent.com/incrediblezayed/file_saver/main/images/ios.png)
 
+#### Or in XCode:
+Open Your Project in XCode (Open XCode -> Open a project or file -> Your_Project_Folder/ios/Runner.xcworkspace)
+Open info.plist
+Add these rows:
+
+Application supports iTunes file sharing (Boolean -> Yes)
+
+Supports opening documents in place (Boolean -> Yes)
+
+![iOS Xcode](https://raw.githubusercontent.com/incrediblezayed/file_saver/main/images/iOSXcode.png)
+
 #### macOS:
 Go to your project folder, macOS/Runner/DebugProfile.entitlements
-> For release you need to open 'YOUR_PROJECT_NAMEProfile.entitlements
+> For release you need to open 'YOUR_PROJECT_NAME'Profile.entitlements
 
 and add the following key:
 ```xml
@@ -49,7 +63,12 @@ and add the following key:
 	<true/>
 ```
 ![MacOS](https://raw.githubusercontent.com/incrediblezayed/file_saver/main/images/macos.png)
+#### Or in XCode:
+Open Your Project in XCode (Open XCode -> Open a project or file -> Your_Project_Folder/macos/Runner.xcworkspace)
+Open your entitlement file (DebugProfile.entitlements & 'YOUR_PROJECT_NAME'Profile.entitlements)
 
+Add these rows:
+![MacOS Xcode](https://raw.githubusercontent.com/incrediblezayed/file_saver/main/images/macOSXcode.png)
 
 #### And You're done
 
