@@ -44,23 +44,24 @@ class FileSaverWeb {
     }
   }
 
-  void downloadFile(
+  Future<bool> downloadFile(
       Uint8List bytes, String name, String type, String ext) async {
-    String url;
-    AnchorElement anchor;
+    bool _success = false;
+
     try {
-      url = Url.createObjectUrlFromBlob(Blob([bytes], type));
+      String _url = Url.createObjectUrlFromBlob(Blob([bytes], type));
       HtmlDocument htmlDocument = document;
-      print(url);
-      anchor = htmlDocument.createElement('a') as AnchorElement;
-      anchor.href = url;
+      AnchorElement anchor = htmlDocument.createElement('a') as AnchorElement;
+      anchor.href = _url;
       anchor.style.display = name;
       anchor.download = name + '.' + ext;
       document.body!.children.add(anchor);
       anchor.click();
       document.body!.children.remove(anchor);
+      _success = true;
     } catch (e) {
       print(e);
     }
+    return _success;
   }
 }

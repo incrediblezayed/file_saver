@@ -15,59 +15,82 @@ import 'package:path_provider_windows/path_provider_windows.dart'
 enum MimeType {
   ///[AVI] for .avi extension
   AVI,
+
   ///[BMP] for .bmp extension
-  BMP,   
+  BMP,
+
   ///[EPUB] for .epub extention
   EPUB,
+
   ///[GIF] for .gif extension
   GIF,
+
   ///[JSON] for .json extension
   JSON,
+
   ///[MPEG] for .mpeg extension
   MPEG,
+
   ///[MP3] for .mp3 extension
   MP3,
+
   ///[OTF] for .otf extension
   OTF,
+
   ///[PNG] for .png extension
   PNG,
+
   ///[ZIP] for .zip extension
   ZIP,
+
   ///[TTF] for .ttf extension
   TTF,
+
   ///[RAR] for .rar extension
   RAR,
+
   ///[JPEG] for .jpeg extension
   JPEG,
+
   ///[AAC] for .aac extension
   AAC,
+
   ///[PDF] for .pdf extension
   PDF,
+
   ///[OPENDOCSHEETS] for .ods extension
   OPENDOCSHEETS,
+
   ///[OPENDOCPRESENTATION] for .odp extension
   OPENDOCPRESENTATION,
+
   ///[OPENDOCTEXT] for .odt extension
   OPENDOCTEXT,
+
   ///[MICROSOFTWORD] for .docx extension
   MICROSOFTWORD,
+
   ///[MICROSOFTEXCEL] for .xlsx extension
   MICROSOFTEXCEL,
+
   ///[MICROSOFTPRESENTATION] for .pptx extension
   MICROSOFTPRESENTATION,
+
   ///[TEXT] for .txt extension
   TEXT,
+
   ///[CSV] for .csv extension
   CSV,
+
   ///[OTHER] for other extension
   OTHER
 }
 
 class FileSaver {
   static const MethodChannel _channel = const MethodChannel('file_saver');
+
   ///instance of file saver
   static FileSaver get instance => FileSaver();
-
 
   ///This method will return String value of respective [MimeType]
   String _getType(MimeType type) {
@@ -123,6 +146,36 @@ class FileSaver {
     }
   }
 
+  ///This method provides [Directory] for the file for Android, iOS, Linux, Windows, macOS
+  Future<String> _getDirectory() async {
+    String? _path = "";
+    try {
+      if (Platform.isAndroid) {
+        _path = await _channel.invokeMethod('getDirectory');
+      } else if (Platform.isIOS) {
+        _path = (await path.getApplicationDocumentsDirectory()).path;
+      } else if (Platform.isMacOS) {
+        _path =
+            (await (path.getDownloadsDirectory() as FutureOr<Directory>)).path;
+      } else if (Platform.isWindows) {
+        pathProvderWindows.PathProviderWindows pathWindows =
+            pathProvderWindows.PathProviderWindows();
+        _path = await pathWindows.getDownloadsPath();
+      } else if (Platform.isLinux) {
+        pathProviderLinux.PathProviderLinux pathLinux =
+            pathProviderLinux.PathProviderLinux();
+        _path = await pathLinux.getDownloadsPath();
+      } else {
+        throw UnimplementedError(
+            "Sorry but the plugin only supports web, ios and android");
+      }
+    } on Exception catch (e) {
+      print("Something wemt worng while getting directories");
+      print(e);
+    }
+    return _path!;
+  }
+
   ///[saveFile] main method which saves the file for all platforms.
   ///name: Name of your file.
   ///
@@ -133,9 +186,13 @@ class FileSaver {
   /// mimeType (Mainly required for web): MimeType from enum MimeType..
   ///
   /// More Mimetypes will be added in future
-  Future<void> saveFile(String name, Uint8List bytes, String ext,
+  Future<String?> saveFile(String name, Uint8List bytes, String ext,
       {MimeType mimeType = MimeType.OTHER}) async {
     String mime = _getType(mimeType);
+    String _somethingWentWrong =
+        "Something went wrong, please report the issue https://www.github.com/incrediblezayed/file_saver/issues";
+    String _directory = _somethingWentWrong;
+    String? _path = "";
     try {
       if (kIsWeb) {
         Map<String, dynamic> data = <String, dynamic>{
@@ -145,63 +202,26 @@ class FileSaver {
           "type": mime
         };
         String args = json.encode(data);
-        await _channel.invokeMethod<void>('saveFile', args);
-      } else if (Platform.isAndroid) {
-        Directory directory = (await path.getExternalStorageDirectory()
-            as FutureOr<Directory>) as Directory;
-        final String filePath = directory.path + '/' + name + '.' + ext;
-        final File file = File(filePath);
-        await file.writeAsBytes(bytes);
-        bool exist = await file.exists();
-        if (exist) {
-          print("File saved at: ${file.path}");
-        }
-      } else if (Platform.isIOS) {
-        final Directory iosDir = await path.getApplicationDocumentsDirectory();
-        final String filePath = iosDir.path + '/' + name + '.' + ext;
-        final File file = File(filePath);
-        await file.writeAsBytes(bytes);
-        bool exist = await file.exists();
-        if (exist) {
-          print("File saved at: ${file.path}");
-        }
-      } else if (Platform.isMacOS) {
-        final Directory macDir =
-            await (path.getDownloadsDirectory() as FutureOr<Directory>);
-        final String filePath = macDir.path + '/' + name + '.' + ext;
-        final File file = File(filePath);
-        await file.writeAsBytes(bytes);
-        bool exist = await file.exists();
-        if (exist) {
-          print("File saved at: ${file.path}");
-        }
-      } else if (Platform.isWindows) {
-        _channel.invokeListMethod('saveFile');
-        pathProvderWindows.PathProviderWindows pathWindows =
-            pathProvderWindows.PathProviderWindows();
-        String? path = await pathWindows.getDownloadsPath();
-        final String filePath = path! + '/' + name + '.' + ext;
-        final File file = File(filePath);
-        await file.writeAsBytes(bytes);
-        bool exist = await file.exists();
-        if (exist) {
-          print("File saved at: ${file.path}");
-        }
-      } else if (Platform.isLinux) {
-        pathProviderLinux.PathProviderLinux pathLinux =
-            pathProviderLinux.PathProviderLinux();
-        String? path = await pathLinux.getDownloadsPath();
-        final String filePath = path! + '/' + name + '.' + ext;
-        final File file = File(filePath);
-        await file.writeAsBytes(bytes);
-        bool exist = await file.exists();
-        if (exist) {
-          print("File saved at: ${file.path}");
+        bool? downloaded = await _channel.invokeMethod<bool>('saveFile', args);
+        if (downloaded!) {
+          _directory = "Downloads";
         }
       } else {
-        throw UnimplementedError(
-            "Sorry but the plugin only supports web, ios and android");
+        _path = await _getDirectory();
+        String filePath = _path + '/' + name + '.' + ext;
+        final File _file = File(filePath);
+        bool _exist = await _file.exists();
+        if (Platform.isAndroid || Platform.isIOS) {
+          if (_exist) {
+            _directory = _file.path;
+          } else {
+            print("File was not created");
+          }
+        } else {
+          _directory = _file.path;
+        }
       }
+      return _directory;
     } catch (e) {
       print(e);
     }

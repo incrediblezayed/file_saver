@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:excel/excel.dart';
@@ -48,10 +49,14 @@ class _MyAppState extends State<MyApp> {
                 Uint8List data = Uint8List.fromList(sheets);
                 MimeType type = MimeType.MICROSOFTEXCEL;
                 if (!kIsWeb) {
-                  bool status = await Permission.storage.isGranted;
-                  if (!status) await Permission.storage.request();
+                  if (Platform.isIOS || Platform.isAndroid) {
+                    bool status = await Permission.storage.isGranted;
+                    print(status);
+                    if (!status) await Permission.storage.request();
+                  }
+                
                 }
-                FileSaver.instance.saveFile(
+                String val = await FileSaver.instance.saveFile(
                   textEditingController?.text == ""
                       ? "File"
                       : textEditingController.text,
@@ -59,6 +64,7 @@ class _MyAppState extends State<MyApp> {
                   "xlsx",
                   mimeType: type,
                 );
+                print(val);
               },
               child: Text("Generate Excel And Download"),
             )

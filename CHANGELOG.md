@@ -9,3 +9,7 @@
 ## 0.0.3
 
 * Minor Bug Fixes
+
+## 0.0.4
+
+* saveFile method returns the path where the file is saved.
