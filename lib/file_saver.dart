@@ -209,17 +209,19 @@ class FileSaver {
       } else {
         _path = await _getDirectory();
         String filePath = _path + '/' + name + '.' + ext;
+      
         final File _file = File(filePath);
+        await _file.writeAsBytes(bytes);
         bool _exist = await _file.exists();
-        if (Platform.isAndroid || Platform.isIOS) {
+        //if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
           if (_exist) {
             _directory = _file.path;
           } else {
             print("File was not created");
           }
-        } else {
+       /*  } else {
           _directory = _file.path;
-        }
+        } */
       }
       return _directory;
     } catch (e) {
