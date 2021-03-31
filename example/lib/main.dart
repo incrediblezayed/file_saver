@@ -20,6 +20,11 @@ class _MyAppState extends State<MyApp> {
   TextEditingController textEditingController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
@@ -48,23 +53,21 @@ class _MyAppState extends State<MyApp> {
                 List<int> sheets = await execl.encode();
                 Uint8List data = Uint8List.fromList(sheets);
                 MimeType type = MimeType.MICROSOFTEXCEL;
-                if (!kIsWeb) {
+       /*          if (!kIsWeb) {
                   if (Platform.isIOS || Platform.isAndroid) {
                     bool status = await Permission.storage.isGranted;
                     print(status);
                     if (!status) await Permission.storage.request();
                   }
-                
-                }
-                String val = await FileSaver.instance.saveFile(
+                } */
+                await FileSaver.instance.saveAs(
                   textEditingController?.text == ""
                       ? "File"
                       : textEditingController.text,
-                  data,
                   "xlsx",
-                  mimeType: type,
+                  data,
+                  type
                 );
-                print(val);
               },
               child: Text("Generate Excel And Download"),
             )

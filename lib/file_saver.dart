@@ -82,6 +82,15 @@ enum MimeType {
   ///[CSV] for .csv extension
   CSV,
 
+  ///[ASICE] for .asice
+  ASICE,
+
+  ///[ASICS] for .asice
+  ASICS,
+
+  ///[BDOC] for .asice
+  BDOC,
+
   ///[OTHER] for other extension
   OTHER
 }
@@ -135,6 +144,12 @@ class FileSaver {
         return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
       case MimeType.MICROSOFTWORD:
         return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      case MimeType.ASICE:
+        return "application/vnd.etsi.asic-e+zip";
+      case MimeType.ASICS:
+        return "application/vnd.etsi.asic-s+zip";
+      case MimeType.BDOC:
+        return "application/vnd.etsi.asic-e+zip";
       case MimeType.OTHER:
         return "application/octet-stream";
       case MimeType.TEXT:
@@ -174,6 +189,17 @@ class FileSaver {
       print(e);
     }
     return _path!;
+  }
+
+  ///Open File Manager
+  Future _openFileManager(Map<dynamic, dynamic> args) async {
+    if (Platform.isAndroid) {
+      await _channel
+          .invokeMethod('saveAs', args)
+          .then((value) => print(value));
+    } else {
+      throw UnimplementedError("Unimplemented Error");
+    }
   }
 
   ///[saveFile] main method which saves the file for all platforms.
@@ -222,5 +248,17 @@ class FileSaver {
     } catch (e) {
       print(e);
     }
+  }
+
+  Future<void> saveAs(
+      String name, String ext, Uint8List bytes, MimeType mimeType) async {
+    String _mimeType = _getType(mimeType);
+    Map<dynamic, dynamic> data = {
+      'name': name,
+      'ext': ext,
+      'bytes': bytes,
+      'type': _mimeType
+    };
+    _openFileManager(data);
   }
 }

@@ -17,3 +17,7 @@
 ## 0.0.5
 
 * Minor Bug Fixes
+
+## 0.0.6
+
+* Added More File Types
