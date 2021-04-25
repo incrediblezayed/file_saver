@@ -251,6 +251,17 @@ class FileSaver {
     }
   }
 
+  ///[saveAs] This method will open a Save As File dialog where user can select the location for saving file.
+  ///name: Name of your file.
+  ///
+  /// bytes: Encoded File for saving.
+  ///
+  /// ext: Extension of file.
+  ///
+  /// mimeType: MimeType from enum MimeType..
+  ///
+  /// More Mimetypes will be added in future
+  /// Note:- This Method only works on Android for time being and other platforms will be added soon
   Future<String?> saveAs(
       String name, String ext, Uint8List bytes, MimeType mimeType) async {
     String _mimeType = _getType(mimeType);
