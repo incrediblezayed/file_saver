@@ -192,14 +192,15 @@ class FileSaver {
   }
 
   ///Open File Manager
-  Future _openFileManager(Map<dynamic, dynamic> args) async {
+  Future<String?> _openFileManager(Map<dynamic, dynamic> args) async {
+    String? _path = "Path: None";
     if (Platform.isAndroid) {
-      await _channel
-          .invokeMethod('saveAs', args)
-          .then((value) => print(value));
+      _path = await _channel.invokeMethod<String>('saveAs', args);
+      print(_path ?? "Something went wrong");
     } else {
       throw UnimplementedError("Unimplemented Error");
     }
+    return _path;
   }
 
   ///[saveFile] main method which saves the file for all platforms.
@@ -250,7 +251,7 @@ class FileSaver {
     }
   }
 
-  Future<void> saveAs(
+  Future<String?> saveAs(
       String name, String ext, Uint8List bytes, MimeType mimeType) async {
     String _mimeType = _getType(mimeType);
     Map<dynamic, dynamic> data = {
@@ -259,6 +260,7 @@ class FileSaver {
       'bytes': bytes,
       'type': _mimeType
     };
-    _openFileManager(data);
+    String? _path = await _openFileManager(data);
+    return _path;
   }
 }
