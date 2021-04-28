@@ -9,7 +9,7 @@ import io.flutter.plugin.common.PluginRegistry
 import kotlinx.coroutines.*
 import java.lang.Exception
 
-private const val SAVE_FILE = 10101
+private const val SAVE_FILE = 19112
 
 class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultListener {
     private var result: MethodChannel.Result? = null
@@ -30,8 +30,11 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
         Log.d(TAG, "Opening File Manager")
         this.result = result
         this.bytes = bytes
-        val intent =
-                Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType(type).putExtra(Intent.EXTRA_TITLE, fileName).putExtra(Intent.EXTRA_MIME_TYPES, type).putExtra(Intent.EXTRA_LOCAL_ONLY, true)
+        val intent: Intent =
+                Intent(Intent.ACTION_CREATE_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.setType(type).putExtra(Intent.EXTRA_TITLE, fileName).putExtra(Intent.EXTRA_MIME_TYPES, type)
+
         activity.startActivityForResult(intent, SAVE_FILE)
     }
 
