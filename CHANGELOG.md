@@ -1,12 +1,12 @@
-## 0.0.1
+## 0.0.7
 
-* File Saver for all platforms
+* Bug fixes & Suggestions (Reported on Github) 
 
-## 0.0.2
+## 0.0.6
 
-* Updated Guide
+* Added More File Types
 
-## 0.0.3
+## 0.0.5
 
 * Minor Bug Fixes
 
@@ -14,10 +14,14 @@
 
 * saveFile method returns the path where the file is saved.
 
-## 0.0.5
+## 0.0.3
 
 * Minor Bug Fixes
 
-## 0.0.6
+## 0.0.2
 
-* Added More File Types
+* Updated Guide
+
+## 0.0.1
+
+* File Saver for all platforms
