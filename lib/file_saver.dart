@@ -98,6 +98,9 @@ enum MimeType {
 class FileSaver {
   static const MethodChannel _channel = const MethodChannel('file_saver');
 
+  String _somethingWentWrong =
+        "Something went wrong, please report the issue https://www.github.com/incrediblezayed/file_saver/issues";
+String _issueLink = "https://www.github.com/incrediblezayed/file_saver/issues";
   ///instance of file saver
   static FileSaver get instance => FileSaver();
 
@@ -162,7 +165,7 @@ class FileSaver {
   }
 
   ///This method provides [Directory] for the file for Android, iOS, Linux, Windows, macOS
-  Future<String> _getDirectory() async {
+  Future<String?> _getDirectory() async {
     String? _path = "";
     try {
       if (Platform.isAndroid) {
@@ -171,7 +174,7 @@ class FileSaver {
         _path = (await path.getApplicationDocumentsDirectory()).path;
       } else if (Platform.isMacOS) {
         _path =
-            (await (path.getDownloadsDirectory() as FutureOr<Directory>)).path;
+            (await path.getDownloadsDirectory())?.path;
       } else if (Platform.isWindows) {
         pathProvderWindows.PathProviderWindows pathWindows =
             pathProvderWindows.PathProviderWindows();
@@ -180,15 +183,12 @@ class FileSaver {
         pathProviderLinux.PathProviderLinux pathLinux =
             pathProviderLinux.PathProviderLinux();
         _path = await pathLinux.getDownloadsPath();
-      } else {
-        throw UnimplementedError(
-            "Sorry but the plugin only supports web, ios and android");
-      }
+      } 
     } on Exception catch (e) {
       print("Something wemt worng while getting directories");
       print(e);
     }
-    return _path!;
+    return _path;
   }
 
   ///Open File Manager
@@ -220,8 +220,6 @@ class FileSaver {
   Future<String?> saveFile(String name, Uint8List bytes, String ext,
       {MimeType mimeType = MimeType.OTHER}) async {
     String mime = _getType(mimeType);
-    String _somethingWentWrong =
-        "Something went wrong, please report the issue https://www.github.com/incrediblezayed/file_saver/issues";
     String _directory = _somethingWentWrong;
     String? _path = "";
     try {
@@ -239,6 +237,9 @@ class FileSaver {
         }
       } else {
         _path = await _getDirectory();
+        if(_path==""||_path==null){
+          print("The path was found null or empty, please report the issue at "+ _issueLink);
+        }else{
         String filePath = _path + '/' + name + '.' + ext;
         final File _file = File(filePath);
         await _file.writeAsBytes(bytes);
@@ -248,6 +249,8 @@ class FileSaver {
         } else {
           print("File was not created");
         }
+        }
+
       }
       return _directory;
     } catch (e) {
