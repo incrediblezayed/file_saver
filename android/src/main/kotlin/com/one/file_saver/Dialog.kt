@@ -36,7 +36,7 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
         intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.putExtra(Intent.EXTRA_TITLE, fileName)
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, type)
+        //intent.putExtra(Intent.EXTRA_MIME_TYPES, type)
         intent.setType(type)
         activity.startActivityForResult(intent, SAVE_FILE)
     }
