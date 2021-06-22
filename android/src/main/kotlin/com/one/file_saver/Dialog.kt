@@ -7,6 +7,7 @@ import android.util.Log
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 import kotlinx.coroutines.*
+import java.io.File
 import java.lang.Exception
 
 private const val SAVE_FILE = 19112
@@ -30,11 +31,13 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
         Log.d(TAG, "Opening File Manager")
         this.result = result
         this.bytes = bytes
-        val intent: Intent =
+        val intent =
                 Intent(Intent.ACTION_CREATE_DOCUMENT)
+        intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
-        intent.setType(type).putExtra(Intent.EXTRA_TITLE, fileName).putExtra(Intent.EXTRA_MIME_TYPES, type)
-
+        intent.putExtra(Intent.EXTRA_TITLE, fileName)
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, type)
+        intent.setType(type)
         activity.startActivityForResult(intent, SAVE_FILE)
     }
 
