@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> {
                 },
                 child: Text("Save File")),
             if (!kIsWeb)
-              if (Platform.isAndroid)
+              if (Platform.isAndroid|| Platform.isIOS)
                 ElevatedButton(
                   onPressed: () async {
                     Excel execl = Excel.createExcel();

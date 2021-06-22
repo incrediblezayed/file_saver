@@ -197,7 +197,11 @@ class FileSaver {
     if (Platform.isAndroid) {
       _path = await _channel.invokeMethod<String>('saveAs', args);
       print(_path ?? "Something went wrong");
-    } else {
+    } else if (Platform.isIOS){
+      _path  = await _channel.invokeMethod<String>('saveAs', args);
+    }
+    
+    else {
       throw UnimplementedError("Unimplemented Error");
     }
     return _path;
