@@ -22,21 +22,11 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
-	<key>NSDocumentsFolderUsageDescription</key>
-	<string>FOR SAVING DIRECTORY</string>
-	<key>NSDownloadsFolderUsageDescription</key>
-	<string>FOR SAVING DIRECTORY</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>$(PRODUCT_COPYRIGHT)</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
-	<key>NSPhotoLibraryLimitedAccessAPISupport</key>
-	<true/>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
-	<key>UIFileSharingEnabled</key>
-	<true/>
 </dict>
 </plist>

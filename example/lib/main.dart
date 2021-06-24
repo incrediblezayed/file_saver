@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:excel/excel.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
@@ -8,10 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({Key? key});
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -38,7 +38,7 @@ class _MyAppState extends State<MyApp> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   controller: textEditingController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       labelText: "Name",
                       hintText: "Something",
                       border: OutlineInputBorder()),
@@ -50,18 +50,19 @@ class _MyAppState extends State<MyApp> {
                   if (!kIsWeb) {
                     if (Platform.isIOS || Platform.isAndroid) {
                       bool status = await Permission.storage.isGranted;
-                      print(status);
+
                       if (!status) await Permission.storage.request();
                     }
                   }
                   Excel execl = Excel.createExcel();
-                  for (int i = 0; i < 10; i++)
+                  for (int i = 0; i < 10; i++) {
                     execl.insertRowIterables("Sheet1", ['a', i], i);
+                  }
                   List<int> sheets = await execl.encode();
                   Uint8List data = Uint8List.fromList(sheets);
                   MimeType type = MimeType.MICROSOFTEXCEL;
                   String path = await FileSaver.instance.saveFile(
-                      textEditingController?.text == ""
+                      textEditingController.text == ""
                           ? "File"
                           : textEditingController.text,
                       data,
@@ -69,19 +70,20 @@ class _MyAppState extends State<MyApp> {
                       mimeType: type);
                   print(path);
                 },
-                child: Text("Save File")),
+                child: const Text("Save File")),
             if (!kIsWeb)
               if (Platform.isAndroid || Platform.isIOS)
                 ElevatedButton(
                   onPressed: () async {
                     Excel execl = Excel.createExcel();
-                    for (int i = 0; i < 10; i++)
+                    for (int i = 0; i < 10; i++) {
                       execl.insertRowIterables("Sheet1", ['a', i], i);
+                    }
                     List<int> sheets = await execl.encode();
                     Uint8List data = Uint8List.fromList(sheets);
                     MimeType type = MimeType.MICROSOFTEXCEL;
                     String path = await FileSaver.instance.saveAs(
-                        textEditingController?.text == ""
+                        textEditingController.text == ""
                             ? "File"
                             : textEditingController.text,
                         "xlsx",
@@ -89,7 +91,7 @@ class _MyAppState extends State<MyApp> {
                         type);
                     print(path);
                   },
-                  child: Text("Generate Excel and Open Save As Dialog"),
+                  child: const Text("Generate Excel and Open Save As Dialog"),
                 )
           ],
         ),

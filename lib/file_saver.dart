@@ -193,7 +193,7 @@ class FileSaver {
   }
 
   ///Open File Manager
-  Future<String?> _openFileManager(Map<dynamic, dynamic> args) async {
+  Future<String> _openFileManager(Map<dynamic, dynamic> args) async {
     String? _path = "Path: None";
     if (Platform.isAndroid || Platform.isIOS) {
       _path = await _channel.invokeMethod<String>('saveAs', args);
@@ -201,7 +201,7 @@ class FileSaver {
     } else {
       throw UnimplementedError("Unimplemented Error");
     }
-    return _path;
+    return _path!;
   }
 
   ///[saveFile] main method which saves the file for all platforms.
@@ -214,7 +214,7 @@ class FileSaver {
   /// mimeType (Mainly required for web): MimeType from enum MimeType..
   ///
   /// More Mimetypes will be added in future
-  Future<String?> saveFile(String name, Uint8List bytes, String ext,
+  Future<String> saveFile(String name, Uint8List bytes, String ext,
       {MimeType mimeType = MimeType.OTHER}) async {
     String mime = _getType(mimeType);
     String _directory = _somethingWentWrong;
@@ -253,6 +253,7 @@ class FileSaver {
       return _directory;
     } catch (e) {
       print(e);
+      return _directory;
     }
   }
 
@@ -267,7 +268,7 @@ class FileSaver {
   ///
   /// More Mimetypes will be added in future
   /// Note:- This Method only works on Android for time being and other platforms will be added soon
-  Future<String?> saveAs(
+  Future<String> saveAs(
       String name, String ext, Uint8List bytes, MimeType mimeType) async {
     String _mimeType = _getType(mimeType);
     Map<dynamic, dynamic> data = {
@@ -276,7 +277,7 @@ class FileSaver {
       'bytes': bytes,
       'type': _mimeType
     };
-    String? _path = await _openFileManager(data);
+    String _path = await _openFileManager(data);
     return _path;
   }
 }
