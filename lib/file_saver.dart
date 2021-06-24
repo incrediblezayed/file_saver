@@ -194,11 +194,9 @@ String _issueLink = "https://www.github.com/incrediblezayed/file_saver/issues";
   ///Open File Manager
   Future<String?> _openFileManager(Map<dynamic, dynamic> args) async {
     String? _path = "Path: None";
-    if (Platform.isAndroid) {
+    if (Platform.isAndroid||Platform.isMacOS||Platform.isIOS) {
       _path = await _channel.invokeMethod<String>('saveAs', args);
       print(_path ?? "Something went wrong");
-    } else if (Platform.isIOS){
-      _path  = await _channel.invokeMethod<String>('saveAs', args);
     }
     
     else {
