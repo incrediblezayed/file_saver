@@ -99,8 +99,10 @@ class FileSaver {
   static const MethodChannel _channel = const MethodChannel('file_saver');
 
   String _somethingWentWrong =
-        "Something went wrong, please report the issue https://www.github.com/incrediblezayed/file_saver/issues";
-String _issueLink = "https://www.github.com/incrediblezayed/file_saver/issues";
+      "Something went wrong, please report the issue https://www.github.com/incrediblezayed/file_saver/issues";
+  String _issueLink =
+      "https://www.github.com/incrediblezayed/file_saver/issues";
+
   ///instance of file saver
   static FileSaver get instance => FileSaver();
 
@@ -173,8 +175,7 @@ String _issueLink = "https://www.github.com/incrediblezayed/file_saver/issues";
       } else if (Platform.isIOS) {
         _path = (await path.getApplicationDocumentsDirectory()).path;
       } else if (Platform.isMacOS) {
-        _path =
-            (await path.getDownloadsDirectory())?.path;
+        _path = (await path.getDownloadsDirectory())?.path;
       } else if (Platform.isWindows) {
         pathProvderWindows.PathProviderWindows pathWindows =
             pathProvderWindows.PathProviderWindows();
@@ -183,7 +184,7 @@ String _issueLink = "https://www.github.com/incrediblezayed/file_saver/issues";
         pathProviderLinux.PathProviderLinux pathLinux =
             pathProviderLinux.PathProviderLinux();
         _path = await pathLinux.getDownloadsPath();
-      } 
+      }
     } on Exception catch (e) {
       print("Something wemt worng while getting directories");
       print(e);
@@ -194,12 +195,10 @@ String _issueLink = "https://www.github.com/incrediblezayed/file_saver/issues";
   ///Open File Manager
   Future<String?> _openFileManager(Map<dynamic, dynamic> args) async {
     String? _path = "Path: None";
-    if (Platform.isAndroid||Platform.isMacOS||Platform.isIOS) {
+    if (Platform.isAndroid || Platform.isIOS) {
       _path = await _channel.invokeMethod<String>('saveAs', args);
       print(_path ?? "Something went wrong");
-    }
-    
-    else {
+    } else {
       throw UnimplementedError("Unimplemented Error");
     }
     return _path;
@@ -235,20 +234,21 @@ String _issueLink = "https://www.github.com/incrediblezayed/file_saver/issues";
         }
       } else {
         _path = await _getDirectory();
-        if(_path==""||_path==null){
-          print("The path was found null or empty, please report the issue at "+ _issueLink);
-        }else{
-        String filePath = _path + '/' + name + '.' + ext;
-        final File _file = File(filePath);
-        await _file.writeAsBytes(bytes);
-        bool _exist = await _file.exists();
-        if (_exist) {
-          _directory = _file.path;
+        if (_path == "" || _path == null) {
+          print(
+              "The path was found null or empty, please report the issue at " +
+                  _issueLink);
         } else {
-          print("File was not created");
+          String filePath = _path + '/' + name + '.' + ext;
+          final File _file = File(filePath);
+          await _file.writeAsBytes(bytes);
+          bool _exist = await _file.exists();
+          if (_exist) {
+            _directory = _file.path;
+          } else {
+            print("File was not created");
+          }
         }
-        }
-
       }
       return _directory;
     } catch (e) {

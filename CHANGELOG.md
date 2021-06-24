@@ -1,5 +1,6 @@
 ## 0.0.7
 
+* Added Save as method for Android and iOS, more coming soon 
 * Bug fixes & Suggestions (Reported on Github) 
 
 ## 0.0.6
