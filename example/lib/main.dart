@@ -86,8 +86,8 @@ class _MyAppState extends State<MyApp> {
                         textEditingController.text == ""
                             ? "File"
                             : textEditingController.text,
-                        "xlsx",
                         data,
+                        "xlsx",
                         type);
                     print(path);
                   },

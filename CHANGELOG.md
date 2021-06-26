@@ -1,3 +1,8 @@
+## 0.0.8
+
+* Minor Bug Fixes
+* Updated Readme
+
 ## 0.0.7
 
 * Added Save as method for Android and iOS, more coming soon 
