@@ -6,9 +6,9 @@ import android.net.Uri
 import android.util.Log
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
-import kotlinx.coroutines.*
-import java.io.File
-import java.lang.Exception
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 private const val SAVE_FILE = 19112
 
@@ -37,7 +37,10 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.putExtra(Intent.EXTRA_TITLE, fileName)
         //intent.putExtra(Intent.EXTRA_MIME_TYPES, type)
-        intent.setType(type)
+        intent.type = type
+        intent.flags = (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
         activity.startActivityForResult(intent, SAVE_FILE)
     }
 
