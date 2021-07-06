@@ -1,3 +1,8 @@
+## 0.0.9
+
+* Android Permission Bug Fixed
+* Other bugs fixes
+
 ## 0.0.8
 
 * Minor Bug Fixes

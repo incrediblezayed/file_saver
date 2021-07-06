@@ -1,5 +1,9 @@
 package com.one.file_saver
 
+import android.content.Context
+import android.content.ContextWrapper
+import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
@@ -14,6 +18,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
+import java.io.File
 import java.lang.Exception
 
 
@@ -51,9 +56,9 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         try {
             this.result = result
             when (call.method) {
-                "getDirectory" -> {
+                "saveFile" -> {
                     Log.d(tag, "Get directory Method Called")
-                    val dir: String? = getDownloadsPath()
+                    val dir: String? = saveFile(fileName = call.argument("name"), bytes = call.argument("bytes"))
                     result.success(dir)
                 }
                 "saveAs" -> {
@@ -72,8 +77,12 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
 
     }
 
-    private fun getDownloadsPath(): String? {
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath
+    private fun saveFile(fileName: String?, bytes: ByteArray?): String? {
+            var uri =  activity!!.activity.baseContext.getExternalFilesDir(null)
+            var file = File(uri!!.absolutePath + "/" + fileName)
+            file.writeBytes(bytes!!)
+        return uri.absolutePath
+
     }
 
     override fun onDetachedFromActivity() {

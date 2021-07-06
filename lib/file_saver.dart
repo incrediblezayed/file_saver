@@ -103,6 +103,9 @@ class FileSaver {
   String _issueLink =
       "https://www.github.com/incrediblezayed/file_saver/issues";
 
+  String _saveFile = "saveFile";
+  String _saveAs = "saveAs";
+
   ///instance of file saver
   static FileSaver get instance => FileSaver();
 
@@ -170,9 +173,7 @@ class FileSaver {
   Future<String?> _getDirectory() async {
     String? _path = "";
     try {
-      if (Platform.isAndroid) {
-        _path = await _channel.invokeMethod('getDirectory');
-      } else if (Platform.isIOS) {
+      if (Platform.isIOS) {
         _path = (await path.getApplicationDocumentsDirectory()).path;
       } else if (Platform.isMacOS) {
         _path = (await path.getDownloadsDirectory())?.path;
@@ -196,8 +197,7 @@ class FileSaver {
   Future<String> _openFileManager(Map<dynamic, dynamic> args) async {
     String? _path = "Path: None";
     if (Platform.isAndroid || Platform.isIOS) {
-      _path = await _channel.invokeMethod<String>('saveAs', args);
-      print(_path ?? "Something went wrong");
+      _path = await _channel.invokeMethod<String>(_saveAs, args);
     } else {
       throw UnimplementedError("Unimplemented Error");
     }
@@ -218,7 +218,6 @@ class FileSaver {
       {MimeType mimeType = MimeType.OTHER}) async {
     String mime = _getType(mimeType);
     String _directory = _somethingWentWrong;
-    String? _path = "";
     try {
       if (kIsWeb) {
         Map<String, dynamic> data = <String, dynamic>{
@@ -228,13 +227,20 @@ class FileSaver {
           "type": mime
         };
         String args = json.encode(data);
-        bool? downloaded = await _channel.invokeMethod<bool>('saveFile', args);
+        bool? downloaded = await _channel.invokeMethod<bool>(_saveFile, args);
         if (downloaded!) {
           _directory = "Downloads";
         }
+      } else if (Platform.isAndroid) {
+        Map<String, dynamic> data = <String, dynamic>{
+          "bytes": bytes,
+          "name": name + "." + ext,
+        };
+        _directory = await _channel.invokeMethod<String>(_saveFile, data) ?? "";
       } else {
-        _path = await _getDirectory();
-        if (_path == "" || _path == null) {
+        String _path = "";
+        _path = await _getDirectory() ?? "";
+        if (_path == "") {
           print(
               "The path was found null or empty, please report the issue at " +
                   _issueLink);
@@ -252,7 +258,6 @@ class FileSaver {
       }
       return _directory;
     } catch (e) {
-      print(e);
       return _directory;
     }
   }
