@@ -3,8 +3,8 @@
 This plugin package is not much but only for saving files in Android, iOS, Web, Windows, MacOS and Linux. The package
 depends on path_provider for Android and iOS and basic html anchor for Web The main reason I built this plugin was to
 avoid using html only for downloading files. The plugin is pretty simple and saves the file in Downloads folder in
-Android, Windows, MacOS, Linux and directly downloads the file in Web, and the in iOS, the file is Saved in Application
-Documents Directory.
+Windows, MacOS, Linux and directly downloads the file in Web, in iOS, the file is Saved in Application
+Documents Directory, and in Android it is saved in the applications files directory Android/data/your.package.name/file/your_file.extension.
 
 ## Getting Started
 
@@ -46,18 +46,7 @@ positional
 
 ### Storage Permissions:
 
-> ##### _These Settings are optional for Android and iOS, as in Android the file will be saved in "storage/Android/data/you.package.name/file" and in iOS the file will be saved in application documents directory but will not be visible in Files application, to make your file visible in iOS Files application, make the changes mentioned below._
-
-#### Android:
-
-Go to your project folder, android/src/main/AndroidMaifest.xml And add this above the application tag:
-
-```xml
-
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-```
-
-![AndroidManifest.xml](https://raw.githubusercontent.com/incrediblezayed/file_saver/e43220a4b49dd6f3316adce7ccb808264538b3ad/images/android.png)
+> ##### _These Settings are optional for iOS, as in iOS the file will be saved in application documents directory but will not be visible in Files application, to make your file visible in iOS Files application, make the changes mentioned below._
 
 #### iOS:
 
