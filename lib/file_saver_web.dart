@@ -43,8 +43,7 @@ class FileSaverWeb {
     }
   }
 
-  Future<bool> downloadFile(
-      Uint8List bytes, String name, String type) async {
+  Future<bool> downloadFile(Uint8List bytes, String name, String type) async {
     bool _success = false;
 
     try {

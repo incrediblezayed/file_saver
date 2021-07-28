@@ -54,11 +54,11 @@ class _MyAppState extends State<MyApp> {
                       if (!status) await Permission.storage.request();
                     }
                   }
-                  Excel execl = Excel.createExcel();
+                  Excel excel = Excel.createExcel();
                   for (int i = 0; i < 10; i++) {
-                    execl.insertRowIterables("Sheet1", ['a', i], i);
+                    excel.insertRowIterables("Sheet1", ['a', i], i);
                   }
-                  List<int> sheets = await execl.encode();
+                  List<int> sheets = await excel.encode();
                   Uint8List data = Uint8List.fromList(sheets);
                   MimeType type = MimeType.MICROSOFTEXCEL;
                   String path = await FileSaver.instance.saveFile(
@@ -75,11 +75,11 @@ class _MyAppState extends State<MyApp> {
               if (Platform.isAndroid || Platform.isIOS)
                 ElevatedButton(
                   onPressed: () async {
-                    Excel execl = Excel.createExcel();
+                    Excel excel = Excel.createExcel();
                     for (int i = 0; i < 10; i++) {
-                      execl.insertRowIterables("Sheet1", ['a', i], i);
+                      excel.insertRowIterables("Sheet1", ['a', i], i);
                     }
-                    List<int> sheets = await execl.encode();
+                    List<int> sheets = await excel.encode();
                     Uint8List data = Uint8List.fromList(sheets);
                     MimeType type = MimeType.MICROSOFTEXCEL;
                     String path = await FileSaver.instance.saveAs(
