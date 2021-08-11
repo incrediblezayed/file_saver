@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
             ElevatedButton(
                 onPressed: () async {
                   if (!kIsWeb) {
-                    if (Platform.isIOS || Platform.isAndroid) {
+                    if (Platform.isIOS || Platform.isAndroid || Platform.isMacOS) {
                       bool status = await Permission.storage.isGranted;
 
                       if (!status) await Permission.storage.request();
@@ -72,7 +72,7 @@ class _MyAppState extends State<MyApp> {
                 },
                 child: const Text("Save File")),
             if (!kIsWeb)
-              if (Platform.isAndroid || Platform.isIOS)
+              if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS)
                 ElevatedButton(
                   onPressed: () async {
                     Excel excel = Excel.createExcel();

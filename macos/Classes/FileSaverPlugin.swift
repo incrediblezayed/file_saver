@@ -18,7 +18,7 @@ public class FileSaverPlugin: NSObject, FlutterPlugin {
         let params = Params(arguments)
         DispatchQueue.main.async {
             let dialog = Dialog()
-            dialog.openSaveAsDialog(params: params)
+            dialog.openSaveAsDialog(params: params, result: result)
         }
             default:
       result(FlutterMethodNotImplemented)
