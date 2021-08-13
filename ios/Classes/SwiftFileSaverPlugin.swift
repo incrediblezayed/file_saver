@@ -25,6 +25,8 @@ public class SwiftFileSaverPlugin: NSObject, FlutterPlugin {
         }else{
             dialog.openFileManager(byteData: params.bytes!, fileName: params.fileName!,ext: params.ext!, result: result)
         }
+    } else {
+        result("iOS no supported method found")
     }
     // result("iOS " + UIDevice.current.systemVersion)
   }
