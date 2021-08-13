@@ -26,7 +26,7 @@ public class SwiftFileSaverPlugin: NSObject, FlutterPlugin {
             dialog.openFileManager(byteData: params.bytes!, fileName: params.fileName!,ext: params.ext!, result: result)
         }
     }
-    result("iOS " + UIDevice.current.systemVersion)
+    // result("iOS " + UIDevice.current.systemVersion)
   }
 }
 
