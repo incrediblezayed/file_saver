@@ -66,12 +66,17 @@ class Dialog:NSObject, UIDocumentPickerDelegate {
     
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
         deleteTemp()
+
+        print("in didPickDocumentAt " + url.path)
         
         result?(url.path)
     }
     
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         deleteTemp()
+
+        print("in didPickDocumentAt " + urls[0].path)
+
         result?(urls[0].path)
     }
 }
