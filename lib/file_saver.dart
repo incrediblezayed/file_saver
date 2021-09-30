@@ -186,7 +186,7 @@ class FileSaver {
         _path = await pathLinux.getDownloadsPath();
       }
     } on Exception catch (e) {
-      print("Something wemt worng while getting directories");
+      print("Something went wrong while getting directories");
       print(e);
     }
     return _path;
@@ -195,7 +195,7 @@ class FileSaver {
   ///Open File Manager
   Future<String> _openFileManager(Map<dynamic, dynamic> args) async {
     String? _path = "Path: None";
-    if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+    if (Platform.isAndroid || Platform.isIOS) {
       _path = await _channel.invokeMethod<String>(_saveAs, args);
     } else {
       throw UnimplementedError("Unimplemented Error");
@@ -272,8 +272,8 @@ class FileSaver {
   ///
   /// More Mimetypes will be added in future
   /// Note:- This Method only works on Android for time being and other platforms will be added soon
-  Future<String> saveAs(
-      String name, Uint8List bytes, String ext, MimeType mimeType) async {
+  Future<String> saveAs(String name, Uint8List bytes, String ext,
+      {MimeType mimeType = MimeType.OTHER}) async {
     String _mimeType = _getType(mimeType);
     Map<dynamic, dynamic> data = {
       'name': name,
