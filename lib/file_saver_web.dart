@@ -19,11 +19,10 @@ class FileSaverWeb {
       registrar,
     );
 
-    final pluginInstance = FileSaverWeb();
-    channel.setMethodCallHandler(pluginInstance.handleMethodCall);
+    channel.setMethodCallHandler(handleMethodCall);
   }
 
-  Future<dynamic> handleMethodCall(MethodCall call) async {
+  static Future<dynamic> handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'saveFile':
         String args = call.arguments;
@@ -43,7 +42,7 @@ class FileSaverWeb {
     }
   }
 
-  Future<bool> downloadFile(Uint8List bytes, String name, String type) async {
+  static Future<bool> downloadFile(Uint8List bytes, String name, String type) async {
     bool _success = false;
 
     try {

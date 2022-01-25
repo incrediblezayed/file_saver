@@ -12,7 +12,7 @@ The plugin itself is pretty easy to use. Just call the method saveFile() with re
 
 ```dart
     await
-FileSaver.instance.saveFile(
+FileSaver.saveFile(
 
 String name, Uint8List
 bytes,
@@ -32,7 +32,7 @@ or you can call saveAs() _only available for android and iOS at the moment_
 
 ```dart
     await
-FileSaver.instance.saveAs(
+FileSaver.saveAs(
 
 String name, Uint8List
 bytes,

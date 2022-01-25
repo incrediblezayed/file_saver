@@ -61,7 +61,7 @@ class _MyAppState extends State<MyApp> {
                   List<int> sheets = await excel.encode();
                   Uint8List data = Uint8List.fromList(sheets);
                   MimeType type = MimeType.MICROSOFTEXCEL;
-                  String path = await FileSaver.instance.saveFile(
+                  String path = await FileSaver.saveFile(
                       textEditingController.text == ""
                           ? "File"
                           : textEditingController.text,
@@ -82,7 +82,7 @@ class _MyAppState extends State<MyApp> {
                     List<int> sheets = await excel.encode();
                     Uint8List data = Uint8List.fromList(sheets);
                     MimeType type = MimeType.MICROSOFTEXCEL;
-                    String path = await FileSaver.instance.saveAs(
+                    String path = await FileSaver.saveAs(
                         textEditingController.text == ""
                             ? "File"
                             : textEditingController.text,

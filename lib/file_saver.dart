@@ -97,19 +97,16 @@ enum MimeType {
 class FileSaver {
   static const MethodChannel _channel = const MethodChannel('file_saver');
 
-  String _somethingWentWrong =
+  static String _somethingWentWrong =
       "Something went wrong, please report the issue https://www.github.com/incrediblezayed/file_saver/issues";
-  String _issueLink =
+  static String _issueLink =
       "https://www.github.com/incrediblezayed/file_saver/issues";
 
-  String _saveFile = "saveFile";
-  String _saveAs = "saveAs";
-
-  ///instance of file saver
-  static FileSaver get instance => FileSaver();
+  static String _saveFile = "saveFile";
+  static String _saveAs = "saveAs";
 
   ///This method will return String value of respective [MimeType]
-  String _getType(MimeType type) {
+  static String _getType(MimeType type) {
     switch (type) {
       case MimeType.AVI:
         return 'video/x-msvideo';
@@ -169,7 +166,7 @@ class FileSaver {
   }
 
   ///This method provides [Directory] for the file for Android, iOS, Linux, Windows, macOS
-  Future<String?> _getDirectory() async {
+  static Future<String?> _getDirectory() async {
     String? _path = "";
     try {
       if (Platform.isIOS) {
@@ -193,7 +190,7 @@ class FileSaver {
   }
 
   ///Open File Manager
-  Future<String> _openFileManager(Map<dynamic, dynamic> args) async {
+  static Future<String> _openFileManager(Map<dynamic, dynamic> args) async {
     String? _path = "Path: None";
     if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
       _path = await _channel.invokeMethod<String>(_saveAs, args);
@@ -213,7 +210,7 @@ class FileSaver {
   /// mimeType (Mainly required for web): MimeType from enum MimeType..
   ///
   /// More Mimetypes will be added in future
-  Future<String> saveFile(String name, Uint8List bytes, String ext,
+  static Future<String> saveFile(String name, Uint8List bytes, String ext,
       {MimeType mimeType = MimeType.OTHER}) async {
     String mime = _getType(mimeType);
     String _directory = _somethingWentWrong;
@@ -272,7 +269,7 @@ class FileSaver {
   ///
   /// More Mimetypes will be added in future
   /// Note:- This Method only works on Android for time being and other platforms will be added soon
-  Future<String> saveAs(
+  static Future<String> saveAs(
       String name, Uint8List bytes, String ext, MimeType mimeType) async {
     String _mimeType = _getType(mimeType);
     Map<dynamic, dynamic> data = {
