@@ -11,15 +11,7 @@ Documents Directory, and in Android it is saved in the applications files direct
 The plugin itself is pretty easy to use. Just call the method saveFile() with respective arguments.
 
 ```dart
-    await
-FileSaver.instance.saveFile(
-
-String name, Uint8List
-bytes,
-
-String ext, mimeType
-:
-MimeType);
+    await FileSaver.instance.saveFile(String name, Uint8List bytes, String ext, mimeType: MimeType);
 ```
 
 This saveFile() method takes 3 Positional Arguments.
