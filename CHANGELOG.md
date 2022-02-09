@@ -1,3 +1,5 @@
+## 0.0.12
+ * Fixed Path Provider version
 ## 0.0.11
  * Updated Readme
  * Upgraded Path Provider
