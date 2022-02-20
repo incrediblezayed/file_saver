@@ -1,23 +1,15 @@
 package com.one.file_saver
 
-import android.content.Context
-import android.content.ContextWrapper
-import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.os.Handler
-import android.os.Looper
+
 import android.util.Log
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
-import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.io.File
 import java.lang.Exception
 
@@ -28,7 +20,7 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
     private var activity: ActivityPluginBinding? = null
     private var pluginBinding: FlutterPlugin.FlutterPluginBinding? = null
     private var methodChannel: MethodChannel? = null
-    private var result: MethodChannel.Result? = null
+    private var result: Result? = null
     private val tag: String = "FileSaver"
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         if (pluginBinding != null) {
@@ -44,6 +36,10 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         Log.d(tag, "Detached From Engine")
         methodChannel = null
         pluginBinding = null
+        if(dialog!=null) {
+            activity?.removeActivityResultListener(dialog!!)
+            dialog = null
+        }
         methodChannel?.setMethodCallHandler(null)
     }
 
@@ -58,7 +54,7 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
             when (call.method) {
                 "saveFile" -> {
                     Log.d(tag, "Get directory Method Called")
-                    val dir: String? = saveFile(fileName = call.argument("name"), bytes = call.argument("bytes"))
+                    val dir: String = saveFile(fileName = call.argument("name"), bytes = call.argument("bytes"))
                     result.success(dir)
                 }
                 "saveAs" -> {
@@ -77,11 +73,11 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
 
     }
 
-    private fun saveFile(fileName: String?, bytes: ByteArray?): String? {
-            var uri =  activity!!.activity.baseContext.getExternalFilesDir(null)
-            var file = File(uri!!.absolutePath + "/" + fileName)
+    private fun saveFile(fileName: String?, bytes: ByteArray?): String {
+            val uri =  activity!!.activity.baseContext.getExternalFilesDir(null)
+            val file = File(uri!!.absolutePath + "/" + fileName)
             file.writeBytes(bytes!!)
-        return uri.absolutePath
+        return uri.absolutePath + "/" + file.name
 
     }
 
@@ -89,9 +85,9 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         Log.d(tag, "Detached From Activity")
         if (dialog != null) {
             activity?.removeActivityResultListener(dialog!!)
-            dialog = null;
+            dialog = null
         }
-        activity = null;
+        activity = null
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
@@ -108,9 +104,9 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         Log.d(tag, "On Detached From ConfigChanges")
         if (dialog != null) {
             activity?.removeActivityResultListener(dialog!!)
-            dialog = null;
+            dialog = null
         }
-        activity = null;
+        activity = null
     }
 
     private fun createFileDialog(): Boolean {

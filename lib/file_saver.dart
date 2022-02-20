@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart' as path;
@@ -233,7 +234,7 @@ class FileSaver {
       } else if (Platform.isAndroid) {
         Map<String, dynamic> data = <String, dynamic>{
           "bytes": bytes,
-          "name": name + (ext == "" ? ext : ("."+ext)),
+          "name": name + (ext == "" ? ext : ("." + ext)),
         };
         _directory = await _channel.invokeMethod<String>(_saveFile, data) ?? "";
       } else {
@@ -244,7 +245,8 @@ class FileSaver {
               "The path was found null or empty, please report the issue at " +
                   _issueLink);
         } else {
-          String filePath = _path + '/' + name + (ext == "" ? ext : ("."+ext));
+          String filePath =
+              _path + '/' + name + (ext == "" ? ext : ("." + ext));
           final File _file = File(filePath);
           await _file.writeAsBytes(bytes);
           bool _exist = await _file.exists();
@@ -276,7 +278,7 @@ class FileSaver {
       String name, Uint8List bytes, String ext, MimeType mimeType) async {
     String _mimeType = _getType(mimeType);
     Map<dynamic, dynamic> data = {
-      'name': name,
+      'name': mimeType == MimeType.OTHER ? name + "." + ext : name,
       'ext': ext,
       'bytes': bytes,
       'type': _mimeType

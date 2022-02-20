@@ -23,14 +23,7 @@ MP3, MP4 and many other common formats**
 or you can call saveAs() _only available for android and iOS at the moment_
 
 ```dart
-    await
-FileSaver.instance.saveAs(
-
-String name, Uint8List
-bytes,
-
-String ext, MimeType
-)
+    await FileSaver.instance.saveAs(String name, Uint8List bytes, String ext, MimeType);
 ```
 
 All the parameters in this method is same as the saveFile() method, the only difference is all the parameters here are

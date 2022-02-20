@@ -1,3 +1,9 @@
+## 0.1.0
+ * Fixed the incomplete path in saveFile method ([GitHub issue #16](https://github.com/incrediblezayed/file_saver/issues/16))
+ * Fixed some crashes in some folders on saveAs method with the help of [this answer](https://stackoverflow.com/a/60642994/10787445)
+ * Fixed application crash issue **_reply already submitted_** with the help of [this](https://github.com/incrediblezayed/file_saver/issues/14#issuecomment-1040444757) suggestion ([GitHub issue #14](https://github.com/incrediblezayed/file_saver/issues/14))
+ * Fixed **_Wrong or missing file extension when calling saveAs()_** ([GitHub issue #20](https://github.com/incrediblezayed/file_saver/issues/20))
+
 ## 0.0.12
  * Fixed Path Provider version
 ## 0.0.11
