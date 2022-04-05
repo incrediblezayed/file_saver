@@ -195,13 +195,13 @@ class FileSaver {
 
   ///Open File Manager
   Future<String> _openFileManager(Map<dynamic, dynamic> args) async {
-    String? _path = "Path: None";
+    String _path = "Path: None";
     if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
-      _path = await _channel.invokeMethod<String>(_saveAs, args);
+      _path = (await _channel.invokeMethod<String>(_saveAs, args)) ?? ";
     } else {
       throw UnimplementedError("Unimplemented Error");
     }
-    return _path!;
+    return _path;
   }
 
   ///[saveFile] main method which saves the file for all platforms.
