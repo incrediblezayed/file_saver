@@ -27,7 +27,7 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
             Log.d(tag, "Already Initialized")
         }
         pluginBinding = flutterPluginBinding
-        val messenger = pluginBinding?.binaryMessenger
+        val messenger = flutterPluginBinding.binaryMessenger
         methodChannel = MethodChannel(messenger, "file_saver")
         methodChannel?.setMethodCallHandler(this)
     }
