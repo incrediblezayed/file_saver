@@ -28,8 +28,10 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         }
         pluginBinding = flutterPluginBinding
         val messenger = pluginBinding?.binaryMessenger
-        methodChannel = MethodChannel(messenger, "file_saver")
-        methodChannel?.setMethodCallHandler(this)
+        if(messenger!=null) {
+            methodChannel = MethodChannel(messenger, "file_saver")
+            methodChannel?.setMethodCallHandler(this)
+        }
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
