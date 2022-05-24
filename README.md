@@ -1,3 +1,5 @@
+# NOTE: Please use the latest git commit for now, I'll update the code and update the gradle versions, also I appreciate the pull requests with fixes, I'll check them out and merge them as soon as possible, Thank You
+
 # FileSaver
 
 This plugin package is not much but only for saving files in Android, iOS, Web, Windows, MacOS and Linux. The package
