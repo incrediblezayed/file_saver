@@ -1,4 +1,4 @@
-# NOTE: Please use the latest git commit for now, I'll update the code and update the gradle versions, also I appreciate the pull requests with fixes, I'll check them out and merge them as soon as possible, Thank You
+# NOTE: Please use the latest git commit for now, I'll update the code and update the gradle versions, also I appreciate the pull requests with fixes, I'll check them out and merge them as soon as possible, Thank You & please wait for the pub release for now
 
 # FileSaver
 
