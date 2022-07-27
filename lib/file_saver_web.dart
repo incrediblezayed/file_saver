@@ -34,6 +34,7 @@ class FileSaverWeb {
           uint8list,
           data['name'],
           data['type'],
+          data['ext'],
         );
       default:
         throw PlatformException(
@@ -43,7 +44,8 @@ class FileSaverWeb {
     }
   }
 
-  Future<bool> downloadFile(Uint8List bytes, String name, String type) async {
+  Future<bool> downloadFile(
+      Uint8List bytes, String name, String type, String ext) async {
     bool _success = false;
 
     try {
@@ -51,7 +53,7 @@ class FileSaverWeb {
       HtmlDocument htmlDocument = document;
       AnchorElement anchor = htmlDocument.createElement('a') as AnchorElement;
       anchor.href = _url;
-      anchor.style.display = name;
+      anchor.style.display = name + '.' + ext;
       anchor.download = name;
       document.body!.children.add(anchor);
       anchor.click();
