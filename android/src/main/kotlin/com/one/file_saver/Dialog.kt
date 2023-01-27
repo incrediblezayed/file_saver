@@ -29,14 +29,21 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
     private var fileName: String? = null
     private val TAG = "Dialog Activity"
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        if (requestCode == SAVE_FILE &&  resultCode == Activity.RESULT_OK && data?.data != null) {
-            Log.d(TAG, "Starting file operation")
-            completeFileOperation(data.data!!)
+       if (requestCode == SAVE_FILE) {
+            if(resultCode == Activity.RESULT_OK && data?.data != null) {
+                Log.d(TAG, "Starting file operation")
+                completeFileOperation(data.data!!)
+                return true;
+            } else {
+                Log.d(TAG, "Activity result null")
+                result?.success("")
+                return false
+            }
         } else {
-            Log.d(TAG, "Activity result was null")
+            Log.d(TAG, "Unsupported activity result")
+            result?.error("Unsupported activity result", "request: " + requestCode + ", result: " + resultCode, null)
             return false
         }
-        return true
     }
 
     fun openFileManager(
