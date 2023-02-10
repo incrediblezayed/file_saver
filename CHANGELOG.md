@@ -1,3 +1,6 @@
+## 0.1.1
+ * Updated the pub to the latest commit, fixing the issues with flutter 3.
+
 ## 0.1.0
  * Fixed the incomplete path in saveFile method ([GitHub issue #16](https://github.com/incrediblezayed/file_saver/issues/16))
  * Fixed some crashes in some folders on saveAs method with the help of [this answer](https://stackoverflow.com/a/60642994/10787445)
