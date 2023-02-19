@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/file_saver.iml" filepath="$PROJECT_DIR$/.idea/modules/file_saver.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/file_saver.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/file_saver.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/file_saver.main.iml" filepath="$PROJECT_DIR$/.idea/modules/file_saver.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/file_saver.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/file_saver.unitTest.iml" />
     </modules>
   </component>
 </project>

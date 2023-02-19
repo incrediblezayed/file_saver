@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:developer';
 // In order to *not* need this ignore, consider extracting the "web" version
 // of your plugin as a separate package, instead of inlining it in the same
 // package as the core of your plugin.
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
-import 'dart:typed_data';
 
+import 'package:file_saver/src/models/file.model.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
@@ -27,15 +27,8 @@ class FileSaverWeb {
     switch (call.method) {
       case 'saveFile':
         String args = call.arguments;
-        Map<String, dynamic> data = json.decode(args);
-        List<dynamic> bytes = data['bytes'];
-        Uint8List uint8list = Uint8List.fromList(List<int>.from(bytes));
-        return downloadFile(
-          uint8list,
-          data['name'],
-          data['type'],
-          data['ext'],
-        );
+
+        return downloadFile(FileModel.fromJson(args));
       default:
         throw PlatformException(
           code: 'Unimplemented',
@@ -44,24 +37,24 @@ class FileSaverWeb {
     }
   }
 
-  Future<bool> downloadFile(
-      Uint8List bytes, String name, String type, String ext) async {
-    bool _success = false;
+  Future<bool> downloadFile(FileModel fileModel) async {
+    bool success = false;
 
     try {
-      String _url = Url.createObjectUrlFromBlob(Blob([bytes], type));
+      String url = Url.createObjectUrlFromBlob(
+          Blob([fileModel.name], fileModel.mimeType));
       HtmlDocument htmlDocument = document;
       AnchorElement anchor = htmlDocument.createElement('a') as AnchorElement;
-      anchor.href = _url;
-      anchor.style.display = name + '.' + ext;
-      anchor.download = name;
+      anchor.href = url;
+      anchor.style.display = fileModel.name + fileModel.ext;
+      anchor.download = fileModel.name;
       document.body!.children.add(anchor);
       anchor.click();
       document.body!.children.remove(anchor);
-      _success = true;
+      success = true;
     } catch (e) {
-      print(e);
+      log(e.toString());
     }
-    return _success;
+    return success;
   }
 }

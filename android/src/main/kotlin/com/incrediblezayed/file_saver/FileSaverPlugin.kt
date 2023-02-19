@@ -1,4 +1,4 @@
-package com.one.file_saver
+package com.incrediblezayed.file_saver
 
 
 import android.util.Log
@@ -61,7 +61,7 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
                 }
                 "saveAs" -> {
                     Log.d(tag, "Save as Method Called")
-                    dialog!!.openFileManager(fileName = call.argument("name"), bytes = call.argument("bytes"), type = call.argument("type"), result = result)
+                    dialog!!.openFileManager(fileName = call.argument("name"), bytes = call.argument("bytes"), type = call.argument("mimeType"), result = result)
 
                 }
                 else -> {

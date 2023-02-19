@@ -1,4 +1,4 @@
-package com.one.file_saver
+package com.incrediblezayed.file_saver
 
 import android.app.Activity
 import android.content.ContentUris
@@ -54,7 +54,7 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
         intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.putExtra(Intent.EXTRA_TITLE, fileName)
-        //intent.putExtra(Intent.EXTRA_MIME_TYPES, type)
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, type)
         intent.type = type
         intent.flags = (Intent.FLAG_GRANT_READ_URI_PERMISSION
                 or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
