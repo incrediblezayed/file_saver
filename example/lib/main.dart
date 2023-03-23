@@ -1,12 +1,11 @@
 import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:excel/excel.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:syncfusion_flutter_xlsio/xlsio.dart' as x;
 
 void main() {
   runApp(const MyApp());
@@ -15,16 +14,33 @@ void main() {
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
   TextEditingController textEditingController = TextEditingController();
+  TextEditingController linkController = TextEditingController(
+      text:
+          "https://i.pinimg.com/564x/80/d4/90/80d490f65d5e6132b2a6e3b5883785f3.jpg");
+  TextEditingController extController = TextEditingController(text: "jpg");
 
   @override
   void initState() {
     super.initState();
   }
+
+  List<int>? getExcel() {
+    final Excel excel = Excel.createExcel();
+    final Sheet sheetObject = excel['Sheet1'];
+    sheetObject.insertColumn(0);
+    for (int i = 1; i < 10; i++) {
+      sheetObject.appendRow([i]);
+    }
+    List<int>? sheets = excel.encode();
+    return sheets;
+  }
+
+  MimeType type = MimeType.other;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +63,42 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
             ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: linkController,
+                  decoration: const InputDecoration(
+                      labelText: "Link",
+                      hintText:
+                          "https://i.pinimg.com/564x/80/d4/90/80d490f65d5e6132b2a6e3b5883785f3.jpg",
+                      border: OutlineInputBorder()),
+                ),
+              ),
+            ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: extController,
+                  decoration: const InputDecoration(
+                      labelText: "Extension",
+                      hintText: "jpg",
+                      border: OutlineInputBorder()),
+                ),
+              ),
+            ),
+            DropdownButton(
+              value: type,
+              items: MimeType.values
+                  .map((e) => DropdownMenuItem(value: e, child: Text(e.name)))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  type = value as MimeType;
+                });
+              },
+            ),
             ElevatedButton(
                 onPressed: () async {
                   if (!kIsWeb) {
@@ -58,24 +110,22 @@ class _MyAppState extends State<MyApp> {
                       if (!status) await Permission.storage.request();
                     }
                   }
-                  final x.Workbook workbook = x.Workbook();
-                  final x.Worksheet excel =
-                      workbook.worksheets.addWithName('Sheet1');
-                  excel.insertColumn(1, 3);
-                  for (int i = 1; i < 10; i++) {
-                    excel.insertRow(i);
+                  if (type != MimeType.other && extController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Extension is required")));
                   }
-                  List<int> sheets = workbook.saveAsStream();
 
-                  workbook.dispose();
-                  Uint8List data = Uint8List.fromList(sheets);
-                  MimeType type = MimeType.MICROSOFTEXCEL;
+                  if (linkController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Link is required")));
+                  }
+
                   String path = await FileSaver.instance.saveFile(
-                      textEditingController.text == ""
+                      name: textEditingController.text == ""
                           ? "File"
                           : textEditingController.text,
-                      data,
-                      "xlsx",
+                      link: linkController.text,
+                      ext: extController.text,
                       mimeType: type);
                   log(path);
                 },
@@ -84,27 +134,31 @@ class _MyAppState extends State<MyApp> {
               if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS)
                 ElevatedButton(
                   onPressed: () async {
-                    final x.Workbook workbook = x.Workbook();
-                    final x.Worksheet excel =
-                        workbook.worksheets.addWithName('Sheet1');
-                    excel.insertColumn(1, 3);
-                    for (int i = 1; i < 10; i++) {
-                      excel.insertRow(i);
+                    if (type != MimeType.other && extController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text("Extension is required")));
                     }
-                    List<int> sheets = workbook.saveAsStream();
-                    workbook.dispose();
-                    Uint8List data = Uint8List.fromList(sheets);
-                    MimeType type = MimeType.OTHER;
-                    String path = await FileSaver.instance.saveAs(
-                        textEditingController.text == ""
-                            ? "File"
-                            : textEditingController.text,
-                        data,
-                        "custome123",
-                        type);
-                    log(path);
+
+                    if (linkController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Link is required")));
+                    }
+
+                    var permission = await Permission.storage.request();
+                    if (permission == PermissionStatus.granted) {
+                      String? path = await FileSaver.instance.saveAs(
+                          name: textEditingController.text == ""
+                              ? "File"
+                              : textEditingController.text,
+                          link: linkController.text,
+                          ext: extController.text,
+                          mimeType: type);
+                      log(path.toString());
+                    } else {
+                      log("Permission Denied");
+                    }
                   },
-                  child: const Text("Generate Excel and Open Save As Dialog"),
+                  child: const Text("Open File Manager"),
                 )
           ],
         ),

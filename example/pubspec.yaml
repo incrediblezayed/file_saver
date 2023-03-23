@@ -9,13 +9,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  syncfusion_flutter_xlsio: ^19.4.52-beta
-  permission_handler: ^10.2.0
-
+  excel:
   file_saver:
     path: ../
-
   cupertino_icons: ^1.0.4
+  permission_handler: 
 
 dev_dependencies:
   flutter_test:

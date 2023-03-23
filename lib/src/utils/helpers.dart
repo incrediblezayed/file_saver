@@ -3,32 +3,37 @@ import 'dart:io';
 
 import 'package:file_saver/src/utils/mime_types.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:path_provider_linux/path_provider_linux.dart'
     as path_provider_linux;
 import 'package:path_provider_windows/path_provider_windows.dart'
     as path_provder_windows;
 
+///Helper Class for serveral utility methods
+///
 class Helpers {
-  static Future<Uint8List> getBytesFromFile(File file) async {
+  ///This method provides [Uint8List] from [File]
+  static Future<Uint8List> _getBytesFromFile(File file) async {
     return await file.readAsBytes();
   }
 
-  static Future<Uint8List> getBytesFromPath(String path) async {
+  ///This method provides [Uint8List] from file path
+  static Future<Uint8List> _getBytesFromPath(String path) async {
     File file = File(path);
     return await file.readAsBytes();
   }
 
-  static Future<Uint8List> getBytesFromLink(String link) async {
-    HttpClient httpClient = HttpClient();
-    HttpClientRequest request = await httpClient.getUrl(Uri.parse(link));
-    HttpClientResponse response = await request.close();
-    Uint8List bytes = await consolidateHttpClientResponseBytes(response);
+  ///This method provides [Uint8List] from link
+  static Future<Uint8List> _getBytesFromLink(String link) async {
+    final httpClient = Client();
+    Response response = await httpClient.get(Uri.parse(link));
+    Uint8List bytes = response.bodyBytes;
     httpClient.close();
     return bytes;
   }
 
-  ///This method provides [Directory] for the file for Android, iOS, Linux, Windows, macOS
+  ///This method provides default downloads directory for saving the file for Android, iOS, Linux, Windows, macOS
   static Future<String?> getDirectory() async {
     String? path;
     try {
@@ -52,6 +57,7 @@ class Helpers {
     return path;
   }
 
+  ///This method is used to format the extension as per the requirement
   static String getExtension({required String extension}) {
     if (extension.contains('.')) {
       return extension;
@@ -60,21 +66,18 @@ class Helpers {
     }
   }
 
+  ///This method is used to get [Uint8List] from either [filePath], [link] or [file]
   static Future<Uint8List> getBytes(
       {String? filePath, String? link, File? file}) async {
     assert(filePath != null || link != null || file != null,
         "Either filePath or link or file must be provided");
-    if (kIsWeb && filePath == null && file == null) {
-      throw UnimplementedError(
-          "Web doesn't support saving file from link, will be adding support soon ;)");
-    }
     if (filePath != null) {
-      return getBytesFromPath(filePath);
+      return _getBytesFromPath(filePath);
     } else {
       if (link != null) {
-        return getBytesFromLink(link);
+        return _getBytesFromLink(link);
       } else if (file != null) {
-        return getBytesFromFile(file);
+        return _getBytesFromFile(file);
       } else {
         throw Exception("Either filePath or link or file must be provided");
       }

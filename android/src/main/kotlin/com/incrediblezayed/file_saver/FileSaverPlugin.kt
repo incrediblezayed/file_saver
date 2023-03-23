@@ -3,6 +3,7 @@ package com.incrediblezayed.file_saver
 
 import android.util.Log
 import androidx.annotation.NonNull
+import androidx.core.app.ActivityCompat
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -12,6 +13,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.io.File
 import java.lang.Exception
+import java.util.jar.Manifest
 
 
 /** FileSaverPlugin */
@@ -22,16 +24,14 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
     private var methodChannel: MethodChannel? = null
     private var result: Result? = null
     private val tag: String = "FileSaver"
-    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         if (pluginBinding != null) {
             Log.d(tag, "Already Initialized")
         }
         pluginBinding = flutterPluginBinding
         val messenger = pluginBinding!!.binaryMessenger
-        if(messenger!=null) {
-            methodChannel = MethodChannel(messenger, "file_saver")
-            methodChannel?.setMethodCallHandler(this)
-        }
+        methodChannel = MethodChannel(messenger, "file_saver")
+        methodChannel?.setMethodCallHandler(this)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -56,7 +56,7 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
             when (call.method) {
                 "saveFile" -> {
                     Log.d(tag, "Get directory Method Called")
-                    val dir: String = saveFile(fileName = call.argument("name"), bytes = call.argument("bytes"))
+                    val dir: String = saveFile(fileName = call.argument("name"), bytes = call.argument("bytes"), extension = call.argument("ext"))
                     result.success(dir)
                 }
                 "saveAs" -> {
@@ -75,12 +75,16 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
 
     }
 
-    private fun saveFile(fileName: String?, bytes: ByteArray?): String {
-            val uri =  activity!!.activity.baseContext.getExternalFilesDir(null)
-            val file = File(uri!!.absolutePath + "/" + fileName)
+    private fun saveFile(fileName: String?, bytes: ByteArray?, extension: String?): String {
+        return try {
+            val uri = activity!!.activity.baseContext.getExternalFilesDir(null)
+            val file = File(uri!!.absolutePath + "/" + fileName + extension)
             file.writeBytes(bytes!!)
-        return uri.absolutePath + "/" + file.name
-
+            uri.absolutePath + "/" + file.name
+        } catch (e: Exception) {
+            Log.d(tag, "Error While Saving File" + e.message)
+            "Error While Saving File" + e.message
+        }
     }
 
     override fun onDetachedFromActivity() {

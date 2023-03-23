@@ -1,3 +1,42 @@
+## 0.2.0
+ * Fixed several issues from github
+ * **Feature** Added a parameter _link_ for saving file directly through network
+ * **Feature** Added filePath if you have the filepath, no need to get the bytes of the file, you can directly pass the path in _filePath_ parameter and the file_saver will do the rest
+ * **Feature** Added file parameter to direct save the file from File object
+ * Regardless of all the new options for saving files, bytes parameter is still there and you can still use it but, **All the parameters are optional now so you have to use atleast one of these parameter (link, filePath, file, bytes)**
+ * Changed all the parameters to named instead of positional so now instead of
+    ```dart
+    await FileSaver.instance.saveFile("FileName", bytes, "extension", mimeType: mimeType);
+
+    await FileSaver.instance.saveAs("File", bytes, "extension", type);
+    ```
+    you will have to use
+
+    ```dart
+    await FileSaver.instance.saveFile(
+                      name: "FileName",
+                      link: "www.example.com/file.extention", 
+                      filePath: "pathOfFile",
+                      file: File(),
+                      bytes: bytes,
+                      ext: "extention",
+                      mimeType: type);
+
+    await FileSaver.instance.saveFile(
+                      name: "FileName",
+                      link: "www.example.com/file.extention", 
+                      filePath: "pathOfFile",
+                      file: File(),
+                      bytes: bytes,
+                      ext: "extention",
+                      mimeType: type);
+    ```
+    ### _link_, _filePath_, _bytes_ & _file_ are all optional parameters but any one of these parameter is required and thus you can use any one of these parameter as per your requirement
+
+* Changed the MimeType enum values to lower case (as per dart's naming conventions)
+* Upgraded everything to latest versions (gradle tools = 7.4.2, kotlin=1.8.0)
+
+
 ## 0.1.1
  * Updated the pub to the latest commit, fixing the issues with flutter 3.
 

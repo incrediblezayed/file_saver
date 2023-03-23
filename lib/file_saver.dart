@@ -20,11 +20,20 @@ class FileSaver {
   late Saver _saver;
 
   ///[saveFile] main method which saves the file for all platforms.
-  ///name: Name of your file.
   ///
-  /// bytes: Encoded File for saving.
+  /// [name]: Name of your file.
   ///
-  /// ext: Extension of file.
+  /// [bytes]: Encoded File for saving
+  /// Or
+  /// [file]: File to be saved.
+  /// Or
+  /// [filePath]: Path of file to be saved.
+  /// Or
+  /// [link]: Link of file to be saved.
+  ///
+  /// Out of these 4 parameters, only one is required.
+  ///
+  /// [ext]: Extension of file.
   ///
   /// mimeType (Mainly required for web): MimeType from enum MimeType..
   ///
@@ -59,16 +68,24 @@ class FileSaver {
   }
 
   ///[saveAs] This method will open a Save As File dialog where user can select the location for saving file.
-  ///name: Name of your file.
   ///
-  /// bytes: Encoded File for saving.
+  /// [name]: Name of your file.
   ///
-  /// ext: Extension of file.
+  /// [bytes]: Encoded File for saving
+  /// Or
+  /// [file]: File to be saved.
+  /// Or
+  /// [filePath]: Path of file to be saved.
+  /// Or
+  /// [link]: Link of file to be saved.
   ///
-  /// mimeType: MimeType from enum MimeType..
+  /// Out of these 4 parameters, only one is required.
+  ///
+  /// [ext]: Extension of file.
+  ///
+  /// mimeType (Mainly required for web): MimeType from enum MimeType..
   ///
   /// More Mimetypes will be added in future
-  /// Note:- This Method only works on Android for time being and other platforms will be added soon
   Future<String?> saveAs(
       {required String name,
       Uint8List? bytes,

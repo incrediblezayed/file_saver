@@ -1,5 +1,3 @@
-# NOTE: Please use the latest git commit for now, I'll update the code and update the gradle versions, also I appreciate the pull requests with fixes, I'll check them out and merge them as soon as possible, Thank You & please wait for the pub release for now
-
 # FileSaver
 
 This plugin package is not much but only for saving files in Android, iOS, Web, Windows, MacOS and Linux. The package
@@ -13,23 +11,49 @@ Documents Directory, and in Android it is saved in the applications files direct
 The plugin itself is pretty easy to use. Just call the method saveFile() with respective arguments.
 
 ```dart
-    await FileSaver.instance.saveFile(String name, Uint8List bytes, String ext, mimeType: MimeType);
+await FileSaver.instance.saveFile({
+      required String name,
+      Uint8List? bytes,
+      File? file,
+      String? filePath,
+      String? link,
+      String ext = "",
+      MimeType mimeType = MimeType.other});
 ```
 
-This saveFile() method takes 3 Positional Arguments.
-_String name_ which takes the name of the file, _Uint8List bytes_ which will be your actual encoded file, _String ext_
-this will be your file extension. 1 Optional Named Argument Specifically for Web _MimeType type_ which will be your file
-type, MimeType is also included in my Package, I've included types for **Sheets, Presentation, Word, Plain Text, PDF,
+This saveFile() method has 7 Name arguments.
+
+_String name_ which takes the name of the file,\
+_Uint8List bytes_ which will be your actual encoded file,\
+Or\
+_File file_ which will be your file in the File object (from dart:io)\
+Or\
+_Stirng filePath_ which will be your file path\
+Or\
+_String link_ which will the link to your file\
+Out of these parameters, you will have to use atleast one
+
+_String ext_ this will be your file extension.\
+Another parameter is _MimeType type_ Specifically for Web, which will be your file
+type
+
+MimeType is also included in my Package, I've included types for **Sheets, Presentation, Word, Plain Text, PDF,
 MP3, MP4 and many other common formats**
 
 or you can call saveAs() _only available for android and iOS at the moment_
 
 ```dart
-    await FileSaver.instance.saveAs(String name, Uint8List bytes, String ext, MimeType);
+await FileSaver.instance.saveAs({
+      required String name,
+      Uint8List? bytes,
+      File? file,
+      String? filePath,
+      String? link,
+      required String ext,
+      required MimeType mimeType});
 ```
 
-All the parameters in this method is same as the saveFile() method, the only difference is all the parameters here are
-positional
+All the parameters in this method is same as the saveFile() method.
 
 ### Storage Permissions:
 

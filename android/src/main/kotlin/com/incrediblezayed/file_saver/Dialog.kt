@@ -12,6 +12,7 @@ import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Log
+import androidx.annotation.RequiresApi
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 import kotlinx.coroutines.CoroutineScope
@@ -39,6 +40,7 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
         return true
     }
 
+
     fun openFileManager(
         fileName: String?,
         bytes: ByteArray?,
@@ -55,10 +57,13 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.putExtra(Intent.EXTRA_TITLE, fileName)
         intent.putExtra(Intent.EXTRA_MIME_TYPES, type)
+        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Environment.getExternalStorageDirectory().path)
         intent.type = type
         intent.flags = (Intent.FLAG_GRANT_READ_URI_PERMISSION
                 or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                 or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+                )
         activity.startActivityForResult(intent, SAVE_FILE)
     }
 

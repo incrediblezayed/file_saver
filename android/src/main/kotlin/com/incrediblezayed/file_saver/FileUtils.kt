@@ -30,7 +30,6 @@ class FileUtils(var context: Context) {
             if (isExternalStorageDocument(uri)) {
                 val docId = DocumentsContract.getDocumentId(uri)
                 val split = docId.split(":").toTypedArray()
-                val type = split[0]
                 val fullPath = getPathFromExtSD(split)
                 return if (fullPath !== "") {
                     fullPath
@@ -43,7 +42,6 @@ class FileUtils(var context: Context) {
             // DownloadsProvider
             if (isDownloadsDocument(uri)) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    val id: String
                     var cursor: Cursor? = null
                     try {
                         cursor = context.contentResolver.query(
@@ -64,7 +62,7 @@ class FileUtils(var context: Context) {
                     } finally {
                         cursor?.close()
                     }
-                    id = DocumentsContract.getDocumentId(uri)
+                    val id: String = DocumentsContract.getDocumentId(uri)
                     if (!TextUtils.isEmpty(id)) {
                         if (id.startsWith("raw:")) {
                             return id.replaceFirst("raw:".toRegex(), "")
@@ -207,7 +205,7 @@ class FileUtils(var context: Context) {
         if (fileExists(fullPath)) {
             return fullPath
         }
-        fullPath = System.getenv("EXTERNAL_STORAGE") + relativePath
+        fullPath = System.getenv("EXTERNAL_STORAGE")?.plus(relativePath) ?: ""
         return if (fileExists(fullPath)) {
             fullPath
         } else fullPath
@@ -224,7 +222,6 @@ class FileUtils(var context: Context) {
         val sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE)
         returnCursor.moveToFirst()
         val name = returnCursor.getString(nameIndex)
-        val size = java.lang.Long.toString(returnCursor.getLong(sizeIndex))
         val file = File(context.cacheDir, name)
         try {
             val inputStream = context.contentResolver.openInputStream(uri)
@@ -273,7 +270,6 @@ class FileUtils(var context: Context) {
         val sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE)
         returnCursor.moveToFirst()
         val name = returnCursor.getString(nameIndex)
-        val size = java.lang.Long.toString(returnCursor.getLong(sizeIndex))
         val output: File
         output = if (newDirName != "") {
             val dir = File(context.filesDir.toString() + "/" + newDirName)
