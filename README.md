@@ -55,7 +55,7 @@ await FileSaver.instance.saveAs({
 
 All the parameters in this method is same as the saveFile() method.
 
-### Storage Permissions:
+### Storage Permissions & Network Permissions:
 
 > ##### _These Settings are optional for iOS, as in iOS the file will be saved in application documents directory but will not be visible in Files application, to make your file visible in iOS Files application, make the changes mentioned below._
 
@@ -64,7 +64,6 @@ All the parameters in this method is same as the saveFile() method.
 Go to your project folder, ios/Runner/info.plist and Add these keys:
 
 ```xml
-
 <key>LSSupportsOpeningDocumentsInPlace</key>
 <true/>
 <key>UIFileSharingEnabled</key>
@@ -93,7 +92,6 @@ Go to your project folder, macOS/Runner/DebugProfile.entitlements
 and add the following key:
 
 ```xml
-
 <key>com.apple.security.files.downloads.read-write</key>
 <true/>
 ```
@@ -107,6 +105,16 @@ Open your entitlement file (DebugProfile.entitlements & 'YOUR_PROJECT_NAME'Profi
 
 Add these rows:
 ![MacOS Xcode](https://raw.githubusercontent.com/incrediblezayed/file_saver/main/images/macOSXcode.png)
+
+and if you get Client Socket Exception while saving files in MacOS from link,
+you have to add this key in the DebugProfile.entitlements and Release.entitlements of your macOS application and set the value to true
+
+```xml
+<key>com.apple.security.network.client</key>
+<true/>
+```
+
+*You can find these files in project_folder/macos/Runner/*
 
 #### And You're done
 
