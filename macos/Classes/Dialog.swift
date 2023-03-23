@@ -31,9 +31,9 @@ class Dialog: NSObject {
         do {
             let data = Data(byteData)
             try data.write(to: url)
-            result(url)
+            result(url.absoluteString)
         } catch  {
-            result(url)
+            result("Failed to save file")
         }
         
     }

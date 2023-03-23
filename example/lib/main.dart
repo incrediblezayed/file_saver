@@ -40,7 +40,7 @@ class _MyAppState extends State<MyApp> {
     return sheets;
   }
 
-  MimeType type = MimeType.other;
+  MimeType type = MimeType.jpeg;
 
   @override
   Widget build(BuildContext context) {
@@ -103,8 +103,7 @@ class _MyAppState extends State<MyApp> {
                 onPressed: () async {
                   if (!kIsWeb) {
                     if (Platform.isIOS ||
-                        Platform.isAndroid ||
-                        Platform.isMacOS) {
+                        Platform.isAndroid ) {
                       bool status = await Permission.storage.isGranted;
 
                       if (!status) await Permission.storage.request();
@@ -143,9 +142,13 @@ class _MyAppState extends State<MyApp> {
                       ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("Link is required")));
                     }
-
+if(Platform.isAndroid||Platform.isIOS){
                     var permission = await Permission.storage.request();
-                    if (permission == PermissionStatus.granted) {
+                    if (permission == PermissionStatus.granted) {}
+                      else {
+                      log("Permission Denied");
+                    }
+}
                       String? path = await FileSaver.instance.saveAs(
                           name: textEditingController.text == ""
                               ? "File"
@@ -154,9 +157,8 @@ class _MyAppState extends State<MyApp> {
                           ext: extController.text,
                           mimeType: type);
                       log(path.toString());
-                    } else {
-                      log("Permission Denied");
-                    }
+                     
+                    
                   },
                   child: const Text("Open File Manager"),
                 )
