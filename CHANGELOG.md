@@ -1,3 +1,19 @@
+## 0.2.1
+ * Fixed a bug in web ([git issue #57]("https://github.com/incrediblezayed/file_saver/issues/57))
+ * Updated dart version constraints
+ * Updated MimeType enum to enhanced enum (from dart 2.17.0) and removed method getMimetype(), if you want to get the mimeType from the enum you can directly write
+  ```dart
+    MimeType.pdf.type
+  ```
+  And if you want the formatted name of the given type, you can get it by
+  ```dart
+  MimeType.pdf.name
+```
+
+   
+
+
+
 ## 0.2.0
  * Fixed several issues from github
  * **Feature** Added a parameter _link_ for saving file directly through network

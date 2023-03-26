@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:file_saver/src/utils/mime_types.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
@@ -51,7 +50,7 @@ class Helpers {
         path = await pathLinux.getDownloadsPath();
       }
     } on Exception catch (e) {
-      log("Something wemt worng while getting directories");
+      log('Something wemt worng while getting directories');
       log(e.toString());
     }
     return path;
@@ -62,7 +61,7 @@ class Helpers {
     if (extension.contains('.')) {
       return extension;
     } else {
-      return ".$extension";
+      return '.$extension';
     }
   }
 
@@ -70,7 +69,7 @@ class Helpers {
   static Future<Uint8List> getBytes(
       {String? filePath, String? link, File? file}) async {
     assert(filePath != null || link != null || file != null,
-        "Either filePath or link or file must be provided");
+        'Either filePath or link or file must be provided');
     if (filePath != null) {
       return _getBytesFromPath(filePath);
     } else {
@@ -79,68 +78,8 @@ class Helpers {
       } else if (file != null) {
         return _getBytesFromFile(file);
       } else {
-        throw Exception("Either filePath or link or file must be provided");
+        throw Exception('Either filePath or link or file must be provided');
       }
-    }
-  }
-
-  ///This method will return String value of respective [MimeType]
-  static String getType(MimeType type) {
-    switch (type) {
-      case MimeType.avi:
-        return 'video/x-msvideo';
-      case MimeType.aac:
-        return 'audio/aac';
-      case MimeType.bmp:
-        return 'image/bmp';
-      case MimeType.epub:
-        return 'application/epub+zip';
-      case MimeType.gif:
-        return 'image/gif';
-      case MimeType.json:
-        return 'application/json';
-      case MimeType.mpeg:
-        return 'video/mpeg';
-      case MimeType.mp3:
-        return 'audio/mpeg';
-      case MimeType.jpeg:
-        return 'image/jpeg';
-      case MimeType.otf:
-        return 'font/otf';
-      case MimeType.png:
-        return 'image/png';
-      case MimeType.openDocPresentation:
-        return 'application/vnd.oasis.opendocument.presentation';
-      case MimeType.openDocText:
-        return 'application/vnd.oasis.opendocument.text';
-      case MimeType.openDocSheets:
-        return 'application/vnd.oasis.opendocument.spreadsheet';
-      case MimeType.pdf:
-        return 'application/pdf';
-      case MimeType.ttf:
-        return 'font/ttf';
-      case MimeType.zip:
-        return 'application/zip';
-      case MimeType.microsoftExcel:
-        return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-      case MimeType.microsoftPresentation:
-        return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-      case MimeType.microsoftWord:
-        return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-      case MimeType.asice:
-        return "application/vnd.etsi.asic-e+zip";
-      case MimeType.asics:
-        return "application/vnd.etsi.asic-s+zip";
-      case MimeType.bDoc:
-        return "application/vnd.etsi.asic-e+zip";
-      case MimeType.other:
-        return "application/octet-stream";
-      case MimeType.text:
-        return 'text/plain';
-      case MimeType.csv:
-        return 'text/csv';
-      default:
-        return "application/octet-stream";
     }
   }
 }

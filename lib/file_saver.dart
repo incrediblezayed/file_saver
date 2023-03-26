@@ -11,7 +11,7 @@ export 'package:file_saver/src/utils/mime_types.dart';
 
 class FileSaver {
   final String _somethingWentWrong =
-      "Something went wrong, please report the issue https://www.github.com/incrediblezayed/file_saver/issues";
+      'Something went wrong, please report the issue https://www.github.com/incrediblezayed/file_saver/issues';
   late String directory = _somethingWentWrong;
 
   ///instance of file saver
@@ -44,16 +44,19 @@ class FileSaver {
       File? file,
       String? filePath,
       String? link,
-      String ext = "",
+      String ext = '',
       MimeType mimeType = MimeType.other}) async {
     bytes = bytes ??
         await Helpers.getBytes(file: file, filePath: filePath, link: link);
-    String mime = Helpers.getType(mimeType);
+
     String extension = Helpers.getExtension(extension: ext);
     try {
       _saver = Saver(
           fileModel: FileModel(
-              name: name, bytes: bytes, ext: extension, mimeType: mime));
+              name: name,
+              bytes: bytes,
+              ext: extension,
+              mimeType: mimeType.type));
       if (kIsWeb) {
         directory = await _saver.saveFileForWeb();
       } else if (Platform.isAndroid) {
@@ -96,15 +99,15 @@ class FileSaver {
       required MimeType mimeType}) async {
     bytes = bytes ??
         await Helpers.getBytes(file: file, filePath: filePath, link: link);
-    String mimeTypeValue = Helpers.getType(mimeType);
+
     _saver = Saver(
         fileModel: FileModel(
             name: mimeType == MimeType.other
-                ? "$name${Helpers.getExtension(extension: ext)}"
+                ? '$name${Helpers.getExtension(extension: ext)}'
                 : name,
             bytes: bytes,
             ext: ext,
-            mimeType: mimeTypeValue));
+            mimeType: mimeType.type));
     String? path = await _saver.saveAs();
     return path;
   }

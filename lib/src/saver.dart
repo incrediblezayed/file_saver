@@ -10,13 +10,13 @@ class Saver {
   Saver({required this.fileModel});
 
   final MethodChannel _channel = const MethodChannel('file_saver');
-  final String _saveAs = "saveAs";
-  final String _saveFile = "saveFile";
+  final String _saveAs = 'saveAs';
+  final String _saveFile = 'saveFile';
   final String _somethingWentWrong =
-      "Something went wrong, please report the issue https://www.github.com/incrediblezayed/file_saver/issues";
+      'Something went wrong, please report the issue https://www.github.com/incrediblezayed/file_saver/issues';
   late String directory = _somethingWentWrong;
   final String _issueLink =
-      "https://www.github.com/incrediblezayed/file_saver/issues";
+      'https://www.github.com/incrediblezayed/file_saver/issues';
 
   ///Open File Manager
   Future<String?> saveAs() async {
@@ -24,7 +24,7 @@ class Saver {
     if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
       path = await _channel.invokeMethod<String>(_saveAs, fileModel.toMap());
     } else {
-      throw UnimplementedError("Unimplemented Error");
+      throw UnimplementedError('Unimplemented Error');
     }
     return path;
   }
@@ -41,10 +41,10 @@ class Saver {
       bool? downloaded =
           await _channel.invokeMethod<bool>(_saveFile, fileModel.toJson());
       if (downloaded!) {
-        directory = "Downloads";
+        directory = 'Downloads';
       }
     } catch (e) {
-      log("Error: $e");
+      log('Error: $e');
     }
     return directory;
   }
@@ -53,18 +53,18 @@ class Saver {
     try {
       directory =
           await _channel.invokeMethod<String>(_saveFile, fileModel.toMap()) ??
-              "";
+              '';
     } catch (e) {
-      log("Error: $e");
+      log('Error: $e');
     }
     return directory;
   }
 
   Future<String> saveFileForOtherPlatforms() async {
-    String path = "";
-    path = await Helpers.getDirectory() ?? "";
-    if (path == "") {
-      log("The path was found null or empty, please report the issue at $_issueLink");
+    String path = '';
+    path = await Helpers.getDirectory() ?? '';
+    if (path == '') {
+      log('The path was found null or empty, please report the issue at $_issueLink');
     } else {
       String filePath = '$path/${fileModel.name}${fileModel.ext}';
       final File file = File(filePath);
@@ -73,7 +73,7 @@ class Saver {
       if (exist) {
         directory = file.path;
       } else {
-        log("File was not created");
+        log('File was not created');
       }
     }
     return directory;

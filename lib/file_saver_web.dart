@@ -42,7 +42,7 @@ class FileSaverWeb {
 
     try {
       String url = Url.createObjectUrlFromBlob(
-          Blob([fileModel.name], fileModel.mimeType));
+          Blob([fileModel.bytes], fileModel.mimeType));
       HtmlDocument htmlDocument = document;
       AnchorElement anchor = htmlDocument.createElement('a') as AnchorElement;
       anchor.href = url;

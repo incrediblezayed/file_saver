@@ -102,8 +102,7 @@ class _MyAppState extends State<MyApp> {
             ElevatedButton(
                 onPressed: () async {
                   if (!kIsWeb) {
-                    if (Platform.isIOS ||
-                        Platform.isAndroid ) {
+                    if (Platform.isIOS || Platform.isAndroid) {
                       bool status = await Permission.storage.isGranted;
 
                       if (!status) await Permission.storage.request();
@@ -118,6 +117,15 @@ class _MyAppState extends State<MyApp> {
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Link is required")));
                   }
+
+/* 
+                  !Code for testing bytes
+                  Excel excel = Excel.createExcel();
+                  Sheet sheetObject = excel['Sheet1'];
+                  sheetObject.insertColumn(0);
+                  for (int i = 1; i < 10; i++) {
+                    sheetObject.appendRow([i]);
+                  } */
 
                   String path = await FileSaver.instance.saveFile(
                       name: textEditingController.text == ""
@@ -142,23 +150,21 @@ class _MyAppState extends State<MyApp> {
                       ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("Link is required")));
                     }
-if(Platform.isAndroid||Platform.isIOS){
-                    var permission = await Permission.storage.request();
-                    if (permission == PermissionStatus.granted) {}
-                      else {
-                      log("Permission Denied");
+                    if (Platform.isAndroid || Platform.isIOS) {
+                      var permission = await Permission.storage.request();
+                      if (permission == PermissionStatus.granted) {
+                      } else {
+                        log("Permission Denied");
+                      }
                     }
-}
-                      String? path = await FileSaver.instance.saveAs(
-                          name: textEditingController.text == ""
-                              ? "File"
-                              : textEditingController.text,
-                          link: linkController.text,
-                          ext: extController.text,
-                          mimeType: type);
-                      log(path.toString());
-                     
-                    
+                    String? path = await FileSaver.instance.saveAs(
+                        name: textEditingController.text == ""
+                            ? "File"
+                            : textEditingController.text,
+                        link: linkController.text,
+                        ext: extController.text,
+                        mimeType: type);
+                    log(path.toString());
                   },
                   child: const Text("Open File Manager"),
                 )
