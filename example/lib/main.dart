@@ -118,56 +118,69 @@ class _MyAppState extends State<MyApp> {
                         const SnackBar(content: Text("Link is required")));
                   }
 
-/* 
-                  !Code for testing bytes
+                  //!Code for testing bytes
                   Excel excel = Excel.createExcel();
                   Sheet sheetObject = excel['Sheet1'];
                   sheetObject.insertColumn(0);
                   for (int i = 1; i < 10; i++) {
                     sheetObject.appendRow([i]);
-                  } */
+                  }
 
                   String path = await FileSaver.instance.saveFile(
                       name: textEditingController.text == ""
                           ? "File"
                           : textEditingController.text,
-                      link: linkController.text,
-                      ext: extController.text,
-                      mimeType: type);
+                      //link:  linkController.text,
+                      bytes: Uint8List.fromList(excel.encode()!),
+                      ext: 'xlsx',
+
+                      ///extController.text,
+                      mimeType: MimeType.microsoftExcel);
                   log(path);
                 },
                 child: const Text("Save File")),
-            if (!kIsWeb)
-              if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS)
-                ElevatedButton(
-                  onPressed: () async {
-                    if (type != MimeType.other && extController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text("Extension is required")));
-                    }
+            /* if (!kIsWeb)
+              if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) */
+            ElevatedButton(
+              onPressed: () async {
+                if (type != MimeType.other && extController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Extension is required")));
+                }
 
-                    if (linkController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Link is required")));
-                    }
-                    if (Platform.isAndroid || Platform.isIOS) {
-                      var permission = await Permission.storage.request();
-                      if (permission == PermissionStatus.granted) {
-                      } else {
-                        log("Permission Denied");
-                      }
-                    }
-                    String? path = await FileSaver.instance.saveAs(
-                        name: textEditingController.text == ""
-                            ? "File"
-                            : textEditingController.text,
-                        link: linkController.text,
-                        ext: extController.text,
-                        mimeType: type);
-                    log(path.toString());
-                  },
-                  child: const Text("Open File Manager"),
-                )
+                if (linkController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Link is required")));
+                }
+                /*    if (Platform.isAndroid || Platform.isIOS) {
+                  var permission = await Permission.storage.request();
+                  if (permission == PermissionStatus.granted) {
+                  } else {
+                    log("Permission Denied");
+                  }
+                } */
+
+                //!Code for testing bytes
+                Excel excel = Excel.createExcel();
+                Sheet sheetObject = excel['Sheet1'];
+                sheetObject.insertColumn(0);
+                for (int i = 1; i < 10; i++) {
+                  sheetObject.appendRow([i]);
+                }
+                String? path = await FileSaver.instance.saveAs(
+                    name: textEditingController.text == ""
+                        ? "File"
+                        : textEditingController.text,
+                    //link:  linkController.text,
+                    bytes: Uint8List.fromList(excel.encode()!),
+                    ext: 'xlsx',
+
+                    ///extController.text,
+                    mimeType: MimeType.microsoftExcel);
+                log(path.toString());
+              },
+              child: const Text("Open File Manager"),
+            )
           ],
         ),
       ),

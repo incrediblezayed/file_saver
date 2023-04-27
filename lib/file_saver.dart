@@ -57,13 +57,7 @@ class FileSaver {
               bytes: bytes,
               ext: extension,
               mimeType: mimeType.type));
-      if (kIsWeb) {
-        directory = await _saver.saveFileForWeb();
-      } else if (Platform.isAndroid) {
-        directory = await _saver.saveFileForAndroid();
-      } else {
-        directory = await _saver.saveFileForOtherPlatforms();
-      }
+      directory = await _saver.save() ?? _somethingWentWrong;
       return directory;
     } catch (e) {
       return directory;

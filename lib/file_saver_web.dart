@@ -5,6 +5,9 @@ import 'dart:developer';
 // package as the core of your plugin.
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html';
+import 'dart:html' as html;
+
+
 
 import 'package:file_saver/src/models/file.model.dart';
 import 'package:flutter/services.dart';
@@ -37,12 +40,13 @@ class FileSaverWeb {
     }
   }
 
-  Future<bool> downloadFile(FileModel fileModel) async {
+  static Future<bool> downloadFile(FileModel fileModel) async {
     bool success = false;
 
     try {
       String url = Url.createObjectUrlFromBlob(
           Blob([fileModel.bytes], fileModel.mimeType));
+     html.File 
       HtmlDocument htmlDocument = document;
       AnchorElement anchor = htmlDocument.createElement('a') as AnchorElement;
       anchor.href = url;
@@ -57,4 +61,8 @@ class FileSaverWeb {
     }
     return success;
   }
+
+  
+
+  
 }
