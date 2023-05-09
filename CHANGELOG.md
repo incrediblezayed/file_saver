@@ -1,3 +1,6 @@
+## 0.2.2
+ * Implemented the web platform without method channel, using the conditional imports.
+
 ## 0.2.1
  * Fixed a bug in web ([git issue #57]("https://github.com/incrediblezayed/file_saver/issues/57))
  * Updated dart version constraints
@@ -9,8 +12,6 @@
   ```dart
   MimeType.pdf.name
 ```
-
-   
 
 
 
