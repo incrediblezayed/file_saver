@@ -5,9 +5,3 @@
 .pub/
 
 build/
-example/pubspec.lock
-.idea/libraries/Dart_SDK.xml
-
-/build/
-/example/pubspec.lock
-/.idea/libraries/Dart_SDK.xml
