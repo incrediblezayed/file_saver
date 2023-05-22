@@ -25,6 +25,5 @@ jobs:
         run: flutter pub get
       - name: Publish to pub.dev dry run
         run: dart pub publish --dry-run
-        
       - name: Publish to pub.dev
         run: dart pub publish -f
