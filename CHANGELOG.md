@@ -1,8 +1,6 @@
-## 0.2.4
- * Updated pubspec.yaml
-
 ## 0.2.3
  * Replaced the ```String? link``` with ```LinkDetails? link``` in order to add headers with the link for downloading file
+ * Fixed ([GitHub issue #59](https://github.com/incrediblezayed/file_saver/issues/59))
 
 ## 0.2.2
  * Implemented the web platform without method channel, using the conditional imports.

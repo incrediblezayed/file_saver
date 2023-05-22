@@ -11,13 +11,13 @@ dependencies:
     sdk: flutter
   excel:
   file_saver:
+    path: ../
   cupertino_icons: ^1.0.4
   permission_handler: 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^2.0.0
 
 flutter:
