@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:file_saver/src/models/link_details.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
@@ -24,9 +25,12 @@ class Helpers {
   }
 
   ///This method provides [Uint8List] from link
-  static Future<Uint8List> _getBytesFromLink(String link) async {
+  static Future<Uint8List> _getBytesFromLink(LinkDetails link) async {
     final httpClient = Client();
-    Response response = await httpClient.get(Uri.parse(link));
+    Response response = await httpClient.get(
+      Uri.parse(link.link),
+      headers: link.headers,
+    );
     Uint8List bytes = response.bodyBytes;
     httpClient.close();
     return bytes;
@@ -61,13 +65,16 @@ class Helpers {
     if (extension.contains('.')) {
       return extension;
     } else {
-      return '.$extension';
+      if (extension.isNotEmpty) {
+        return '.$extension';
+      }
+      return '';
     }
   }
 
   ///This method is used to get [Uint8List] from either [filePath], [link] or [file]
   static Future<Uint8List> getBytes(
-      {String? filePath, String? link, File? file}) async {
+      {String? filePath, LinkDetails? link, File? file}) async {
     assert(filePath != null || link != null || file != null,
         'Either filePath or link or file must be provided');
     if (filePath != null) {

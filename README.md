@@ -1,4 +1,6 @@
 # FileSaver
+![Discord](https://www.incrediblezayed.com/file_saver_discord.png)
+
 
 This plugin package is not much but only for saving files in Android, iOS, Web, Windows, MacOS and Linux. The package
 depends on path_provider for Android and iOS and basic html anchor for Web The main reason I built this plugin was to
@@ -16,7 +18,7 @@ await FileSaver.instance.saveFile({
       Uint8List? bytes,
       File? file,
       String? filePath,
-      String? link,
+      LinkDetails? link,
       String ext = "",
       MimeType mimeType = MimeType.other});
 ```
@@ -30,7 +32,11 @@ _File file_ which will be your file in the File object (from dart:io)\
 Or\
 _Stirng filePath_ which will be your file path\
 Or\
-_String link_ which will the link to your file\
+_LinkDetails link_ which will the link & header to your file. LinkDetails can be used as 
+```dart
+LinkDetails(link: "https://www.example.com/file.extentions", headers: {"your-header-key": "you-header-value"})
+```
+\
 Out of these parameters, you will have to use atleast one
 
 _String ext_ this will be your file extension.\
@@ -48,7 +54,7 @@ await FileSaver.instance.saveAs({
       Uint8List? bytes,
       File? file,
       String? filePath,
-      String? link,
+      LinkDetails? link,
       required String ext,
       required MimeType mimeType});
 ```

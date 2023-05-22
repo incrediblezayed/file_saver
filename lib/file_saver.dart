@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:file_saver/src/models/file.model.dart';
+import 'package:file_saver/src/models/link_details.dart';
 import 'package:file_saver/src/saver.dart';
 import 'package:file_saver/src/utils/helpers.dart';
 import 'package:file_saver/src/utils/mime_types.dart';
@@ -29,7 +30,14 @@ class FileSaver {
   /// Or
   /// [filePath]: Path of file to be saved.
   /// Or
-  /// [link]: Link of file to be saved.
+  /// [link]: Link & header of file to be saved.
+  /// [LinkDetails] is a model which contains [link] & [headers]
+  /// LinkDetails(
+  ///   link: 'https://www.google.com',
+  ///  headers: {
+  ///    'your-header': 'header-value',
+  ///    },
+  /// ),
   ///
   /// Out of these 4 parameters, only one is required.
   ///
@@ -43,7 +51,7 @@ class FileSaver {
       Uint8List? bytes,
       File? file,
       String? filePath,
-      String? link,
+      LinkDetails? link,
       String ext = '',
       MimeType mimeType = MimeType.other}) async {
     bytes = bytes ??
@@ -75,6 +83,13 @@ class FileSaver {
   /// [filePath]: Path of file to be saved.
   /// Or
   /// [link]: Link of file to be saved.
+  /// [LinkDetails] is a model which contains [link] & [headers]
+  /// LinkDetails(
+  ///   link: 'https://www.google.com',
+  ///  headers: {
+  ///    'your-header': 'header-value',
+  ///    },
+  /// ),
   ///
   /// Out of these 4 parameters, only one is required.
   ///
@@ -88,7 +103,7 @@ class FileSaver {
       Uint8List? bytes,
       File? file,
       String? filePath,
-      String? link,
+      LinkDetails? link,
       required String ext,
       required MimeType mimeType}) async {
     bytes = bytes ??
