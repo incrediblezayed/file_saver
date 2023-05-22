@@ -27,6 +27,9 @@ jobs:
 #        run: dart pub publish --dry-run
 #      - name: Publish to pub.dev
 #        run: dart pub publish -f
+      - name: Extract release notes
+        id: extract-release-notes
+        uses: ffurrer2/extract-release-notes@v1
       - name: Create Release
         uses: actions/create-release@v1
         env:
@@ -34,5 +37,6 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           release_name: ${{ github.ref_name }}
+          body: ${{ steps.extract-release-notes.outputs.release_notes }}
           draft: false
           prerelease: false
