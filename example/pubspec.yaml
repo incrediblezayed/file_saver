@@ -11,7 +11,6 @@ dependencies:
     sdk: flutter
   excel:
   file_saver:
-    path: ../
   cupertino_icons: ^1.0.4
   permission_handler: 
 
