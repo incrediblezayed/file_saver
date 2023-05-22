@@ -2,10 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-## 0.2.4
+## [0.2.4]
  * Update Github Actions Workflow
 
-## 0.2.3
+## [0.2.3]
  * Replaced the ```String? link``` with ```LinkDetails? link``` in order to add headers with the link for downloading file
  * Fixed ([GitHub issue #59](https://github.com/incrediblezayed/file_saver/issues/59))
 
