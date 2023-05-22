@@ -8,4 +8,24 @@ on:
 # Publish using the reusable workflow from dart-lang.
 jobs:
   publish:
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    environment: ${{ inputs.environment }}
+    permissions:
+      id-token: write # This is required for requesting the JWT
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: stable
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+      - name: Get dependencies
+        run: flutter pub get
+      - name: Publish to pub.dev dry run
+        run: dart pub publish --dry-run
+        
+      - name: Publish to pub.dev
+        run: dart pub publish -f
