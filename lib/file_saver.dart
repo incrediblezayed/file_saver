@@ -9,6 +9,7 @@ import 'package:file_saver/src/utils/mime_types.dart';
 import 'package:flutter/foundation.dart';
 
 export 'package:file_saver/src/utils/mime_types.dart';
+export 'package:file_saver/src/models/link_details.dart';
 
 class FileSaver {
   final String _somethingWentWrong =
