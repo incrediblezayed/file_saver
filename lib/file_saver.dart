@@ -61,11 +61,13 @@ class FileSaver {
     String extension = Helpers.getExtension(extension: ext);
     try {
       _saver = Saver(
-          fileModel: FileModel(
-              name: name,
-              bytes: bytes,
-              ext: extension,
-              mimeType: mimeType.type));
+        fileModel: FileModel(
+          name: name,
+          bytes: bytes,
+          ext: extension,
+          mimeType: mimeType.type,
+        ),
+      );
       directory = await _saver.save() ?? _somethingWentWrong;
       return directory;
     } catch (e) {
@@ -111,13 +113,13 @@ class FileSaver {
         await Helpers.getBytes(file: file, filePath: filePath, link: link);
 
     _saver = Saver(
-        fileModel: FileModel(
-            name: mimeType == MimeType.other
-                ? '$name${Helpers.getExtension(extension: ext)}'
-                : name,
-            bytes: bytes,
-            ext: ext,
-            mimeType: mimeType.type));
+      fileModel: FileModel(
+        name: name,
+        bytes: bytes,
+        ext: ext,
+        mimeType: mimeType.type,
+      ),
+    );
     String? path = await _saver.saveAs();
     return path;
   }

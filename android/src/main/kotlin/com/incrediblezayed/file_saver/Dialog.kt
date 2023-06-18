@@ -43,6 +43,7 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
 
     fun openFileManager(
         fileName: String?,
+        ext: String?,
         bytes: ByteArray?,
         type: String?,
         result: MethodChannel.Result
@@ -55,7 +56,7 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
                 Intent(Intent.ACTION_CREATE_DOCUMENT)
         intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
-        intent.putExtra(Intent.EXTRA_TITLE, fileName)
+        intent.putExtra(Intent.EXTRA_TITLE, "$fileName.$ext")
         intent.putExtra(Intent.EXTRA_MIME_TYPES, type)
         intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Environment.getExternalStorageDirectory().path)
         intent.type = type
