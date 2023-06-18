@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.5]
+ * Added apng mime type
+
 ## [0.2.4]
  * Bug Fix -> Link Details not available publically
 
