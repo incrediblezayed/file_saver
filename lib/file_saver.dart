@@ -8,8 +8,8 @@ import 'package:file_saver/src/utils/helpers.dart';
 import 'package:file_saver/src/utils/mime_types.dart';
 import 'package:flutter/foundation.dart';
 
-export 'package:file_saver/src/utils/mime_types.dart';
 export 'package:file_saver/src/models/link_details.dart';
+export 'package:file_saver/src/utils/mime_types.dart';
 
 class FileSaver {
   final String _somethingWentWrong =
@@ -54,7 +54,10 @@ class FileSaver {
       String? filePath,
       LinkDetails? link,
       String ext = '',
-      MimeType mimeType = MimeType.other}) async {
+      MimeType mimeType = MimeType.other,
+      String? customMimeType}) async {
+    assert(mimeType != MimeType.custom || customMimeType != null,
+        'customMimeType is required when mimeType is MimeType.custom');
     bytes = bytes ??
         await Helpers.getBytes(file: file, filePath: filePath, link: link);
 
@@ -65,7 +68,8 @@ class FileSaver {
               name: name,
               bytes: bytes,
               ext: extension,
-              mimeType: mimeType.type));
+              mimeType:
+                  mimeType.type.isEmpty ? customMimeType! : mimeType.type));
       directory = await _saver.save() ?? _somethingWentWrong;
       return directory;
     } catch (e) {
@@ -99,14 +103,18 @@ class FileSaver {
   /// mimeType (Mainly required for web): MimeType from enum MimeType..
   ///
   /// More Mimetypes will be added in future
-  Future<String?> saveAs(
-      {required String name,
-      Uint8List? bytes,
-      File? file,
-      String? filePath,
-      LinkDetails? link,
-      required String ext,
-      required MimeType mimeType}) async {
+  Future<String?> saveAs({
+    required String name,
+    Uint8List? bytes,
+    File? file,
+    String? filePath,
+    LinkDetails? link,
+    required String ext,
+    required MimeType mimeType,
+    String? customMimeType,
+  }) async {
+    assert(mimeType != MimeType.custom || customMimeType != null,
+        'customMimeType is required when mimeType is MimeType.custom');
     bytes = bytes ??
         await Helpers.getBytes(file: file, filePath: filePath, link: link);
 
@@ -117,7 +125,8 @@ class FileSaver {
                 : name,
             bytes: bytes,
             ext: ext,
-            mimeType: mimeType.type));
+            mimeType:
+                mimeType == MimeType.custom ? customMimeType! : mimeType.type));
     String? path = await _saver.saveAs();
     return path;
   }

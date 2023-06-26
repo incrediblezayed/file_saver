@@ -117,7 +117,10 @@ enum MimeType {
   zip(
     name: 'ZIP',
     type: 'application/zip',
-  );
+  ),
+
+  ///Custom mimeType which is not yet added in the enum
+  custom(name: 'Custom', type: '');
 
   final String name;
   final String type;
