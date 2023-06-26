@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.5]
  * Added apng mime type
+ * Fixed repeated extension when using saveAs with MimeType.other on iOS ([GitHub issue #65](https://github.com/incrediblezayed/file_saver/issues/65))
 
 ## [0.2.4]
  * Bug Fix -> Link Details not available publically

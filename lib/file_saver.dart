@@ -120,9 +120,7 @@ class FileSaver {
 
     _saver = Saver(
         fileModel: FileModel(
-            name: mimeType == MimeType.other
-                ? '$name${Helpers.getExtension(extension: ext)}'
-                : name,
+            name: name,
             bytes: bytes,
             ext: ext,
             mimeType:
