@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.5]
  * Added apng mime type
+ * Added custom mimetype \
+  So basically if you have a custom mimetype and it does not exists in the given enum, you can add your own mimeType using the field \
+  ```dart
+  String? customMimeType,
+  ```
+  and you will have to set the mimetype to custom and call the method like 
+  ```dart
+  await FileSaver.instance.saveFile(
+                      name: "FileName",
+                      link: "www.example.com/file.extention", 
+                      filePath: "pathOfFile",
+                      file: File(),
+                      bytes: bytes,
+                      ext: "extention",
+                      customMimeType: 'YourCustomType',
+                      mimeType: MimeType.custom);
+  ```
+
  * Fixed repeated extension when using saveAs with MimeType.other on iOS ([GitHub issue #65](https://github.com/incrediblezayed/file_saver/issues/65))
 
 ## [0.2.4]

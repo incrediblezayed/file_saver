@@ -20,10 +20,12 @@ await FileSaver.instance.saveFile({
       String? filePath,
       LinkDetails? link,
       String ext = "",
-      MimeType mimeType = MimeType.other});
+      MimeType mimeType = MimeType.other,
+      String? customMimeType
+      });
 ```
 
-This saveFile() method has 7 Name arguments.
+This saveFile() method has 8 Named arguments.
 
 _String name_ which takes the name of the file,\
 _Uint8List bytes_ which will be your actual encoded file,\
@@ -56,10 +58,14 @@ await FileSaver.instance.saveAs({
       String? filePath,
       LinkDetails? link,
       required String ext,
-      required MimeType mimeType});
+      required MimeType mimeType,
+      String? customMimeType
+      });
 ```
 
 All the parameters in this method is same as the saveFile() method.
+
+### Note: customMimeType can only be used when mimeType is set to MimeType.custom
 
 ### Storage Permissions & Network Permissions:
 
