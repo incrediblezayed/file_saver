@@ -9,6 +9,9 @@ enum MimeType {
     type: 'audio/aac',
   ),
 
+  ///[apng] for .apng extension
+  apng(name: 'APNG', type: 'image/apng'),
+
   ///[asice] for .asice
   asice(name: 'ASICE', type: 'application/vnd.etsi.asic-e+zip'),
 
