@@ -1,5 +1,5 @@
 # FileSaver
-[![Discord](https://www.incrediblezayed.com/file_saver_discord.png)](https://discord.gg/9VZ97ZV2)
+[![Discord](https://www.incrediblezayed.com/file_saver_discord.png)](https://discord.gg/4yRFt68kty)
 
 
 This plugin package is not much but only for saving files in Android, iOS, Web, Windows, MacOS and Linux. The package
