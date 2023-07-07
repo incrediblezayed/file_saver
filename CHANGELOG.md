@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.6]
+ * Merged ([PR70])(https://github.com/incrediblezayed/file_saver/pull/70), resolving the issue ([#42])(https://github.com/incrediblezayed/file_saver/issues/42)
+
+
 ## [0.2.5]
  * Added apng mime type
  * Added custom mimetype \
