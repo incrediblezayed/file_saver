@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.7]
+ * Updated the http package to the latest version (issue [#63](https://github.com/incrediblezayed/file_saver/issues/63))
+
 ## [0.2.6]
  * Merged ([PR70])(https://github.com/incrediblezayed/file_saver/pull/70), resolving the issue ([#42])(https://github.com/incrediblezayed/file_saver/issues/42)
 
