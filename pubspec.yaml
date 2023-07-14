@@ -17,7 +17,7 @@ dependencies:
   path_provider: ^2.0.11
   path_provider_windows: ^2.0.5
   path_provider_linux: ^2.1.5
-  http: ^0.13.5
+  http: ^1.1.0
   amdjs: ^2.0.3
 
 dev_dependencies:
