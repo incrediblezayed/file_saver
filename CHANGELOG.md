@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.8]
+ * Moving saveAs() support for macOS to production.
+
 ## [0.2.7]
  * Updated the http package to the latest version (issue [#63](https://github.com/incrediblezayed/file_saver/issues/63))
 

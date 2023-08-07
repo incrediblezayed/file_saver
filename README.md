@@ -1,5 +1,5 @@
 # FileSaver
-[![Discord](https://www.incrediblezayed.com/file_saver_discord.png)](https://discord.gg/4yRFt68kty)
+[![Discord](https://www.hassanansari.dev/public/file_saver_discord.png)](https://discord.gg/4yRFt68kty)
 
 
 This plugin package is not much but only for saving files in Android, iOS, Web, Windows, MacOS and Linux. The package
@@ -48,7 +48,7 @@ type
 MimeType is also included in my Package, I've included types for **Sheets, Presentation, Word, Plain Text, PDF,
 MP3, MP4 and many other common formats**
 
-or you can call saveAs() _only available for android and iOS at the moment_
+or you can call saveAs() _only available for android and iOS & macOS at the moment_
 
 ```dart
 await FileSaver.instance.saveAs({

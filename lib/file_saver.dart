@@ -77,7 +77,7 @@ class FileSaver {
     }
   }
 
-  ///[saveAs] This method will open a Save As File dialog where user can select the location for saving file.
+  /// [saveAs] This method will open a Save As File dialog where user can select the location for saving file.
   ///
   /// [name]: Name of your file.
   ///
@@ -102,7 +102,6 @@ class FileSaver {
   ///
   /// mimeType (Mainly required for web): MimeType from enum MimeType..
   ///
-  /// More Mimetypes will be added in future
   Future<String?> saveAs({
     required String name,
     Uint8List? bytes,
