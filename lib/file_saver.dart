@@ -58,22 +58,50 @@ class FileSaver {
       String? customMimeType}) async {
     assert(mimeType != MimeType.custom || customMimeType != null,
         'customMimeType is required when mimeType is MimeType.custom');
-    bytes = bytes ??
-        await Helpers.getBytes(file: file, filePath: filePath, link: link);
 
     String extension = Helpers.getExtension(extension: ext);
+    final isFile = file != null || filePath != null;
+    if (!isFile) {
+      bytes = bytes ??
+          await Helpers.getBytes(file: file, filePath: filePath, link: link);
+    }
     try {
-      _saver = Saver(
-          fileModel: FileModel(
+      if (isFile) {
+        directory = await saveFileOnly(
               name: name,
-              bytes: bytes,
+              file: file ?? File(filePath!),
               ext: extension,
-              mimeType:
-                  mimeType.type.isEmpty ? customMimeType! : mimeType.type));
-      directory = await _saver.save() ?? _somethingWentWrong;
+              mimeType: mimeType,
+            ) ??
+            _somethingWentWrong;
+      } else {
+        _saver = Saver(
+            fileModel: FileModel(
+                name: name,
+                bytes: bytes!,
+                ext: extension,
+                mimeType:
+                    mimeType.type.isEmpty ? customMimeType! : mimeType.type));
+        directory = await _saver.save() ?? _somethingWentWrong;
+      }
       return directory;
     } catch (e) {
       return directory;
+    }
+  }
+
+  Future<String?> saveFileOnly(
+      {required String name,
+      required File file,
+      String ext = '',
+      MimeType mimeType = MimeType.other,
+      String? customMimeType}) async {
+    try {
+      final applicationDirectory = await Helpers.getDirectory();
+
+      return (await file.copy('$applicationDirectory/$name$ext')).path;
+    } catch (e) {
+      return null;
     }
   }
 

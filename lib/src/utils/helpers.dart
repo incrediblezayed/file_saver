@@ -40,7 +40,7 @@ class Helpers {
   static Future<String?> getDirectory() async {
     String? path;
     try {
-      if (Platform.isIOS) {
+      if (Platform.isIOS || Platform.isAndroid) {
         path = (await path_provider.getApplicationDocumentsDirectory()).path;
       } else if (Platform.isMacOS) {
         path = (await path_provider.getDownloadsDirectory())?.path;
