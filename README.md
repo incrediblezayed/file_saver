@@ -2,9 +2,10 @@
 [![Discord](https://www.hassanansari.dev/public/file_saver_discord.png)](https://discord.gg/4yRFt68kty)
 
 
-This plugin package is not much but only for saving files in Android, iOS, Web, Windows, MacOS and Linux. The package
-depends on path_provider for Android and iOS and basic html anchor for Web The main reason I built this plugin was to
-avoid using html only for downloading files. The plugin is pretty simple and saves the file in Downloads folder in
+This plugin package primarily focuses on one task: saving files on Android, iOS, Web, Windows, MacOS, and Linux. 
+It might not have a plethora of features, but it does this job well.
+This package depends on path_provider for Android and iOS and basic html anchor for Web. The main reason I built this plugin was to
+avoid using HTML just for downloading files. The plugin is pretty simple and saves the file in Downloads folder in
 Windows, MacOS, Linux and directly downloads the file in Web, in iOS, the file is Saved in Application
 Documents Directory, and in Android it is saved in the applications files directory Android/data/your.package.name/file/your_file.extension.
 
@@ -34,7 +35,7 @@ _File file_ which will be your file in the File object (from dart:io)\
 Or\
 _Stirng filePath_ which will be your file path\
 Or\
-_LinkDetails link_ which will the link & header to your file. LinkDetails can be used as 
+_LinkDetails link_ which will provide the link & header to your file. LinkDetails can be used as 
 ```dart
 LinkDetails(link: "https://www.example.com/file.extentions", headers: {"your-header-key": "you-header-value"})
 ```
@@ -126,7 +127,7 @@ you have to add this key in the DebugProfile.entitlements and Release.entitlemen
 <true/>
 ```
 
-*You can find these files in project_folder/macos/Runner/*
+*You can find these files in the project_folder/macos/Runner/ directory.*
 
 #### And You're done
 
