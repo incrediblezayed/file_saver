@@ -30,11 +30,12 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
     private var fileName: String? = null
     private val TAG = "Dialog Activity"
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        if (requestCode == SAVE_FILE &&  resultCode == Activity.RESULT_OK && data?.data != null) {
+        if (requestCode == SAVE_FILE && resultCode == Activity.RESULT_OK && data?.data != null) {
             Log.d(TAG, "Starting file operation")
             completeFileOperation(data.data!!)
         } else {
             Log.d(TAG, "Activity result was null")
+            result?.success(null)
             return false
         }
         return true
@@ -53,16 +54,19 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
         this.bytes = bytes
         this.fileName = fileName
         val intent =
-                Intent(Intent.ACTION_CREATE_DOCUMENT)
+            Intent(Intent.ACTION_CREATE_DOCUMENT)
         intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.putExtra(Intent.EXTRA_TITLE, "$fileName.$ext")
         intent.putExtra(Intent.EXTRA_MIME_TYPES, type)
-        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Environment.getExternalStorageDirectory().path)
+        intent.putExtra(
+            DocumentsContract.EXTRA_INITIAL_URI,
+            Environment.getExternalStorageDirectory().path
+        )
         intent.type = type
         intent.flags = (Intent.FLAG_GRANT_READ_URI_PERMISSION
                 or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                 or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
                 or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
                 )
         activity.startActivityForResult(intent, SAVE_FILE)
@@ -90,7 +94,7 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
         try {
             Log.d(TAG, "Saving file")
 
-            val opStream =  activity.contentResolver.openOutputStream(uri)
+            val opStream = activity.contentResolver.openOutputStream(uri)
             opStream?.write(bytes)
 
         } catch (e: Exception) {
