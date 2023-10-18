@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.9]
+ * Merged PR [#75](https://github.com/incrediblezayed/file_saver/pull/81) resolving issue [#75][https://github.com/incrediblezayed/file_saver/issues/75]
+ * Merged PR [#79](https://github.com/incrediblezayed/file_saver/pull/79) resolving issue [#78](https://github.com/incrediblezayed/file_saver/issues/78)
+ * Merged PR [#74](https://github.com/incrediblezayed/file_saver/pull/74/) resolving issue [#73](https://github.com/incrediblezayed/file_saver/issues/73)
+ * Merged PR [#77](https://github.com/incrediblezayed/file_saver/pull/77) for better README.md
+
 ## [0.2.8]
  * Moving saveAs() support for macOS to production.
 
