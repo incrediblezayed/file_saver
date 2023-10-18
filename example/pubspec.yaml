@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   excel:
+  file_picker: ^5.5.0
   file_saver:
     path: ../
   cupertino_icons: ^1.0.4
