@@ -4,7 +4,7 @@ description: >-
   including macOS, iOS, Android, Windows, Web, Linux.
 version: 0.2.9
 repository: https://github.com/incrediblezayed/file_saver
-homepage: hassanansari.dev
+homepage: https://hassanansari.dev
 
 environment:
   sdk: ">=2.17.0 <4.0.0"
