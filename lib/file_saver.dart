@@ -7,6 +7,7 @@ import 'package:file_saver/src/saver.dart';
 import 'package:file_saver/src/utils/helpers.dart';
 import 'package:file_saver/src/utils/mime_types.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 export 'package:file_saver/src/models/link_details.dart';
 export 'package:file_saver/src/utils/mime_types.dart';
@@ -63,6 +64,13 @@ class FileSaver {
 
     String extension = Helpers.getExtension(extension: ext);
     try {
+      if (link != null) {
+        final response = await http.get(Uri.parse(link.link));
+        if (response.statusCode != 200) {
+          directory = 'HTTP Error: ${response.statusCode}';
+          throw Exception('HTTP Error: ${response.statusCode}');
+        }
+      }
       _saver = Saver(
           fileModel: FileModel(
               name: name,
@@ -116,15 +124,27 @@ class FileSaver {
         'customMimeType is required when mimeType is MimeType.custom');
     bytes = bytes ??
         await Helpers.getBytes(file: file, filePath: filePath, link: link);
-
-    _saver = Saver(
-        fileModel: FileModel(
-            name: name,
-            bytes: bytes,
-            ext: ext,
-            mimeType:
-                mimeType == MimeType.custom ? customMimeType! : mimeType.type));
-    String? path = await _saver.saveAs();
-    return path;
+    String? path;
+    try {
+      if (link != null) {
+        final response = await http.get(Uri.parse(link.link));
+        if (response.statusCode != 200) {
+          directory = 'HTTP Error: ${response.statusCode}';
+          throw Exception('HTTP Error: ${response.statusCode}');
+        }
+      }
+      _saver = Saver(
+          fileModel: FileModel(
+              name: name,
+              bytes: bytes,
+              ext: ext,
+              mimeType: mimeType == MimeType.custom
+                  ? customMimeType!
+                  : mimeType.type));
+      path = await _saver.saveAs();
+      return path;
+    } catch (e) {
+      return path;
+    }
   }
 }
