@@ -129,7 +129,7 @@ class FileSaver {
       if (link != null) {
         final response = await http.get(Uri.parse(link.link));
         if (response.statusCode != 200) {
-          directory = 'HTTP Error: ${response.statusCode}';
+          path = 'HTTP Error: ${response.statusCode}';
           throw Exception('HTTP Error: ${response.statusCode}');
         }
       }
@@ -141,7 +141,7 @@ class FileSaver {
               mimeType: mimeType == MimeType.custom
                   ? customMimeType!
                   : mimeType.type));
-      path = await _saver.saveAs();
+      path = await _saver.saveAs() ?? _somethingWentWrong;
       return path;
     } catch (e) {
       return path;
