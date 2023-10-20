@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_saver/src/models/file.model.dart';
 import 'package:file_saver/src/platform_handler/platform_handler.dart';
@@ -67,6 +68,9 @@ class PlatformHandlerAll extends PlatformHandler {
     String? path;
     if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
       path = await _channel.invokeMethod<String>(_saveAs, fileModel.toMap());
+    } else if (Platform.isWindows) {
+      final Int64List? bytes = await _channel.invokeMethod<Int64List?>('saveAs', fileModel.toMap());
+      path = bytes == null ? null : String.fromCharCodes(bytes);
     } else {
       throw UnimplementedError('Unimplemented Error');
     }

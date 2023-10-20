@@ -38,7 +38,7 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         Log.d(tag, "Detached From Engine")
         methodChannel = null
         pluginBinding = null
-        if(dialog!=null) {
+        if (dialog != null) {
             activity?.removeActivityResultListener(dialog!!)
             dialog = null
         }
@@ -56,14 +56,26 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
             when (call.method) {
                 "saveFile" -> {
                     Log.d(tag, "Get directory Method Called")
-                    val dir: String = saveFile(fileName = call.argument("name"), bytes = call.argument("bytes"), extension = call.argument("ext"))
+                    val dir: String = saveFile(
+                        fileName = call.argument("name"),
+                        bytes = call.argument("bytes"),
+                        extension = call.argument("ext")
+                    )
                     result.success(dir)
                 }
+
                 "saveAs" -> {
                     Log.d(tag, "Save as Method Called")
-                    dialog!!.openFileManager(fileName = call.argument("name"), ext = call.argument("ext"), bytes = call.argument("bytes"), type = call.argument("mimeType"), result = result)
+                    dialog!!.openFileManager(
+                        fileName = call.argument("name"),
+                        ext = call.argument("ext"),
+                        bytes = call.argument("bytes"),
+                        type = call.argument("mimeType"),
+                        result = result
+                    )
 
                 }
+
                 else -> {
                     Log.d(tag, "Unknown Method called " + call.method!!)
                     result.notImplemented()
@@ -120,7 +132,7 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
         var dialog: Dialog? = null
         if (activity != null) {
             dialog = Dialog(
-                    activity = activity!!.activity
+                activity = activity!!.activity
             )
             activity!!.addActivityResultListener(dialog)
         } else {
