@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.10]
+ * Fixed ([GitHub issue #92](https://github.com/incrediblezayed/file_saver/issues/92))
+
 ## [0.2.9]
  * Merged PR [#75](https://github.com/incrediblezayed/file_saver/pull/81) resolving issue [#75][https://github.com/incrediblezayed/file_saver/issues/75]
  * Merged PR [#79](https://github.com/incrediblezayed/file_saver/pull/79) resolving issue [#78](https://github.com/incrediblezayed/file_saver/issues/78)
