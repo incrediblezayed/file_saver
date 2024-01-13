@@ -2,7 +2,7 @@ name: file_saver
 description: >-
   This package will help you save file with a single method on any platform
   including macOS, iOS, Android, Windows, Web, Linux.
-version: 0.2.9
+version: 0.2.10
 repository: https://github.com/incrediblezayed/file_saver
 homepage: https://hassanansari.dev
 
