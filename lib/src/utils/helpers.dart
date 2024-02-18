@@ -1,9 +1,9 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:file_saver/src/models/link_details.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:path_provider_linux/path_provider_linux.dart'
     as path_provider_linux;
@@ -25,14 +25,29 @@ class Helpers {
   }
 
   ///This method provides [Uint8List] from link
-  static Future<Uint8List> _getBytesFromLink(LinkDetails link) async {
-    final httpClient = Client();
-    Response response = await httpClient.get(
-      Uri.parse(link.link),
-      headers: link.headers,
+  ///[LinkDetails] is used to provide link and headers
+  ///[Dio] is used to provide custom dio instance if needed
+  ///[transformData] is used to provide custom data transformation
+  ///Note: Always put the full link within the link field
+  static Future<Uint8List> _getBytesFromLink(
+    LinkDetails link, {
+    Dio? dioClient,
+    Uint8List Function(dynamic data)? transformData,
+  }) async {
+    final dio = dioClient ??
+        Dio(
+          BaseOptions(
+            headers: link.headers,
+            method: link.method,
+          ),
+        );
+    Response response = await dio.request(
+      link.link,
     );
-    Uint8List bytes = response.bodyBytes;
-    httpClient.close();
+    if (transformData != null) {
+      return transformData(response.data);
+    }
+    Uint8List bytes = response.data;
     return bytes;
   }
 
