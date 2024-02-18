@@ -86,7 +86,7 @@ class FileSaver {
       }
       return directory;
     } catch (e) {
-      return directory;
+      rethrow;
     }
   }
 
@@ -101,7 +101,7 @@ class FileSaver {
 
       return (await file.copy('$applicationDirectory/$name$ext')).path;
     } catch (e) {
-      return null;
+      rethrow;
     }
   }
 
@@ -140,8 +140,10 @@ class FileSaver {
     required MimeType mimeType,
     String? customMimeType,
   }) async {
-    assert(mimeType != MimeType.custom || customMimeType != null,
-        'customMimeType is required when mimeType is MimeType.custom');
+    if (mimeType != MimeType.custom || customMimeType != null) {
+      throw Exception(
+          'customMimeType is required when mimeType is MimeType.custom');
+    }
     bytes = bytes ??
         await Helpers.getBytes(file: file, filePath: filePath, link: link);
 

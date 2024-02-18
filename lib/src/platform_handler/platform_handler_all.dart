@@ -28,10 +28,10 @@ class PlatformHandlerAll extends PlatformHandler {
       directory =
           await _channel.invokeMethod<String>(_saveFile, fileModel.toMap()) ??
               '';
+      return directory;
     } catch (e) {
-      log('Error: $e');
+      rethrow;
     }
-    return directory;
   }
 
   Future<String> saveFileForOtherPlatforms(FileModel fileModel) async {
@@ -39,6 +39,7 @@ class PlatformHandlerAll extends PlatformHandler {
     path = await Helpers.getDirectory() ?? '';
     if (path == '') {
       log('The path was found null or empty, please report the issue at $_issueLink');
+      throw Exception('The path was found null or empty');
     } else {
       String filePath = '$path/${fileModel.name}${fileModel.ext}';
       final File file = File(filePath);
@@ -69,7 +70,8 @@ class PlatformHandlerAll extends PlatformHandler {
     if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
       path = await _channel.invokeMethod<String>(_saveAs, fileModel.toMap());
     } else if (Platform.isWindows) {
-      final Int64List? bytes = await _channel.invokeMethod<Int64List?>('saveAs', fileModel.toMap());
+      final Int64List? bytes =
+          await _channel.invokeMethod<Int64List?>('saveAs', fileModel.toMap());
       path = bytes == null ? null : String.fromCharCodes(bytes);
     } else {
       throw UnimplementedError('Unimplemented Error');

@@ -71,6 +71,7 @@ class Helpers {
     } on Exception catch (e) {
       log('Something wemt worng while getting directories');
       log(e.toString());
+      rethrow;
     }
     return path;
   }
