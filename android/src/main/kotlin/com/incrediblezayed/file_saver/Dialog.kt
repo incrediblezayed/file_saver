@@ -22,25 +22,30 @@ import java.io.File
 import java.io.OutputStream
 
 
-private const val SAVE_FILE = 19112
+private const val SAVE_FILE = 886325063
 
 class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultListener {
     private var result: MethodChannel.Result? = null
     private var bytes: ByteArray? = null
     private var fileName: String? = null
     private val TAG = "Dialog Activity"
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        if (requestCode == SAVE_FILE && resultCode == Activity.RESULT_OK && data?.data != null) {
+        if (requestCode != SAVE_FILE) {
+            return false
+        }
+
+        if (resultCode == Activity.RESULT_OK && data?.data != null) {
             Log.d(TAG, "Starting file operation")
             completeFileOperation(data.data!!)
         } else {
             Log.d(TAG, "Activity result was null")
             result?.success(null)
-            return false
+            result = null
         }
+
         return true
     }
-
 
     fun openFileManager(
         fileName: String?,
@@ -78,14 +83,17 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
                 saveFile(uri)
                 val fileUtils = FileUtils(activity)
                 result?.success(fileUtils.getPath(uri));
+                result = null
                 //result?.success(getRealPathFromUri(activity, uri))
             } catch (e: SecurityException) {
                 Log.d(TAG, "Security Exception while saving file" + e.message)
 
                 result?.error("Security Exception", e.localizedMessage, e)
+                result = null
             } catch (e: Exception) {
                 Log.d(TAG, "Exception while saving file" + e.message)
                 result?.error("Error", e.localizedMessage, e)
+                result = null
             }
         }
     }
