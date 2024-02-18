@@ -15,13 +15,13 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  path_provider: ^2.0.11
-  path_provider_windows: ^2.0.5
-  path_provider_linux: ^2.1.5
-  http: ^1.1.0
+  path_provider: ^2.1.2
+  path_provider_windows: ^2.2.1
+  path_provider_linux: ^2.2.1
+  dio: ^5.4.0
 
 dev_dependencies:
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
   flutter_test:
     sdk: flutter
 

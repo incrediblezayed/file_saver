@@ -31,7 +31,7 @@ class _MyAppState extends State<MyApp> {
     final Sheet sheetObject = excel['Sheet1'];
     sheetObject.insertColumn(0);
     for (int i = 1; i < 10; i++) {
-      sheetObject.appendRow([i]);
+      sheetObject.appendRow([IntCellValue(i)]);
     }
     List<int>? sheets = excel.encode();
     return sheets;

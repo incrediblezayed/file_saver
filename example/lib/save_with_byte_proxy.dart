@@ -1,13 +1,11 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'dart:developer';
 import 'dart:io';
 
 import 'package:excel/excel.dart';
 import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-
-
 
 class SaveWithByteProxy extends StatefulWidget {
   const SaveWithByteProxy({Key? key}) : super(key: key);
@@ -33,7 +31,7 @@ class _SaveWithByteProxyState extends State<SaveWithByteProxy> {
     final Sheet sheetObject = excel['Sheet1'];
     sheetObject.insertColumn(0);
     for (int i = 1; i < 10; i++) {
-      sheetObject.appendRow([i]);
+      sheetObject.appendRow([IntCellValue(i)]);
     }
     List<int>? sheets = excel.encode();
     return sheets;
@@ -116,7 +114,7 @@ class _SaveWithByteProxyState extends State<SaveWithByteProxy> {
               Sheet sheetObject = excel['Sheet1'];
               sheetObject.insertColumn(0);
               for (int i = 1; i < 10; i++) {
-                sheetObject.appendRow([i]);
+                sheetObject.appendRow([IntCellValue(i)]);
               }
 
               String path = await FileSaver.instance.saveFile(
@@ -158,18 +156,20 @@ class _SaveWithByteProxyState extends State<SaveWithByteProxy> {
             Sheet sheetObject = excel['Sheet1'];
             sheetObject.insertColumn(0);
             for (int i = 1; i < 10; i++) {
-              sheetObject.appendRow([i]);
+              sheetObject.appendRow([TextCellValue(i.toString())]);
             }
             String? path = await FileSaver.instance.saveAs(
-                name: textEditingController.text == ""
-                    ? "File"
-                    : textEditingController.text,
-                //link:  linkController.text,
-                bytes: Uint8List.fromList(excel.encode()!),
-                ext: 'xlsx',
+              name: textEditingController.text == ""
+                  ? "File"
+                  : textEditingController.text,
+              //link:  linkController.text,
+              bytes: Uint8List.fromList(excel.encode()!),
+              ext: 'xlsx',
 
-                ///extController.text,
-                mimeType: MimeType.microsoftExcel);
+              ///extController.text,
+              mimeType: MimeType.microsoftExcel,
+              
+            );
             log(path.toString());
           },
           child: const Text("Open File Manager"),
