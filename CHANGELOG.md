@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.2.10]
+ * Fixed ([GitHub issue #95](https://github.com/incrediblezayed/file_saver/issues/95))
  * Fixed ([GitHub issue #92](https://github.com/incrediblezayed/file_saver/issues/92))
 
 ## [0.2.9]
