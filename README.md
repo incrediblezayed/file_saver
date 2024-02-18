@@ -2,6 +2,8 @@
 [![Discord](https://www.hassanansari.dev/public/file_saver_discord.png)](https://discord.gg/4yRFt68kty)
 
 
+## Huge Shoutout to all the contributors and the people who are using this package, I'm really grateful to all of you. Thank you for your support.
+
 This plugin package primarily focuses on one task: saving files on Android, iOS, Web, Windows, MacOS, and Linux. 
 It might not have a plethora of features, but it does this job well.
 This package depends on path_provider for Android and iOS and basic html anchor for Web. The main reason I built this plugin was to
@@ -22,7 +24,9 @@ await FileSaver.instance.saveFile({
       LinkDetails? link,
       String ext = "",
       MimeType mimeType = MimeType.other,
-      String? customMimeType
+      String? customMimeType,
+      Dio? dioClient,
+      Uint8List Function(Uint8List)? transformDioResponse,
       });
 ```
 
@@ -35,9 +39,14 @@ _File file_ which will be your file in the File object (from dart:io)\
 Or\
 _Stirng filePath_ which will be your file path\
 Or\
-_LinkDetails link_ which will provide the link & header to your file. LinkDetails can be used as 
+_LinkDetails link_ which will provide the link, header, request methid and body to your file. LinkDetails can be used as 
 ```dart
-LinkDetails(link: "https://www.example.com/file.extentions", headers: {"your-header-key": "you-header-value"})
+LinkDetails(
+      link: "https://www.example.com/file.extentions",
+      headers: {"your-header-key": "you-header-value"},
+      method: "POST",
+      body: body
+)
 ```
 \
 Out of these parameters, you will have to use atleast one
@@ -45,6 +54,12 @@ Out of these parameters, you will have to use atleast one
 _String ext_ this will be your file extension.\
 Another parameter is _MimeType type_ Specifically for Web, which will be your file
 type
+
+_String customMimeType_ this will be your custom mime type, if you want to use your own mime type, you can use this parameter
+
+_Dio dioClient_ this will be your dio client, if you want to use dio for downloading the file, you can use this parameter
+
+_Uint8List Function(Uint8List) transformDioResponse_ this will be your function to transform the response, if you want to transform the response as per your requirement, you can use this parameter
 
 MimeType is also included in my Package, I've included types for **Sheets, Presentation, Word, Plain Text, PDF,
 MP3, MP4 and many other common formats**
@@ -60,7 +75,9 @@ await FileSaver.instance.saveAs({
       LinkDetails? link,
       required String ext,
       required MimeType mimeType,
-      String? customMimeType
+      String? customMimeType,
+      Dio? dioClient,
+      Uint8List Function(Uint8List)? transformDioResponse,
       });
 ```
 

@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.2.10]
+ * Moved from `http` to `dio` for better control over the headers and other options
+ * LinkDetails has more options such as `method` & `body`\
+   here is the example of how to use the LinkDetails
+   ```dart
+    LinkDetails(
+        link: "www.example.com/file.extention",
+        headers: /// Your headers here,
+        method: /// Your method here (GET, POST, PUT, DELETE, PATCH),
+        body: /// Request body here
+    ),
+    ```
+ * Both `saveFile` and `saveAs` methods now have the `dioClient` & `transformDioResponse` as a parameter, so you can pass your own dio client to the method and it will use that client to download the file & you can also pass the `transformDioResponse` to transform the response as per your requirement.\
+    ```dart
+    await FileSaver.instance.saveFile(
+                      name: "FileName",
+                      link: "www.example.com/file.extention", 
+                      filePath: "pathOfFile",
+                      file: File(),
+                      bytes: bytes,
+                      ext: "extention",
+                      mimeType: MimeType.pdf,
+                      dioClient: Dio(),
+                      transformDioResponse: (response) {
+                        return response.data;
+                      });
+    ```
  * Fixed ([GitHub issue #95](https://github.com/incrediblezayed/file_saver/issues/95))
  * Fixed ([GitHub issue #92](https://github.com/incrediblezayed/file_saver/issues/92))
 

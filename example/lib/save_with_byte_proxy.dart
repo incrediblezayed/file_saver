@@ -31,7 +31,7 @@ class _SaveWithByteProxyState extends State<SaveWithByteProxy> {
     final Sheet sheetObject = excel['Sheet1'];
     sheetObject.insertColumn(0);
     for (int i = 1; i < 10; i++) {
-      sheetObject.appendRow([IntCellValue(i)]);
+      sheetObject.appendRow([TextCellValue(i.toString())]);
     }
     List<int>? sheets = excel.encode();
     return sheets;
@@ -114,7 +114,7 @@ class _SaveWithByteProxyState extends State<SaveWithByteProxy> {
               Sheet sheetObject = excel['Sheet1'];
               sheetObject.insertColumn(0);
               for (int i = 1; i < 10; i++) {
-                sheetObject.appendRow([IntCellValue(i)]);
+                sheetObject.appendRow([TextCellValue(i.toString())]);
               }
 
               String path = await FileSaver.instance.saveFile(
@@ -168,7 +168,6 @@ class _SaveWithByteProxyState extends State<SaveWithByteProxy> {
 
               ///extController.text,
               mimeType: MimeType.microsoftExcel,
-              
             );
             log(path.toString());
           },

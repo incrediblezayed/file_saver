@@ -27,12 +27,12 @@ class Helpers {
   ///This method provides [Uint8List] from link
   ///[LinkDetails] is used to provide link and headers
   ///[Dio] is used to provide custom dio instance if needed
-  ///[transformData] is used to provide custom data transformation
+  ///[transformDioResponse] is used to provide custom data transformation
   ///Note: Always put the full link within the link field
   static Future<Uint8List> _getBytesFromLink(
     LinkDetails link, {
     Dio? dioClient,
-    Uint8List Function(dynamic data)? transformData,
+    Uint8List Function(dynamic data)? transformDioResponse,
   }) async {
     final dio = dioClient ??
         Dio(
@@ -44,8 +44,8 @@ class Helpers {
     Response response = await dio.request(
       link.link,
     );
-    if (transformData != null) {
-      return transformData(response.data);
+    if (transformDioResponse != null) {
+      return transformDioResponse(response.data);
     }
     Uint8List bytes = response.data;
     return bytes;
@@ -89,15 +89,24 @@ class Helpers {
   }
 
   ///This method is used to get [Uint8List] from either [filePath], [link] or [file]
-  static Future<Uint8List> getBytes(
-      {String? filePath, LinkDetails? link, File? file}) async {
+  static Future<Uint8List> getBytes({
+    String? filePath,
+    LinkDetails? link,
+    File? file,
+    Dio? dioClient,
+    Uint8List Function(dynamic data)? transformDioResponse,
+  }) async {
     assert(filePath != null || link != null || file != null,
         'Either filePath or link or file must be provided');
     if (filePath != null) {
       return _getBytesFromPath(filePath);
     } else {
       if (link != null) {
-        return _getBytesFromLink(link);
+        return _getBytesFromLink(
+          link,
+          dioClient: dioClient,
+          transformDioResponse: transformDioResponse,
+        );
       } else if (file != null) {
         return _getBytesFromFile(file);
       } else {

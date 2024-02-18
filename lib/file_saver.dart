@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:file_saver/src/models/file.model.dart';
 import 'package:file_saver/src/models/link_details.dart';
 import 'package:file_saver/src/saver.dart';
@@ -47,23 +48,33 @@ class FileSaver {
   /// mimeType (Mainly required for web): MimeType from enum MimeType..
   ///
   /// More Mimetypes will be added in future
-  Future<String> saveFile(
-      {required String name,
-      Uint8List? bytes,
-      File? file,
-      String? filePath,
-      LinkDetails? link,
-      String ext = '',
-      MimeType mimeType = MimeType.other,
-      String? customMimeType}) async {
-    assert(mimeType != MimeType.custom || customMimeType != null,
-        'customMimeType is required when mimeType is MimeType.custom');
-
+  Future<String> saveFile({
+    required String name,
+    Uint8List? bytes,
+    File? file,
+    String? filePath,
+    LinkDetails? link,
+    String ext = '',
+    MimeType mimeType = MimeType.other,
+    String? customMimeType,
+    Dio? dioClient,
+    Uint8List Function(dynamic data)? transformDioResponse,
+  }) async {
+    if (mimeType == MimeType.custom && customMimeType == null) {
+      throw Exception(
+          'customMimeType is required when mimeType is MimeType.custom');
+    }
     String extension = Helpers.getExtension(extension: ext);
     final isFile = file != null || filePath != null;
     if (!isFile) {
       bytes = bytes ??
-          await Helpers.getBytes(file: file, filePath: filePath, link: link);
+          await Helpers.getBytes(
+            file: file,
+            filePath: filePath,
+            link: link,
+            dioClient: dioClient,
+            transformDioResponse: transformDioResponse,
+          );
     }
     try {
       if (isFile) {
@@ -139,13 +150,21 @@ class FileSaver {
     required String ext,
     required MimeType mimeType,
     String? customMimeType,
+    Dio? dioClient,
+    Uint8List Function(dynamic data)? transformDioResponse,
   }) async {
     if (mimeType == MimeType.custom && customMimeType == null) {
       throw Exception(
           'customMimeType is required when mimeType is MimeType.custom');
     }
     bytes = bytes ??
-        await Helpers.getBytes(file: file, filePath: filePath, link: link);
+        await Helpers.getBytes(
+          file: file,
+          filePath: filePath,
+          link: link,
+          dioClient: dioClient,
+          transformDioResponse: transformDioResponse,
+        );
 
     _saver = Saver(
         fileModel: FileModel(
