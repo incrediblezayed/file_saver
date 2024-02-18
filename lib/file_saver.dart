@@ -140,7 +140,7 @@ class FileSaver {
     required MimeType mimeType,
     String? customMimeType,
   }) async {
-    if (mimeType != MimeType.custom || customMimeType != null) {
+    if (mimeType == MimeType.custom && customMimeType == null) {
       throw Exception(
           'customMimeType is required when mimeType is MimeType.custom');
     }

@@ -156,18 +156,20 @@ class _SaveWithByteProxyState extends State<SaveWithByteProxy> {
             Sheet sheetObject = excel['Sheet1'];
             sheetObject.insertColumn(0);
             for (int i = 1; i < 10; i++) {
-              sheetObject.appendRow([IntCellValue(i)]);
+              sheetObject.appendRow([TextCellValue(i.toString())]);
             }
             String? path = await FileSaver.instance.saveAs(
-                name: textEditingController.text == ""
-                    ? "File"
-                    : textEditingController.text,
-                //link:  linkController.text,
-                bytes: Uint8List.fromList(excel.encode()!),
-                ext: 'xlsx',
+              name: textEditingController.text == ""
+                  ? "File"
+                  : textEditingController.text,
+              //link:  linkController.text,
+              bytes: Uint8List.fromList(excel.encode()!),
+              ext: 'xlsx',
 
-                ///extController.text,
-                mimeType: MimeType.microsoftExcel);
+              ///extController.text,
+              mimeType: MimeType.microsoftExcel,
+              
+            );
             log(path.toString());
           },
           child: const Text("Open File Manager"),
