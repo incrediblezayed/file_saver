@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.11]
+ * Merged PR [#87](https://github.com/incrediblezayed/file_saver/pull/87) for backward compatibility with the older versions of java
+
 ## [0.2.10]
  * Moved from `http` to `dio` for better control over the headers and other options
  * LinkDetails has more options such as `method` & `body`\
