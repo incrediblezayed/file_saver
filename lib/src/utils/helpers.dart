@@ -39,6 +39,7 @@ class Helpers {
           BaseOptions(
             headers: link.headers,
             method: link.method,
+            responseType: ResponseType.bytes,
           ),
         );
     Response response = await dio.request(
