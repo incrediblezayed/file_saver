@@ -2,7 +2,7 @@ name: file_saver
 description: >-
   This package will help you save file with a single method on any platform
   including macOS, iOS, Android, Windows, Web, Linux.
-version: 0.2.11
+version: 0.2.12
 repository: https://github.com/incrediblezayed/file_saver
 homepage: https://hassanansari.dev
 
@@ -18,7 +18,7 @@ dependencies:
   path_provider: ^2.1.2
   path_provider_windows: ^2.2.1
   path_provider_linux: ^2.2.1
-  dio: ^5.4.0
+  dio: ^5.4.1
 
 dev_dependencies:
   flutter_lints: ^3.0.1

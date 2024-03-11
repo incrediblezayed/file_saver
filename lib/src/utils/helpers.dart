@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -44,12 +45,24 @@ class Helpers {
         );
     Response response = await dio.request(
       link.link,
+      data: link.body,
+      queryParameters: link.queryParameters,
     );
     if (transformDioResponse != null) {
       return transformDioResponse(response.data);
+    } else {
+      if (response.data is Uint8List) {
+        return response.data;
+      } else if (response.data is List<int>) {
+        return Uint8List.fromList(response.data);
+      } else if (response.data is String) {
+        return utf8.encode(response.data);
+      } else {
+        throw Exception(
+          'Invalid data type, if you have a different response type, then provide the transformDioResponse function',
+        );
+      }
     }
-    Uint8List bytes = response.data;
-    return bytes;
   }
 
   ///This method provides default downloads directory for saving the file for Android, iOS, Linux, Windows, macOS

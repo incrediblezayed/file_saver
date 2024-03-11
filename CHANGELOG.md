@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.12]
+ * Minor network related bug fixes, fixing issue [#105](https://github.com/incrediblezayed/file_saver/issues/105) 
+ * & Issue [#106](https://github.com/incrediblezayed/file_saver/issues/106)
+
 ## [0.2.11]
  * Merged PR [#87](https://github.com/incrediblezayed/file_saver/pull/87) for backward compatibility with the older versions of java
 
