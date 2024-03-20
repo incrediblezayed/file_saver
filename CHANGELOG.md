@@ -88,7 +88,7 @@ All notable changes to this project will be documented in this file.
  * Implemented the web platform without method channel, using the conditional imports.
 
 ## 0.2.1
- * Fixed a bug in web ([git issue #57]("https://github.com/incrediblezayed/file_saver/issues/57))
+ * Fixed a bug in web ([git issue #57](https://github.com/incrediblezayed/file_saver/issues/57))
  * Updated dart version constraints
  * Updated MimeType enum to enhanced enum (from dart 2.17.0) and removed method getMimetype(), if you want to get the mimeType from the enum you can directly write
   ```dart
