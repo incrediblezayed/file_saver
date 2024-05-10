@@ -19,6 +19,7 @@ dependencies:
   path_provider_windows: ^2.2.1
   path_provider_linux: ^2.2.1
   dio: ^5.4.1
+  web: ^0.5.1
 
 dev_dependencies:
   flutter_lints: ^3.0.1
