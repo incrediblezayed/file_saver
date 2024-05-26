@@ -1,11 +1,9 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:excel/excel.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class SaveWithByteProxy extends StatefulWidget {
   const SaveWithByteProxy({Key? key}) : super(key: key);
@@ -93,11 +91,11 @@ class _SaveWithByteProxyState extends State<SaveWithByteProxy> {
         ElevatedButton(
             onPressed: () async {
               if (!kIsWeb) {
-                if (Platform.isIOS || Platform.isAndroid) {
+                /*     if (Platform.isIOS || Platform.isAndroid) {
                   bool status = await Permission.storage.isGranted;
 
                   if (!status) await Permission.storage.request();
-                }
+                } */
               }
               if (type != MimeType.other && extController.text.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
