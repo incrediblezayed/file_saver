@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.13]
+ * Merge PR [#115](https://github.com/incrediblezayed/file_saver/pull/115) for wasm build
+ * Added 3 MP4 mime types for better compatibility with the MP4 files
+
 ## [0.2.12]
  * Minor network related bug fixes, fixing issue [#105](https://github.com/incrediblezayed/file_saver/issues/105) 
  * & Issue [#106](https://github.com/incrediblezayed/file_saver/issues/106)

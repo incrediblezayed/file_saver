@@ -1,9 +1,11 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SaveWithFileProxy extends StatefulWidget {
   const SaveWithFileProxy({Key? key}) : super(key: key);
@@ -49,7 +51,19 @@ class _SaveWithFileProxyState extends State<SaveWithFileProxy> {
                     labelText: "Original file",
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
-                      onPressed: () async {},
+                      onPressed: () async {
+                        FilePickerResult? result =
+                            await FilePicker.platform.pickFiles();
+
+                        final resultPath = result?.files.single.path;
+
+                        if (resultPath != null) {
+                          File file = File(resultPath);
+                          originalFileController.text = file.path;
+                        } else {
+                          // User canceled the picker
+                        }
+                      },
                       icon: const Icon(Icons.folder),
                     ),
                   ),
@@ -84,11 +98,11 @@ class _SaveWithFileProxyState extends State<SaveWithFileProxy> {
               child: ElevatedButton(
                 onPressed: () async {
                   if (!kIsWeb) {
-                    /* if (Platform.isIOS || Platform.isAndroid) {
+                    if (Platform.isIOS || Platform.isAndroid) {
                       bool status = await Permission.storage.isGranted;
 
                       if (!status) await Permission.storage.request();
-                    } */
+                    }
                   }
                   if (type != MimeType.other && extController.text.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
