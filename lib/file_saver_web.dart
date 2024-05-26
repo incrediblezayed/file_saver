@@ -1,13 +1,14 @@
 import 'dart:async';
-// In order to *not* need this ignore, consider extracting the "web" version
-// of your plugin as a separate package, instead of inlining it in the same
-// package as the core of your plugin.
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html';
+import 'dart:js_interop';
 
 import 'package:file_saver/src/models/file.model.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+// In order to *not* need this ignore, consider extracting the "web" version
+// of your plugin as a separate package, instead of inlining it in the same
+// package as the core of your plugin.
+// ignore: avoid_web_libraries_in_flutter
+import 'package:web/web.dart';
 
 /// A web implementation of the FileSaver plugin.
 class FileSaverWeb {
@@ -40,17 +41,22 @@ class FileSaverWeb {
     bool success = false;
 
     try {
-      String url = Url.createObjectUrlFromBlob(
-          Blob([fileModel.bytes], fileModel.mimeType));
+      String url = URL.createObjectURL(
+        Blob(
+          <JSUint8Array>[fileModel.bytes.toJS].toJS,
+          BlobPropertyBag(type: fileModel.mimeType),
+        ),
+      );
 
-      HtmlDocument htmlDocument = document;
-      AnchorElement anchor = htmlDocument.createElement('a') as AnchorElement;
+      Document htmlDocument = document;
+      HTMLAnchorElement anchor =
+          htmlDocument.createElement('a') as HTMLAnchorElement;
       anchor.href = url;
       anchor.style.display = fileModel.name + fileModel.ext;
       anchor.download = fileModel.name + fileModel.ext;
-      document.body!.children.add(anchor);
+      document.body!.add(anchor);
       anchor.click();
-      document.body!.children.remove(anchor);
+      anchor.remove();
       success = true;
     } catch (e) {
       rethrow;
