@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+
 ///[MimeType] is an enum for adding filetype for HTML Blob
 enum MimeType {
   ///[avi] for .avi extension
@@ -137,4 +139,8 @@ enum MimeType {
   final String name;
   final String type;
   const MimeType({required this.name, required this.type});
+
+  static MimeType? get(String? name) {
+    return MimeType.values.firstWhereOrNull((e) => e.name == name);
+  }
 }
