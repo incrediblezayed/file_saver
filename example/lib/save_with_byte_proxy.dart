@@ -99,12 +99,14 @@ class _SaveWithByteProxyState extends State<SaveWithByteProxy> {
                   if (!status) await Permission.storage.request();
                 }
               }
-              if (type != MimeType.other && extController.text.isEmpty) {
+              if (type != MimeType.other &&
+                  extController.text.isEmpty &&
+                  context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Extension is required")));
               }
 
-              if (linkController.text.isEmpty) {
+              if (linkController.text.isEmpty && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Link is required")));
               }

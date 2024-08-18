@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.14]
+ * Merged PR [#117](https://github.com/incrediblezayed/file_saver/pull/117) to update conditional imports for web (wasm)
+ * Merged PR [#121](https://github.com/incrediblezayed/file_saver/pull/121) added dynamic access to enum for whoever need it, 
+    ```dart
+    MimeType.get('pdf');
+    ```
+ * Merged PR [#123](https://github.com/incrediblezayed/file_saver/pull/123) for upgrade to web 1.0.0
+
 ## [0.2.13]
  * Merge PR [#115](https://github.com/incrediblezayed/file_saver/pull/115) for wasm build
  * Added 3 MP4 mime types for better compatibility with the MP4 files

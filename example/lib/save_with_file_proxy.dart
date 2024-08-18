@@ -104,7 +104,7 @@ class _SaveWithFileProxyState extends State<SaveWithFileProxy> {
                       if (!status) await Permission.storage.request();
                     }
                   }
-                  if (type != MimeType.other && extController.text.isEmpty) {
+                  if (type != MimeType.other && extController.text.isEmpty && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Extension is required")));
                   }
