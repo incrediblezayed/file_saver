@@ -19,6 +19,7 @@ dependencies:
   path_provider_windows: ^2.2.1
   path_provider_linux: ^2.2.1
   dio: ^5.4.3+1
+  collection: ^1.18.0
   web: ^1.0.0
 
 dev_dependencies:
