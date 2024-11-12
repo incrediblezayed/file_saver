@@ -20,14 +20,11 @@ class PlatformHandlerAll extends PlatformHandler {
       'Something went wrong, please report the issue https://www.github.com/incrediblezayed/file_saver/issues';
   late String directory = _somethingWentWrong;
 
-  final String _issueLink =
-      'https://www.github.com/incrediblezayed/file_saver/issues';
+  final String _issueLink = 'https://www.github.com/incrediblezayed/file_saver/issues';
 
   Future<String> saveFileForAndroid(FileModel fileModel) async {
     try {
-      directory =
-          await _channel.invokeMethod<String>(_saveFile, fileModel.toMap()) ??
-              '';
+      directory = await _channel.invokeMethod<String>(_saveFile, fileModel.toMap()) ?? '';
       return directory;
     } catch (e) {
       rethrow;
@@ -41,7 +38,8 @@ class PlatformHandlerAll extends PlatformHandler {
       log('The path was found null or empty, please report the issue at $_issueLink');
       throw Exception('The path was found null or empty');
     } else {
-      String filePath = '$path/${fileModel.name}${fileModel.ext}';
+      final slash = Helpers.getFilePathSlash();
+      String filePath = '$path$slash${fileModel.name}${fileModel.ext}';
       final File file = File(filePath);
       await file.writeAsBytes(fileModel.bytes);
       bool exist = await file.exists();
@@ -70,8 +68,7 @@ class PlatformHandlerAll extends PlatformHandler {
     if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
       path = await _channel.invokeMethod<String>(_saveAs, fileModel.toMap());
     } else if (Platform.isWindows) {
-      final Int64List? bytes =
-          await _channel.invokeMethod<Int64List?>('saveAs', fileModel.toMap());
+      final Int64List? bytes = await _channel.invokeMethod<Int64List?>('saveAs', fileModel.toMap());
       path = bytes == null ? null : String.fromCharCodes(bytes);
     } else {
       throw UnimplementedError('Unimplemented Error');
