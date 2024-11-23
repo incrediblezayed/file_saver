@@ -72,12 +72,16 @@ std::vector<int64_t> WideStringToVector(const wchar_t* wideStr) {
 }
 
 std::wstring FileExtensionToFileFilter(std::string fileExtension) {
+  if (fileExtension.empty()) {
+	return L"All Files (*.*)|*.*|";
+  }
+
   std::string fileExtensionName = fileExtension.substr(1);
   for (auto& c : fileExtensionName) c = (char) std::toupper(c);
 
   std::wstring wideFileExtension = std::wstring(fileExtension.begin(), fileExtension.end());
   std::wstring wideFileExtensionName = std::wstring(fileExtensionName.begin(), fileExtensionName.end());
-  return wideFileExtensionName + L" File\0*." + wideFileExtensionName + L"\0\0";
+  return wideFileExtensionName + L" File|*." + wideFileExtensionName + L"|";
 }
 
 void FileSaverPlugin::HandleMethodCall(
@@ -91,22 +95,24 @@ void FileSaverPlugin::HandleMethodCall(
     const std::string inputFileName = std::get<std::string>(inputFileNameValue);
 
     const flutter::EncodableValue& inputExtensionValue = mapArgs.at(flutter::EncodableValue("ext"));
-    const std::string inputExtension = std::get<std::string>(inputExtensionValue);
+    std::string inputExtension = std::get<std::string>(inputExtensionValue);
+
+    if (!inputExtension.empty() && inputExtension[0] != '.') {
+        inputExtension = "." + inputExtension;
+    }
 
     const std::string defaultFileName = inputFileName + inputExtension;
     static wchar_t szFile[MAX_PATH] = L"";
     wcscpy_s(szFile, std::wstring(defaultFileName.begin(), defaultFileName.end()).c_str());
 
-    const std::wstring defaultFileFilter = FileExtensionToFileFilter(inputExtension);
-    static wchar_t lpstrFilter[MAX_PATH] = L"";
-    wcscpy_s(lpstrFilter, defaultFileFilter.c_str());
+    std::wstring defaultFileFilter = FileExtensionToFileFilter(inputExtension);
+    std::replace(defaultFileFilter.begin(), defaultFileFilter.end(), '|', '\0');
 
     OPENFILENAME ofn;
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = NULL;
-    // ofn.lpstrFilter = L"All Files\0*.*\0";
-    ofn.lpstrFilter = lpstrFilter;
+    ofn.lpstrFilter = defaultFileFilter.data();
     ofn.lpstrFile = szFile;
     ofn.nMaxFile = MAX_PATH;
     ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;
