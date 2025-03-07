@@ -55,7 +55,7 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
             this.result = result
             when (call.method) {
                 "saveFile" -> {
-                    Log.d(tag, "Get directory Method Called")
+                    Log.d(tag, "Save file Method Called")
                     val dir: String = saveFile(
                         fileName = call.argument("name"),
                         bytes = call.argument("bytes"),
