@@ -64,7 +64,7 @@ _Uint8List Function(Uint8List) transformDioResponse_ this will be your function 
 MimeType is also included in my Package, I've included types for **Sheets, Presentation, Word, Plain Text, PDF,
 MP3, MP4 and many other common formats**
 
-or you can call saveAs() _only available for android and iOS & macOS at the moment_
+or you can call saveAs() _only available for Android, iOS, macOS and Windows at the moment_
 
 ```dart
 await FileSaver.instance.saveAs({
