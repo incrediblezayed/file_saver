@@ -6,10 +6,8 @@ import 'package:dio/dio.dart';
 import 'package:file_saver/src/models/link_details.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
-import 'package:path_provider_linux/path_provider_linux.dart'
-    as path_provider_linux;
-import 'package:path_provider_windows/path_provider_windows.dart'
-    as path_provder_windows;
+import 'package:path_provider_linux/path_provider_linux.dart' as path_provider_linux;
+import 'package:path_provider_windows/path_provider_windows.dart' as path_provder_windows;
 
 ///Helper Class for serveral utility methods
 ///
@@ -74,12 +72,10 @@ class Helpers {
       } else if (Platform.isMacOS) {
         path = (await path_provider.getDownloadsDirectory())?.path;
       } else if (Platform.isWindows) {
-        path_provder_windows.PathProviderWindows pathWindows =
-            path_provder_windows.PathProviderWindows();
+        path_provder_windows.PathProviderWindows pathWindows = path_provder_windows.PathProviderWindows();
         path = await pathWindows.getDownloadsPath();
       } else if (Platform.isLinux) {
-        path_provider_linux.PathProviderLinux pathLinux =
-            path_provider_linux.PathProviderLinux();
+        path_provider_linux.PathProviderLinux pathLinux = path_provider_linux.PathProviderLinux();
         path = await pathLinux.getDownloadsPath();
       }
     } on Exception catch (e) {
@@ -88,6 +84,14 @@ class Helpers {
       rethrow;
     }
     return path;
+  }
+
+  static String getFilePathSlash() {
+    if (Platform.isWindows) {
+      return '\\';
+    } else {
+      return '/';
+    }
   }
 
   ///This method is used to format the extension as per the requirement
@@ -110,8 +114,7 @@ class Helpers {
     Dio? dioClient,
     Uint8List Function(dynamic data)? transformDioResponse,
   }) async {
-    assert(filePath != null || link != null || file != null,
-        'Either filePath or link or file must be provided');
+    assert(filePath != null || link != null || file != null, 'Either filePath or link or file must be provided');
     if (filePath != null) {
       return _getBytesFromPath(filePath);
     } else {
