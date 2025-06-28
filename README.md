@@ -27,7 +27,7 @@ await FileSaver.instance.saveFile({
       String? customMimeType,
       Dio? dioClient,
       Uint8List Function(Uint8List)? transformDioResponse,
-      });
+});
 ```
 
 This saveFile() method has 8 Named arguments.
@@ -64,7 +64,7 @@ _Uint8List Function(Uint8List) transformDioResponse_ this will be your function 
 MimeType is also included in my Package, I've included types for **Sheets, Presentation, Word, Plain Text, PDF,
 MP3, MP4 and many other common formats**
 
-or you can call saveAs() _only available for android and iOS & macOS at the moment_
+or you can call saveAs() _only available for android, iOS, macOS & windows at the moment_
 
 ```dart
 await FileSaver.instance.saveAs({
@@ -78,7 +78,7 @@ await FileSaver.instance.saveAs({
       String? customMimeType,
       Dio? dioClient,
       Uint8List Function(Uint8List)? transformDioResponse,
-      });
+});
 ```
 
 All the parameters in this method is same as the saveFile() method.

@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0]
+ * Fixed and added `saveAs` for windows
+
 ## [0.2.14]
  * Merged PR [#117](https://github.com/incrediblezayed/file_saver/pull/117) to update conditional imports for web (wasm)
  * Merged PR [#121](https://github.com/incrediblezayed/file_saver/pull/121) added dynamic access to enum for whoever need it, 

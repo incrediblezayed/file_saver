@@ -16,6 +16,7 @@
 #include <memory>
 #include <sstream>
 #include <algorithm>
+#include <fstream>
 
 namespace {
 
@@ -75,7 +76,7 @@ std::wstring FileExtensionToFileFilter(std::string fileExtension) {
   std::string fileExtensionName = fileExtension.substr(1);
   for (auto& c : fileExtensionName) c = (char) std::toupper(c);
 
-  std::wstring wideFileExtension = std::wstring(fileExtension.begin(), fileExtension.end());
+  std::wstring wideFileExtension = std::wstring(fileExtension.bæegin(), fileExtension.end());
   std::wstring wideFileExtensionName = std::wstring(fileExtensionName.begin(), fileExtensionName.end());
   return wideFileExtensionName + L" File\0*." + wideFileExtensionName + L"\0\0";
 }
@@ -93,7 +94,10 @@ void FileSaverPlugin::HandleMethodCall(
     const flutter::EncodableValue& inputExtensionValue = mapArgs.at(flutter::EncodableValue("ext"));
     const std::string inputExtension = std::get<std::string>(inputExtensionValue);
 
-    const std::string defaultFileName = inputFileName + inputExtension;
+    const flutter::EncodableValue& inputFileValue = mapArgs.at(flutter::EncodableValue("bytes"));
+    const std::vector<uint8_t> inputFileBytes = std::get<std::vector<uint8_t>>(inputFileValue);
+
+    const std::string defaultFileName = inputFileName + (inputExtension.find(".") != std::string::npos ? inputExtension : ("." + inputExtension));
     static wchar_t szFile[MAX_PATH] = L"";
     wcscpy_s(szFile, std::wstring(defaultFileName.begin(), defaultFileName.end()).c_str());
 
@@ -112,8 +116,20 @@ void FileSaverPlugin::HandleMethodCall(
     ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;
 
     if (GetSaveFileName(&ofn)) {
-      std::vector<int64_t> value = WideStringToVector(szFile);
-      result->Success(flutter::EncodableValue(value));
+      // Write the file data to the selected path
+      std::wstring filePath(szFile);
+      std::ofstream file(filePath, std::ios::binary);
+      
+      if (file.is_open()) {
+        file.write(reinterpret_cast<const char*>(inputFileBytes.data()), inputFileBytes.size());
+        file.close();
+        
+        std::vector<int64_t> value = WideStringToVector(szFile);
+        result->Success(flutter::EncodableValue(value));
+      } else {
+        // Failed to open file for writing
+        result->Error("FILE_WRITE_ERROR", "Failed to write file to selected location");
+      }
     } else {
       result->Success(flutter::EncodableValue());
     }
