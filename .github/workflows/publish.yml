@@ -32,7 +32,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: "3.22.0"
+          flutter-version: "3.32.4"
       - name: Set up Dart
         uses: dart-lang/setup-dart@v1
       - name: Get dependencies
@@ -43,7 +43,7 @@ jobs:
         run: dart pub publish -f
       - name: Extract release notes
         id: extract-release-notes
-        uses: ffurrer2/extract-release-notes@v1
+        uses: ffurrer2/extract-release-notes@v2
       - name: Create Release
         uses: actions/create-release@v1
         env:

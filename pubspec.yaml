@@ -1,11 +1,9 @@
 name: file_saver
 description: >-
-  A comprehensive Flutter plugin for saving files across all platforms (Android, iOS, Web, Windows, macOS, Linux).
+  A Flutter plugin for saving files across all platforms (Android, iOS, Web, Windows, macOS, Linux).
   Save files from bytes, File objects, file paths, or download from URLs with a single method call.
-  Features include automatic file type detection, custom MIME types, Dio integration for downloads,
-  and platform-specific save locations (Downloads folder on desktop, app directories on mobile).
+  Features include MIME type support, Dio integration, and platform-specific save locations.
   Supports saveAs() dialog for user-selected locations on supported platforms.
-  Perfect for apps that need to download and save documents, images, videos, and other file types.
 version: 0.3.0
 repository: https://github.com/incrediblezayed/file_saver
 homepage: https://hassanansari.dev
