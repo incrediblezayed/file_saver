@@ -76,7 +76,7 @@ std::wstring FileExtensionToFileFilter(std::string fileExtension) {
   std::string fileExtensionName = fileExtension.substr(1);
   for (auto& c : fileExtensionName) c = (char) std::toupper(c);
 
-  std::wstring wideFileExtension = std::wstring(fileExtension.bæegin(), fileExtension.end());
+  std::wstring wideFileExtension = std::wstring(fileExtension.begin(), fileExtension.end());
   std::wstring wideFileExtensionName = std::wstring(fileExtensionName.begin(), fileExtensionName.end());
   return wideFileExtensionName + L" File\0*." + wideFileExtensionName + L"\0\0";
 }
