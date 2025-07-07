@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1]
+ * Added `includeExtension` boolean parameter to control whether file extension should be included in the saved filename
+ * Renamed parameter from `ext` to `fileExtension` for better clarity and consistency
+ * Added new MIME types: AVIF, HEIC, HEIF, Markdown, SQL, SVG, WebM, WebP, XML, YAML
+ * Bug fixes and performance improvements
+ * Updated dependencies to latest compatible versions
+ * Enhanced platform compatibility and stability
+
 ## [0.3.0]
  * Fixed and added `saveAs` for windows
 

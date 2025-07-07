@@ -22,7 +22,8 @@ await FileSaver.instance.saveFile({
       File? file,
       String? filePath,
       LinkDetails? link,
-      String ext = "",
+      String fileExtension = "",
+      bool includeExtension = true,
       MimeType mimeType = MimeType.other,
       String? customMimeType,
       Dio? dioClient,
@@ -30,7 +31,7 @@ await FileSaver.instance.saveFile({
 });
 ```
 
-This saveFile() method has 8 Named arguments.
+This saveFile() method has 9 Named arguments.
 
 _String name_ which takes the name of the file,\
 _Uint8List bytes_ which will be your actual encoded file,\
@@ -51,7 +52,8 @@ LinkDetails(
 \
 Out of these parameters, you will have to use atleast one
 
-_String ext_ this will be your file extension.\
+_String fileExtension_ this will be your file extension.\
+_bool includeExtension_ this controls whether to include the extension in the saved file name. Set to false to save files without extension (e.g., "myfile" instead of "myfile.txt"). Defaults to true.\
 Another parameter is _MimeType type_ Specifically for Web, which will be your file
 type
 
@@ -73,7 +75,8 @@ await FileSaver.instance.saveAs({
       File? file,
       String? filePath,
       LinkDetails? link,
-      required String ext,
+      required String fileExtension,
+      bool includeExtension = true,
       required MimeType mimeType,
       String? customMimeType,
       Dio? dioClient,
@@ -84,6 +87,43 @@ await FileSaver.instance.saveAs({
 All the parameters in this method is same as the saveFile() method.
 
 ### Note: customMimeType can only be used when mimeType is set to MimeType.custom
+
+### Usage Examples:
+
+**Save file with extension (default behavior):**
+```dart
+await FileSaver.instance.saveFile(
+  name: "my_document",
+  bytes: fileBytes,
+  fileExtension: "pdf",
+  mimeType: MimeType.pdf,
+);
+// Saves as: my_document.pdf
+```
+
+**Save file without extension:**
+```dart
+await FileSaver.instance.saveFile(
+  name: "my_document",
+  bytes: fileBytes,
+  fileExtension: "pdf",
+  includeExtension: false,
+  mimeType: MimeType.pdf,
+);
+// Saves as: my_document
+```
+
+**Save file from URL without extension:**
+```dart
+await FileSaver.instance.saveFile(
+  name: "downloaded_file",
+  link: LinkDetails(link: "https://example.com/file.pdf"),
+  fileExtension: "pdf",
+  includeExtension: false,
+  mimeType: MimeType.pdf,
+);
+// Saves as: downloaded_file
+```
 
 ### Storage Permissions & Network Permissions:
 

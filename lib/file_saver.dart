@@ -43,7 +43,10 @@ class FileSaver {
   ///
   /// Out of these 4 parameters, only one is required.
   ///
-  /// [ext]: Extension of file.
+  /// [fileExtension]: Extension of file.
+  ///
+  /// [includeExtension]: Whether to include the extension in the saved file name. Defaults to true.
+  /// Set to false to save files without extension (e.g., "myfile" instead of "myfile.txt").
   ///
   /// mimeType (Mainly required for web): MimeType from enum MimeType..
   ///
@@ -54,7 +57,8 @@ class FileSaver {
     File? file,
     String? filePath,
     LinkDetails? link,
-    String ext = '',
+    String fileExtension = '',
+    bool includeExtension = true,
     MimeType mimeType = MimeType.other,
     String? customMimeType,
     Dio? dioClient,
@@ -64,7 +68,9 @@ class FileSaver {
       throw Exception(
           'customMimeType is required when mimeType is MimeType.custom');
     }
-    String extension = Helpers.getExtension(extension: ext);
+    String extension = includeExtension
+        ? Helpers.getExtension(fileExtension: fileExtension)
+        : '';
     final isFile = file != null || filePath != null;
     if (!isFile) {
       bytes = bytes ??
@@ -81,7 +87,7 @@ class FileSaver {
         directory = await saveFileOnly(
               name: name,
               file: file ?? File(filePath!),
-              ext: extension,
+              fileExtension: extension,
               mimeType: mimeType,
             ) ??
             _somethingWentWrong;
@@ -90,9 +96,10 @@ class FileSaver {
             fileModel: FileModel(
                 name: name,
                 bytes: bytes!,
-                ext: extension,
+                fileExtension: extension,
                 mimeType:
-                    mimeType.type.isEmpty ? customMimeType! : mimeType.type));
+                    mimeType.type.isEmpty ? customMimeType! : mimeType.type,
+                includeExtension: includeExtension));
         directory = await _saver.save() ?? _somethingWentWrong;
       }
       return directory;
@@ -104,13 +111,14 @@ class FileSaver {
   Future<String?> saveFileOnly(
       {required String name,
       required File file,
-      String ext = '',
+      String fileExtension = '',
       MimeType mimeType = MimeType.other,
       String? customMimeType}) async {
     try {
       final applicationDirectory = await Helpers.getDirectory();
 
-      return (await file.copy('$applicationDirectory/$name$ext')).path;
+      return (await file.copy('$applicationDirectory/$name$fileExtension'))
+          .path;
     } catch (e) {
       rethrow;
     }
@@ -137,7 +145,10 @@ class FileSaver {
   ///
   /// Out of these 4 parameters, only one is required.
   ///
-  /// [ext]: Extension of file.
+  /// [fileExtension]: Extension of file.
+  ///
+  /// [includeExtension]: Whether to include the extension in the saved file name. Defaults to true.
+  /// Set to false to save files without extension (e.g., "myfile" instead of "myfile.txt").
   ///
   /// mimeType (Mainly required for web): MimeType from enum MimeType..
   ///
@@ -147,7 +158,8 @@ class FileSaver {
     File? file,
     String? filePath,
     LinkDetails? link,
-    required String ext,
+    required String fileExtension,
+    bool includeExtension = true,
     required MimeType mimeType,
     String? customMimeType,
     Dio? dioClient,
@@ -157,6 +169,9 @@ class FileSaver {
       throw Exception(
           'customMimeType is required when mimeType is MimeType.custom');
     }
+    String extension = includeExtension
+        ? Helpers.getExtension(fileExtension: fileExtension)
+        : '';
     bytes = bytes ??
         await Helpers.getBytes(
           file: file,
@@ -170,7 +185,8 @@ class FileSaver {
         fileModel: FileModel(
             name: name,
             bytes: bytes,
-            ext: ext,
+            fileExtension: extension,
+            includeExtension: includeExtension,
             mimeType:
                 mimeType == MimeType.custom ? customMimeType! : mimeType.type));
     String? path = await _saver.saveAs();

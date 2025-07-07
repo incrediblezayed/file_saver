@@ -52,8 +52,8 @@ class FileSaverWeb {
       HTMLAnchorElement anchor =
           htmlDocument.createElement('a') as HTMLAnchorElement;
       anchor.href = url;
-      anchor.style.display = fileModel.name + fileModel.ext;
-      anchor.download = fileModel.name + fileModel.ext;
+      anchor.style.display = fileModel.name + fileModel.fileExtension;
+      anchor.download = fileModel.name + fileModel.fileExtension;
       document.body!.add(anchor);
       anchor.click();
       anchor.remove();

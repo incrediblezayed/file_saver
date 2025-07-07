@@ -3,7 +3,6 @@ package com.incrediblezayed.file_saver
 
 import android.util.Log
 import androidx.annotation.NonNull
-import androidx.core.app.ActivityCompat
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -13,7 +12,6 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.io.File
 import java.lang.Exception
-import java.util.jar.Manifest
 
 
 /** FileSaverPlugin */
@@ -59,7 +57,8 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
                     val dir: String = saveFile(
                         fileName = call.argument("name"),
                         bytes = call.argument("bytes"),
-                        extension = call.argument("ext")
+                        extension = call.argument("fileExtension"),
+                        includeExtension = call.argument("includeExtension")
                     )
                     result.success(dir)
                 }
@@ -68,14 +67,13 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
                     Log.d(tag, "Save as Method Called")
                     dialog!!.openFileManager(
                         fileName = call.argument("name"),
-                        ext = call.argument("ext"),
+                        fileExtension = call.argument("fileExtension"),
                         bytes = call.argument("bytes"),
                         type = call.argument("mimeType"),
+                        includeExtension = call.argument("includeExtension"),
                         result = result
                     )
-
                 }
-
                 else -> {
                     Log.d(tag, "Unknown Method called " + call.method!!)
                     result.notImplemented()
@@ -87,10 +85,19 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
 
     }
 
-    private fun saveFile(fileName: String?, bytes: ByteArray?, extension: String?): String {
+    private fun saveFile(fileName: String?, bytes: ByteArray?, extension: String?, includeExtension: Boolean?): String {
         return try {
             val uri = activity!!.activity.baseContext.getExternalFilesDir(null)
-            val file = File(uri!!.absolutePath + "/" + fileName + extension)
+            val nonNullExtension = extension ?: "";
+            var fileNameWithExtension = fileName;
+            if (includeExtension == true) {
+                if (nonNullExtension.startsWith('.')) {
+                    fileNameWithExtension += nonNullExtension;
+                } else {
+                  fileNameWithExtension += ".$nonNullExtension"
+                }
+            }
+            val file = File(uri!!.absolutePath + "/" + fileNameWithExtension)
             file.writeBytes(bytes!!)
             uri.absolutePath + "/" + file.name
         } catch (e: Exception) {

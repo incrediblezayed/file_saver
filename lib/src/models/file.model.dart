@@ -6,26 +6,30 @@ import 'package:flutter/foundation.dart';
 class FileModel {
   final String name;
   final Uint8List bytes;
-  final String ext;
+  final String fileExtension;
   final String mimeType;
+  final bool includeExtension;
   FileModel({
     required this.name,
     required this.bytes,
-    required this.ext,
+    required this.fileExtension,
     required this.mimeType,
+    required this.includeExtension,
   });
 
   FileModel copyWith({
     String? name,
     Uint8List? bytes,
-    String? ext,
+    String? fileExtension,
     String? mimeType,
+    bool? includeExtension,
   }) {
     return FileModel(
       name: name ?? this.name,
       bytes: bytes ?? this.bytes,
-      ext: ext ?? this.ext,
+      fileExtension: fileExtension ?? this.fileExtension,
       mimeType: mimeType ?? this.mimeType,
+      includeExtension: includeExtension ?? this.includeExtension,
     );
   }
 
@@ -33,8 +37,9 @@ class FileModel {
     return <String, dynamic>{
       'name': name,
       'bytes': bytes,
-      'ext': ext,
+      'fileExtension': fileExtension,
       'mimeType': mimeType,
+      'includeExtension': includeExtension,
     };
   }
 
@@ -42,8 +47,9 @@ class FileModel {
     return FileModel(
       name: map['name'] as String,
       bytes: Uint8List.fromList(List<int>.from(map['bytes'] as List<dynamic>)),
-      ext: map['ext'] as String,
+      fileExtension: map['fileExtension'] as String,
       mimeType: map['mimeType'] as String,
+      includeExtension: map['includeExtension'] as bool,
     );
   }
 

@@ -91,13 +91,16 @@ void FileSaverPlugin::HandleMethodCall(
     const flutter::EncodableValue& inputFileNameValue = mapArgs.at(flutter::EncodableValue("name"));
     const std::string inputFileName = std::get<std::string>(inputFileNameValue);
 
-    const flutter::EncodableValue& inputExtensionValue = mapArgs.at(flutter::EncodableValue("ext"));
+    const flutter::EncodableValue& inputExtensionValue = mapArgs.at(flutter::EncodableValue("fileExtension"));
     const std::string inputExtension = std::get<std::string>(inputExtensionValue);
+    
+    const flutter::EncodableValue& inputIncludeExtensionValue = mapArgs.at(flutter::EncodableValue("includeExtension"));
+    const std::boolean inputIncludeExtension = std::get<std::boolean>(inputIncludeExtensionValue);
 
     const flutter::EncodableValue& inputFileValue = mapArgs.at(flutter::EncodableValue("bytes"));
     const std::vector<uint8_t> inputFileBytes = std::get<std::vector<uint8_t>>(inputFileValue);
 
-    const std::string defaultFileName = inputFileName + (inputExtension.find(".") != std::string::npos ? inputExtension : ("." + inputExtension));
+    const std::string defaultFileName = inputFileName + (inputIncludeExtension ? (inputExtension.find(".") != std::string::npos ? inputExtension : ("." + inputExtension)) : "");
     static wchar_t szFile[MAX_PATH] = L"";
     wcscpy_s(szFile, std::wstring(defaultFileName.begin(), defaultFileName.end()).c_str());
 

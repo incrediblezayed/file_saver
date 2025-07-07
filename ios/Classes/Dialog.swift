@@ -7,72 +7,114 @@
 
 import Foundation
 
-class Dialog:NSObject, UIDocumentPickerDelegate {
+class Dialog: NSObject, UIDocumentPickerDelegate {
     private var result: FlutterResult?
     private var tempURL: URL?
     private var fileManager = FileManager.default
     private var bytes: [UInt8]?
-    
-    func openFileManager(byteData: [UInt8],fileName: String, ext: String, result: @escaping FlutterResult){
+
+    func openFileManager(
+        byteData: [UInt8],
+        fileName: String,
+        fileExtension: String,
+        includeExtension: Bool,
+        result: @escaping FlutterResult
+    ) {
         self.result = result
         self.bytes = byteData
-        guard let viewController = UIApplication.shared.keyWindow?.rootViewController else {
-            result(FlutterError(code: "failure", message: "Failed to launch document Picker", details: nil))
+        guard
+            let viewController = UIApplication.shared.keyWindow?
+                .rootViewController
+        else {
+            result(
+                FlutterError(
+                    code: "failure",
+                    message: "Failed to launch document Picker",
+                    details: nil
+                )
+            )
             return
         }
+        var fileNameWithExtension = fileName
+        if includeExtension {
+            if fileExtension.starts(with: ".") {
+                fileNameWithExtension += fileExtension
+            } else {
+                fileNameWithExtension += ".\(fileExtension)"
+            }
+        }
         let temp = NSTemporaryDirectory()
-        let fileURL = NSURL.fileURL(withPathComponents: [temp, fileName+"."+ext])
+        let fileURL = NSURL.fileURL(withPathComponents: [
+            temp, fileNameWithExtension,
+        ])
         do {
-                let d = Data(bytes: byteData, count: byteData.count)
-                try d.write(to: fileURL!)
-      
+            let d = Data(bytes: byteData, count: byteData.count)
+            try d.write(to: fileURL!)
+
         } catch {
-            result(FlutterError(code: "creating_temp_file_failed",
-                                message: error.localizedDescription,
-                                details: nil)
+            result(
+                FlutterError(
+                    code: "creating_temp_file_failed",
+                    message: error.localizedDescription,
+                    details: nil
+                )
             )
             return
         }
         self.tempURL = fileURL
         var docPicker: UIDocumentPickerViewController?
         if #available(iOS 14.0, *) {
-            docPicker = UIDocumentPickerViewController(forExporting: [fileURL!], asCopy: true)
+            docPicker = UIDocumentPickerViewController(
+                forExporting: [fileURL!],
+                asCopy: true
+            )
         } else {
-            docPicker = UIDocumentPickerViewController(url: fileURL!, in: .exportToService)
+            docPicker = UIDocumentPickerViewController(
+                url: fileURL!,
+                in: .exportToService
+            )
         }
         docPicker!.delegate = self
         viewController.present(docPicker!, animated: true, completion: nil)
     }
-    
+
     private func deleteTemp() {
         if tempURL != nil {
-            do{ if fileManager.fileExists(atPath: tempURL!.path) {
-                try fileManager.removeItem(at: tempURL!)
+            do {
+                if fileManager.fileExists(atPath: tempURL!.path) {
+                    try fileManager.removeItem(at: tempURL!)
+                }
+                tempURL = nil
+
+            } catch {
+                print(error.localizedDescription)
             }
-            tempURL = nil
-            
-        }
-        catch {
-            print(error.localizedDescription)
-        }
         }
     }
-    
-    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+
+    func documentPickerWasCancelled(
+        _ controller: UIDocumentPickerViewController
+    ) {
         deleteTemp()
         print("Cancelled")
         result?(nil)
     }
-    
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
+
+    func documentPicker(
+        _ controller: UIDocumentPickerViewController,
+        didPickDocumentAt url: URL
+    ) {
         deleteTemp()
 
         print("in didPickDocumentAt " + url.path)
-        
+
         result?(url.path)
     }
-    
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+
+    func documentPicker(
+        _ controller: UIDocumentPickerViewController,
+        didPickDocumentsAt urls: [URL]
+    ) {
         deleteTemp()
 
         print("in didPickDocumentAt " + urls[0].path)

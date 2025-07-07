@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SaveWithByteProxy extends StatefulWidget {
-  const SaveWithByteProxy({Key? key}) : super(key: key);
+  const SaveWithByteProxy({super.key});
 
   @override
   State<SaveWithByteProxy> createState() => _SaveWithByteProxyState();
@@ -125,13 +125,42 @@ class _SaveWithByteProxyState extends State<SaveWithByteProxy> {
                       : textEditingController.text,
                   //link:  linkController.text,
                   bytes: Uint8List.fromList(excel.encode()!),
-                  ext: 'xlsx',
+                  fileExtension: 'xlsx',
 
                   ///extController.text,
                   mimeType: MimeType.microsoftExcel);
               log(path);
             },
             child: const Text("Save File")),
+        ElevatedButton(
+            onPressed: () async {
+              if (!kIsWeb) {
+                if (Platform.isIOS || Platform.isAndroid) {
+                  bool status = await Permission.storage.isGranted;
+
+                  if (!status) await Permission.storage.request();
+                }
+              }
+
+              //!Code for testing bytes without extension
+              Excel excel = Excel.createExcel();
+              Sheet sheetObject = excel['Sheet1'];
+              sheetObject.insertColumn(0);
+              for (int i = 1; i < 10; i++) {
+                sheetObject.appendRow([TextCellValue(i.toString())]);
+              }
+
+              String path = await FileSaver.instance.saveFile(
+                  name: textEditingController.text == ""
+                      ? "File"
+                      : textEditingController.text,
+                  bytes: Uint8List.fromList(excel.encode()!),
+                  fileExtension: 'xlsx',
+                  includeExtension: false, // Save without extension
+                  mimeType: MimeType.microsoftExcel);
+              log(path);
+            },
+            child: const Text("Save File Without Extension")),
         /* if (!kIsWeb)
               if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) */
         ElevatedButton(
@@ -166,7 +195,7 @@ class _SaveWithByteProxyState extends State<SaveWithByteProxy> {
                   : textEditingController.text,
               //link:  linkController.text,
               bytes: Uint8List.fromList(excel.encode()!),
-              ext: 'xlsx',
+              fileExtension: 'xlsx',
 
               ///extController.text,
               mimeType: MimeType.microsoftExcel,

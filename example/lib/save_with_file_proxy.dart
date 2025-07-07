@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SaveWithFileProxy extends StatefulWidget {
-  const SaveWithFileProxy({Key? key}) : super(key: key);
+  const SaveWithFileProxy({super.key});
 
   @override
   State<SaveWithFileProxy> createState() => _SaveWithFileProxyState();
@@ -104,7 +104,9 @@ class _SaveWithFileProxyState extends State<SaveWithFileProxy> {
                       if (!status) await Permission.storage.request();
                     }
                   }
-                  if (type != MimeType.other && extController.text.isEmpty && context.mounted) {
+                  if (type != MimeType.other &&
+                      extController.text.isEmpty &&
+                      context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text("Extension is required")));
                   }
@@ -116,7 +118,7 @@ class _SaveWithFileProxyState extends State<SaveWithFileProxy> {
                     //link:  linkController.text,
                     // bytes: Uint8List.fromList(excel.encode()!),
                     file: File(originalFileController.text),
-                    ext: extController.text,
+                    fileExtension: extController.text,
 
                     ///extController.text,
                     mimeType: MimeType.microsoftExcel,

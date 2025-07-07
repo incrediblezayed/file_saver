@@ -1,25 +1,16 @@
 package com.incrediblezayed.file_saver
 
 import android.app.Activity
-import android.content.ContentUris
-import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
-import android.provider.MediaStore
-import android.text.TextUtils
 import android.util.Log
-import androidx.annotation.RequiresApi
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.OutputStream
 
 
 private const val SAVE_FILE = 886325063
@@ -49,19 +40,29 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
 
     fun openFileManager(
         fileName: String?,
-        ext: String?,
+        fileExtension: String?,
         bytes: ByteArray?,
         type: String?,
+        includeExtension: Boolean?,
         result: MethodChannel.Result
     ) {
         Log.d(TAG, "Opening File Manager")
+        val nonNullExtension = fileExtension ?: "";
+        var fileNameWithExtension = fileName
+        if (includeExtension == true) {
+            fileNameWithExtension += if (nonNullExtension.startsWith('.')) {
+                nonNullExtension;
+            } else {
+                ".$nonNullExtension"
+            }
+        }
         this.result = result
         this.bytes = bytes
         this.fileName = fileName
         val intent =
             Intent(Intent.ACTION_CREATE_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
-        intent.putExtra(Intent.EXTRA_TITLE, "$fileName.$ext")
+        intent.putExtra(Intent.EXTRA_TITLE, "$fileNameWithExtension")
         intent.putExtra(
             DocumentsContract.EXTRA_INITIAL_URI,
             Environment.getExternalStorageDirectory().path
