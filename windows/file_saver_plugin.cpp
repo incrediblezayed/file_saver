@@ -95,7 +95,7 @@ void FileSaverPlugin::HandleMethodCall(
     const std::string inputExtension = std::get<std::string>(inputExtensionValue);
     
     const flutter::EncodableValue& inputIncludeExtensionValue = mapArgs.at(flutter::EncodableValue("includeExtension"));
-    const std::boolean inputIncludeExtension = std::get<std::boolean>(inputIncludeExtensionValue);
+    const bool inputIncludeExtension = std::get<bool>(inputIncludeExtensionValue);
 
     const flutter::EncodableValue& inputFileValue = mapArgs.at(flutter::EncodableValue("bytes"));
     const std::vector<uint8_t> inputFileBytes = std::get<std::vector<uint8_t>>(inputFileValue);
