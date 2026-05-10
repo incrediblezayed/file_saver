@@ -34,6 +34,8 @@ jobs:
         with:
           channel: stable
           flutter-version: "3.41.0"
+      - name: Set up Dart (configures pub.dev OIDC token)
+        uses: dart-lang/setup-dart@v1
       - name: Get dependencies
         run: flutter pub get
       - name: Publish to pub.dev dry run

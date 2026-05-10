@@ -256,3 +256,6 @@ you have to add this key in the DebugProfile.entitlements and Release.entitlemen
 #### And You're done
 
 ## Thank You For Reading this far :)
+
+### Contributors
+
