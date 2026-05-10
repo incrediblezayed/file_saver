@@ -1,7 +1,7 @@
-.DS_Store
+**/.DS_Store
+**/.build/
+**/.swiftpm/
 .dart_tool/
-
-.packages
-.pub/
-
 build/
+example/.dart_tool/
+example/build/

@@ -1,11 +1,13 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:file_saver/src/models/file.model.dart';
 import 'package:file_saver/src/models/link_details.dart';
 import 'package:file_saver/src/saver.dart';
 import 'package:file_saver/src/platform_handler/platform_handler.dart';
+import 'package:file_saver/src/utils/file_ops_stub.dart'
+    if (dart.library.io) 'package:file_saver/src/utils/file_ops_io.dart'
+    as file_ops;
 import 'package:file_saver/src/utils/helpers.dart';
 import 'package:file_saver/src/utils/mime_types.dart';
 import 'package:file_saver/src/web_stream_saver_stub.dart'
@@ -58,7 +60,7 @@ class FileSaver {
   Future<String> saveFile({
     required String name,
     Uint8List? bytes,
-    File? file,
+    Object? file,
     String? filePath,
     LinkDetails? link,
     String fileExtension = '',
@@ -93,7 +95,7 @@ class FileSaver {
         directory =
             await saveFileOnly(
               name: name,
-              file: file ?? File(filePath!),
+              file: file ?? filePath!,
               fileExtension: extension,
               mimeType: mimeType,
             ) ??
@@ -118,17 +120,17 @@ class FileSaver {
 
   Future<String?> saveFileOnly({
     required String name,
-    required File file,
+    required Object file,
     String fileExtension = '',
     MimeType mimeType = MimeType.other,
     String? customMimeType,
   }) async {
     try {
-      final applicationDirectory = await Helpers.getDirectory();
-
-      return (await file.copy(
-        '$applicationDirectory/$name$fileExtension',
-      )).path;
+      return file_ops.copyFileToDirectory(
+        file: file,
+        name: name,
+        fileExtension: fileExtension,
+      );
     } catch (e) {
       rethrow;
     }
@@ -165,7 +167,7 @@ class FileSaver {
   Future<String?> saveAs({
     required String name,
     Uint8List? bytes,
-    File? file,
+    Object? file,
     String? filePath,
     LinkDetails? link,
     String fileExtension = '',
@@ -183,7 +185,7 @@ class FileSaver {
     String extension = includeExtension
         ? Helpers.getExtension(fileExtension: fileExtension)
         : '';
-    final sourcePath = filePath ?? file?.path;
+    final sourcePath = filePath ?? file_ops.filePathFromObject(file);
     final shouldStreamFromPath = !kIsWeb && sourcePath != null;
     if (!shouldStreamFromPath) {
       bytes =
@@ -309,23 +311,21 @@ class FileSaver {
     final extension = includeExtension
         ? Helpers.getExtension(fileExtension: fileExtension)
         : '';
-    final tempFile = File(
-      '${Directory.systemTemp.path}/file_saver_${DateTime.now().microsecondsSinceEpoch}$extension',
+    final tempFilePath = await file_ops.writeStreamToTempFile(
+      stream: stream,
+      extension: extension,
     );
-    await stream.pipe(tempFile.openWrite());
     try {
       return await saveAs(
         name: name,
-        filePath: tempFile.path,
+        filePath: tempFilePath,
         fileExtension: fileExtension,
         includeExtension: includeExtension,
         mimeType: mimeType,
         customMimeType: customMimeType,
       );
     } finally {
-      if (await tempFile.exists()) {
-        await tempFile.delete();
-      }
+      await file_ops.deleteFile(tempFilePath);
     }
   }
 }

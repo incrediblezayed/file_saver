@@ -4,19 +4,19 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'file_saver'
-  s.version          = '0.0.1'
-  s.summary          = 'A new flutter plugin project.'
+  s.version          = '0.3.1'
+  s.summary          = 'Save files across Flutter platforms.'
   s.description      = <<-DESC
-A new flutter plugin project.
+FileSaver saves files from bytes, paths, streams, and URLs across Flutter platforms.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/incrediblezayed/file_saver'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'Hassan Ansari' => 'hassanansari222@gmail.com' }
   s.source           = { :path => '.' }
-  s.source_files     = 'Classes/**/*'
+  s.source_files     = 'file_saver/Sources/file_saver/**/*'
   s.dependency 'FlutterMacOS'
 
-  s.platform = :osx, '10.11'
+  s.platform = :osx, '10.14'
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
-  s.swift_version = '5.0'
+  s.swift_version = '5.9'
 end

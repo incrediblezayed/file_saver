@@ -2,8 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
- * Added Swift Package Manager support for iOS.
+## [0.4.0]
+ * Added Swift Package Manager support for iOS and macOS.
+ * Split native file helpers behind conditional imports to keep Web/Wasm analysis away from `dart:io` and platform-specific path provider implementations.
  * Hardened Android file name handling against path traversal.
  * Moved Android `saveAs` file writes off the main thread and avoids resolving SAF document paths after saving.
  * Added web `saveAs` support using the existing browser download flow.
