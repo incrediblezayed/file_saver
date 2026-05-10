@@ -1,13 +1,13 @@
 import Flutter
 import UIKit
 
-public class SwiftFileSaverPlugin: NSObject, FlutterPlugin {
+public class FileSaverPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: "file_saver",
             binaryMessenger: registrar.messenger()
         )
-        let instance = SwiftFileSaverPlugin()
+        let instance = FileSaverPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
     var dialog = Dialog()
@@ -31,8 +31,8 @@ public class SwiftFileSaverPlugin: NSObject, FlutterPlugin {
                 return
             }
             let params = Params(arguments)
-            if params.bytes == nil || params.fileExtension == nil
-                || params.fileName == nil
+            if (params.bytes == nil && params.sourcePath == nil)
+                || params.fileExtension == nil || params.fileName == nil
             {
                 print("Invalid Arguments")
                 result(
@@ -44,7 +44,8 @@ public class SwiftFileSaverPlugin: NSObject, FlutterPlugin {
                 )
             } else {
                 dialog.openFileManager(
-                    byteData: params.bytes!,
+                    byteData: params.bytes,
+                    sourcePath: params.sourcePath,
                     fileName: params.fileName!,
                     fileExtension: params.fileExtension!,
                     includeExtension: params.includeExtension,
@@ -61,6 +62,7 @@ public class SwiftFileSaverPlugin: NSObject, FlutterPlugin {
 struct Params {
     let fileName: String?
     let bytes: [UInt8]?
+    let sourcePath: String?
     let fileExtension: String?
     let includeExtension: Bool
     init(_ d: [String: Any?]) {
@@ -71,6 +73,7 @@ struct Params {
         } else {
             bytes = [UInt8](uint8List!.data)
         }
+        sourcePath = d["sourcePath"] as? String
         fileExtension = d["fileExtension"] as? String
         includeExtension = d["includeExtension"] as? Bool ?? true
     }

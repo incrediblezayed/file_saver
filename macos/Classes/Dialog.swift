@@ -18,17 +18,17 @@ class Dialog: NSObject {
                 in: .userDomainMask
             ).first
 
-        var fileNameWithExtension = params.fileName
-        if params.includeExtension && fileNameWithExtension != nil {
-            if params.fileExtension != nil
-                && params.fileExtension!.starts(with: ".")
-            {
-                fileNameWithExtension! += params.fileExtension!
+        var fileNameWithExtension = params.fileName ?? "file"
+        if params.includeExtension, let fileExtension = params.fileExtension,
+            !fileExtension.isEmpty
+        {
+            if fileExtension.starts(with: ".") {
+                fileNameWithExtension += fileExtension
             } else {
-                fileNameWithExtension! += ".\(params.fileExtension!)"
+                fileNameWithExtension += ".\(fileExtension)"
             }
         }
-        panel.nameFieldStringValue = fileNameWithExtension!
+        panel.nameFieldStringValue = fileNameWithExtension
         panel.canCreateDirectories = true
         panel.allowsOtherFileTypes = true
         panel.title =
@@ -36,25 +36,49 @@ class Dialog: NSObject {
         panel.level = .mainMenu
         panel.begin { (response) in
             if response.rawValue == NSApplication.ModalResponse.OK.rawValue {
-                guard let url = panel.url else { return }
+                guard let url = panel.url else {
+                    result(nil)
+                    return
+                }
                 self.saveFile(
-                    byteData: params.bytes!,
+                    byteData: params.bytes,
+                    sourcePath: params.sourcePath,
                     url: url,
                     result: result
                 )
             } else {
-                return
+                result(nil)
             }
         }
     }
     private func saveFile(
-        byteData: [UInt8],
+        byteData: [UInt8]?,
+        sourcePath: String?,
         url: URL,
         result: @escaping FlutterResult
     ) {
         do {
-            let data = Data(byteData)
-            try data.write(to: url)
+            if FileManager.default.fileExists(atPath: url.path) {
+                try FileManager.default.removeItem(at: url)
+            }
+            if let sourcePath = sourcePath {
+                try FileManager.default.copyItem(
+                    at: URL(fileURLWithPath: sourcePath),
+                    to: url
+                )
+            } else if let byteData = byteData {
+                let data = Data(byteData)
+                try data.write(to: url)
+            } else {
+                result(
+                    FlutterError(
+                        code: "invalid_arguments",
+                        message: "Either bytes or sourcePath must be supplied",
+                        details: nil
+                    )
+                )
+                return
+            }
             result(url.absoluteString)
         } catch {
             result("Failed to save file")

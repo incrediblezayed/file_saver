@@ -42,6 +42,7 @@ public class FileSaverPlugin: NSObject, FlutterPlugin {
 struct Params {
     let fileName: String?
     let bytes: [UInt8]?
+    let sourcePath: String?
     let fileExtension: String?
     let includeExtension: Bool
     init(_ d: [String: Any?]) {
@@ -52,6 +53,7 @@ struct Params {
         } else {
             bytes = [UInt8](uint8List!.data)
         }
+        sourcePath = d["sourcePath"] as? String
         fileExtension = d["fileExtension"] as? String
         includeExtension = d["includeExtension"] as? Bool ?? true
     }

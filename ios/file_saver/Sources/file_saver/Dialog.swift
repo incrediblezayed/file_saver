@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import Flutter
+import UIKit
 
 class Dialog: NSObject, UIDocumentPickerDelegate {
     private var result: FlutterResult?
@@ -14,7 +16,8 @@ class Dialog: NSObject, UIDocumentPickerDelegate {
     private var bytes: [UInt8]?
 
     func openFileManager(
-        byteData: [UInt8],
+        byteData: [UInt8]?,
+        sourcePath: String?,
         fileName: String,
         fileExtension: String,
         includeExtension: Bool,
@@ -36,7 +39,7 @@ class Dialog: NSObject, UIDocumentPickerDelegate {
             return
         }
         var fileNameWithExtension = fileName
-        if includeExtension {
+        if includeExtension && !fileExtension.isEmpty {
             if fileExtension.starts(with: ".") {
                 fileNameWithExtension += fileExtension
             } else {
@@ -48,8 +51,24 @@ class Dialog: NSObject, UIDocumentPickerDelegate {
             temp, fileNameWithExtension,
         ])
         do {
-            let d = Data(bytes: byteData, count: byteData.count)
-            try d.write(to: fileURL!)
+            if let sourcePath = sourcePath {
+                try fileManager.copyItem(
+                    at: URL(fileURLWithPath: sourcePath),
+                    to: fileURL!
+                )
+            } else if let byteData = byteData {
+                let d = Data(bytes: byteData, count: byteData.count)
+                try d.write(to: fileURL!)
+            } else {
+                result(
+                    FlutterError(
+                        code: "invalid_arguments",
+                        message: "Either bytes or sourcePath must be supplied",
+                        details: nil
+                    )
+                )
+                return
+            }
 
         } catch {
             result(

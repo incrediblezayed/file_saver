@@ -5,8 +5,11 @@ import 'package:dio/dio.dart';
 import 'package:file_saver/src/models/file.model.dart';
 import 'package:file_saver/src/models/link_details.dart';
 import 'package:file_saver/src/saver.dart';
+import 'package:file_saver/src/platform_handler/platform_handler.dart';
 import 'package:file_saver/src/utils/helpers.dart';
 import 'package:file_saver/src/utils/mime_types.dart';
+import 'package:file_saver/src/web_stream_saver_stub.dart'
+    if (dart.library.js_interop) 'package:file_saver/src/web_stream_saver_web.dart';
 import 'package:flutter/foundation.dart';
 
 export 'package:file_saver/src/models/link_details.dart';
@@ -21,6 +24,7 @@ class FileSaver {
   static FileSaver get instance => FileSaver();
 
   late Saver _saver;
+  final PlatformHandler _platformHandler = PlatformHandler.instance;
 
   ///[saveFile] main method which saves the file for all platforms.
   ///
@@ -66,14 +70,16 @@ class FileSaver {
   }) async {
     if (mimeType == MimeType.custom && customMimeType == null) {
       throw Exception(
-          'customMimeType is required when mimeType is MimeType.custom');
+        'customMimeType is required when mimeType is MimeType.custom',
+      );
     }
     String extension = includeExtension
         ? Helpers.getExtension(fileExtension: fileExtension)
         : '';
     final isFile = file != null || filePath != null;
     if (!isFile) {
-      bytes = bytes ??
+      bytes =
+          bytes ??
           await Helpers.getBytes(
             file: file,
             filePath: filePath,
@@ -84,7 +90,8 @@ class FileSaver {
     }
     try {
       if (isFile) {
-        directory = await saveFileOnly(
+        directory =
+            await saveFileOnly(
               name: name,
               file: file ?? File(filePath!),
               fileExtension: extension,
@@ -93,13 +100,14 @@ class FileSaver {
             _somethingWentWrong;
       } else {
         _saver = Saver(
-            fileModel: FileModel(
-                name: name,
-                bytes: bytes!,
-                fileExtension: extension,
-                mimeType:
-                    mimeType.type.isEmpty ? customMimeType! : mimeType.type,
-                includeExtension: includeExtension));
+          fileModel: FileModel(
+            name: name,
+            bytes: bytes!,
+            fileExtension: extension,
+            mimeType: mimeType.type.isEmpty ? customMimeType! : mimeType.type,
+            includeExtension: includeExtension,
+          ),
+        );
         directory = await _saver.save() ?? _somethingWentWrong;
       }
       return directory;
@@ -108,17 +116,19 @@ class FileSaver {
     }
   }
 
-  Future<String?> saveFileOnly(
-      {required String name,
-      required File file,
-      String fileExtension = '',
-      MimeType mimeType = MimeType.other,
-      String? customMimeType}) async {
+  Future<String?> saveFileOnly({
+    required String name,
+    required File file,
+    String fileExtension = '',
+    MimeType mimeType = MimeType.other,
+    String? customMimeType,
+  }) async {
     try {
       final applicationDirectory = await Helpers.getDirectory();
 
-      return (await file.copy('$applicationDirectory/$name$fileExtension'))
-          .path;
+      return (await file.copy(
+        '$applicationDirectory/$name$fileExtension',
+      )).path;
     } catch (e) {
       rethrow;
     }
@@ -158,7 +168,7 @@ class FileSaver {
     File? file,
     String? filePath,
     LinkDetails? link,
-    required String fileExtension,
+    String fileExtension = '',
     bool includeExtension = true,
     required MimeType mimeType,
     String? customMimeType,
@@ -167,29 +177,155 @@ class FileSaver {
   }) async {
     if (mimeType == MimeType.custom && customMimeType == null) {
       throw Exception(
-          'customMimeType is required when mimeType is MimeType.custom');
+        'customMimeType is required when mimeType is MimeType.custom',
+      );
     }
     String extension = includeExtension
         ? Helpers.getExtension(fileExtension: fileExtension)
         : '';
-    bytes = bytes ??
-        await Helpers.getBytes(
-          file: file,
-          filePath: filePath,
-          link: link,
-          dioClient: dioClient,
-          transformDioResponse: transformDioResponse,
-        );
+    final sourcePath = filePath ?? file?.path;
+    final shouldStreamFromPath = !kIsWeb && sourcePath != null;
+    if (!shouldStreamFromPath) {
+      bytes =
+          bytes ??
+          await Helpers.getBytes(
+            file: file,
+            filePath: filePath,
+            link: link,
+            dioClient: dioClient,
+            transformDioResponse: transformDioResponse,
+          );
+    }
 
     _saver = Saver(
-        fileModel: FileModel(
-            name: name,
-            bytes: bytes,
-            fileExtension: extension,
-            includeExtension: includeExtension,
-            mimeType:
-                mimeType == MimeType.custom ? customMimeType! : mimeType.type));
+      fileModel: FileModel(
+        name: name,
+        bytes: bytes ?? Uint8List(0),
+        fileExtension: extension,
+        includeExtension: includeExtension,
+        mimeType: mimeType == MimeType.custom ? customMimeType! : mimeType.type,
+        sourcePath: shouldStreamFromPath ? sourcePath : null,
+      ),
+    );
     String? path = await _saver.saveAs();
     return path;
+  }
+
+  /// Starts a browser/system URL download without loading the file into Dart memory.
+  ///
+  /// This is intended for very large direct URL downloads. Web hands the URL to
+  /// the browser. Android uses the system DownloadManager. Browser support for
+  /// the suggested [name] depends on the URL origin and response headers.
+  Future<String?> downloadLink({
+    required LinkDetails link,
+    String? name,
+  }) async {
+    if (link.method.toUpperCase() != 'GET' ||
+        link.body != null ||
+        link.queryParameters != null ||
+        (kIsWeb && link.headers != null)) {
+      throw UnsupportedError(
+        'downloadLink can only hand off direct GET URLs. Web cannot include custom headers.',
+      );
+    }
+    return _platformHandler.downloadLink(link, name: name);
+  }
+
+  /// Streams a URL response to disk while supporting request headers.
+  ///
+  /// This is useful when a large download requires an Authorization header or
+  /// session cookies. On web it uses `fetch` plus the File System Access API,
+  /// so it is limited to browsers that support user-selected writable files.
+  /// Set [includeCredentials] to true to allow browser-managed cookies to be
+  /// sent with the request. JavaScript cannot manually set the `Cookie` header.
+  Future<String?> saveLinkAsStream({
+    required String name,
+    required LinkDetails link,
+    String fileExtension = '',
+    bool includeExtension = true,
+    bool includeCredentials = true,
+    MimeType mimeType = MimeType.other,
+    String? customMimeType,
+    Dio? dioClient,
+  }) async {
+    if (mimeType == MimeType.custom && customMimeType == null) {
+      throw Exception(
+        'customMimeType is required when mimeType is MimeType.custom',
+      );
+    }
+    final extension = includeExtension
+        ? Helpers.getExtension(fileExtension: fileExtension)
+        : '';
+
+    if (kIsWeb) {
+      return saveWebLinkStream(
+        name: '$name$extension',
+        link: link,
+        includeCredentials: includeCredentials,
+      );
+    }
+
+    final dio = dioClient ?? Dio();
+    final response = await dio.request<ResponseBody>(
+      link.link,
+      data: link.body,
+      queryParameters: link.queryParameters,
+      options: Options(
+        method: link.method,
+        headers: link.headers,
+        responseType: ResponseType.stream,
+      ),
+    );
+    return saveAsStream(
+      name: name,
+      stream: response.data!.stream,
+      fileExtension: fileExtension,
+      includeExtension: includeExtension,
+      mimeType: mimeType,
+      customMimeType: customMimeType,
+    );
+  }
+
+  /// Writes [stream] to a temporary file, then saves from that file path.
+  ///
+  /// On native platforms this avoids keeping the complete file in memory. On
+  /// Android, iOS, macOS, and Windows `saveAs` uses native file-path copying for
+  /// the final save step. On web this uses the File System Access API when the
+  /// browser supports it.
+  Future<String?> saveAsStream({
+    required String name,
+    required Stream<List<int>> stream,
+    String fileExtension = '',
+    bool includeExtension = true,
+    required MimeType mimeType,
+    String? customMimeType,
+  }) async {
+    if (kIsWeb) {
+      final extension = includeExtension
+          ? Helpers.getExtension(fileExtension: fileExtension)
+          : '';
+      return saveWebStream(name: '$name$extension', stream: stream);
+    }
+    final extension = includeExtension
+        ? Helpers.getExtension(fileExtension: fileExtension)
+        : '';
+    final tempFile = File(
+      '${Directory.systemTemp.path}/file_saver_${DateTime.now().microsecondsSinceEpoch}$extension',
+    );
+    await stream.pipe(tempFile.openWrite());
+    try {
+      return await saveAs(
+        name: name,
+        filePath: tempFile.path,
+        fileExtension: fileExtension,
+        includeExtension: includeExtension,
+        mimeType: mimeType,
+        customMimeType: customMimeType,
+      );
+    } finally {
+      if (await tempFile.exists()) {
+        await tempFile.delete();
+      }
+    }
   }
 }

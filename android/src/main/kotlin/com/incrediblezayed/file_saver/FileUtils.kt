@@ -222,7 +222,7 @@ class FileUtils(var context: Context) {
         val sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE)
         returnCursor.moveToFirst()
         val name = returnCursor.getString(nameIndex)
-        val file = File(context.cacheDir, name)
+        val file = safeChild(context.cacheDir, name)
         try {
             val inputStream = context.contentResolver.openInputStream(uri)
             val outputStream = FileOutputStream(file)
@@ -272,13 +272,13 @@ class FileUtils(var context: Context) {
         val name = returnCursor.getString(nameIndex)
         val output: File
         output = if (newDirName != "") {
-            val dir = File(context.filesDir.toString() + "/" + newDirName)
+            val dir = safeChild(context.filesDir, newDirName)
             if (!dir.exists()) {
                 dir.mkdir()
             }
-            File(context.filesDir.toString() + "/" + newDirName + "/" + name)
+            safeChild(dir, name)
         } else {
-            File(context.filesDir.toString() + "/" + name)
+            safeChild(context.filesDir, name)
         }
         try {
             val inputStream = context.contentResolver.openInputStream(uri)
@@ -351,5 +351,25 @@ class FileUtils(var context: Context) {
 
     companion object {
         private var contentUri: Uri? = null
+
+        private fun safeChild(parent: File, fileName: String): File {
+            val file = File(parent, sanitizeFileName(fileName))
+            val parentPath = parent.canonicalPath + File.separator
+            if (!file.canonicalPath.startsWith(parentPath)) {
+                throw SecurityException("Invalid file name")
+            }
+            return file
+        }
+
+        private fun sanitizeFileName(fileName: String?): String {
+            val safeName = File(fileName ?: "file").name
+                .replace(Regex("[\\\\/:*?\"<>|\\p{Cntrl}]"), "_")
+                .trim()
+            return if (safeName.isBlank() || safeName == "." || safeName == "..") {
+                "file"
+            } else {
+                safeName
+            }
+        }
     }
 }

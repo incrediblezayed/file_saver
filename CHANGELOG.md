@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+ * Added Swift Package Manager support for iOS.
+ * Hardened Android file name handling against path traversal.
+ * Moved Android `saveAs` file writes off the main thread and avoids resolving SAF document paths after saving.
+ * Added web `saveAs` support using the existing browser download flow.
+ * Added `downloadLink` for web browser handoff and Android DownloadManager downloads without loading bytes into Dart memory.
+ * Added `saveAsStream` for native streamed writes via a temporary file.
+ * Added `saveLinkAsStream` for authenticated streamed URL downloads with request headers where supported.
+ * Added native file-path copying for iOS, macOS, and Windows `saveAs` to avoid loading filePath inputs into memory.
+ * Made `saveAs` `fileExtension` optional.
+ * Fixed macOS `saveAs` cancellation so the platform call always completes.
+ * Added Windows invalid file name validation for `saveAs`.
+ * Updated Android Gradle, Kotlin, JVM, and SDK settings for current Flutter support.
+
 ## [0.3.1]
  * Added `includeExtension` boolean parameter to control whether file extension should be included in the saved filename
  * Renamed parameter from `ext` to `fileExtension` for better clarity and consistency

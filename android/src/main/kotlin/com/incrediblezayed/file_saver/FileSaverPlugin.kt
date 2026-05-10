@@ -1,6 +1,10 @@
 package com.incrediblezayed.file_saver
 
 
+import android.app.DownloadManager
+import android.content.Context
+import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -69,10 +73,20 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
                         fileName = call.argument("name"),
                         fileExtension = call.argument("fileExtension"),
                         bytes = call.argument("bytes"),
+                        sourcePath = call.argument("sourcePath"),
                         type = call.argument("mimeType"),
                         includeExtension = call.argument("includeExtension"),
                         result = result
                     )
+                }
+                "downloadLink" -> {
+                    Log.d(tag, "Download link Method Called")
+                    val downloadId = downloadLink(
+                        url = call.argument("url"),
+                        name = call.argument("name"),
+                        headers = call.argument("headers")
+                    )
+                    result.success(downloadId)
                 }
                 else -> {
                     Log.d(tag, "Unknown Method called " + call.method!!)
@@ -88,22 +102,75 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
     private fun saveFile(fileName: String?, bytes: ByteArray?, extension: String?, includeExtension: Boolean?): String {
         return try {
             val uri = activity!!.activity.baseContext.getExternalFilesDir(null)
-            val nonNullExtension = extension ?: "";
-            var fileNameWithExtension = fileName;
+                ?: throw IllegalStateException("External files directory is unavailable")
+            var fileNameWithExtension = sanitizeFileName(fileName)
             if (includeExtension == true) {
-                if (nonNullExtension.startsWith('.')) {
-                    fileNameWithExtension += nonNullExtension;
-                } else {
-                  fileNameWithExtension += ".$nonNullExtension"
+                val safeExtension = sanitizeExtension(extension)
+                if (safeExtension.isNotEmpty()) {
+                    fileNameWithExtension += safeExtension
                 }
             }
-            val file = File(uri!!.absolutePath + "/" + fileNameWithExtension)
-            file.writeBytes(bytes!!)
-            uri.absolutePath + "/" + file.name
+            val file = safeChild(uri, fileNameWithExtension)
+            file.writeBytes(bytes ?: throw IllegalArgumentException("bytes is null"))
+            file.absolutePath
         } catch (e: Exception) {
             Log.d(tag, "Error While Saving File" + e.message)
             "Error While Saving File" + e.message
         }
+    }
+
+    private fun safeChild(parent: File, fileName: String): File {
+        val file = File(parent, fileName)
+        val parentPath = parent.canonicalPath + File.separator
+        if (!file.canonicalPath.startsWith(parentPath)) {
+            throw SecurityException("Invalid file name")
+        }
+        return file
+    }
+
+    private fun sanitizeFileName(fileName: String?): String {
+        val safeName = File(fileName ?: "file").name
+            .replace(Regex("[\\\\/:*?\"<>|\\p{Cntrl}]"), "_")
+            .trim()
+        return if (safeName.isBlank() || safeName == "." || safeName == "..") {
+            "file"
+        } else {
+            safeName
+        }
+    }
+
+    private fun sanitizeExtension(extension: String?): String {
+        val safeExtension = extension.orEmpty()
+            .trim()
+            .trimStart('.')
+            .replace(Regex("[\\\\/:*?\"<>|\\p{Cntrl}]"), "_")
+        return if (safeExtension.isEmpty()) "" else ".$safeExtension"
+    }
+
+    private fun downloadLink(url: String?, name: String?, headers: Map<String, String>?): String {
+        val safeUrl = url ?: throw IllegalArgumentException("url is null")
+        val context = activity?.activity?.applicationContext
+            ?: pluginBinding?.applicationContext
+            ?: throw IllegalStateException("Context is unavailable")
+        val uri = Uri.parse(safeUrl)
+        val fileName = sanitizeFileName(
+            name?.takeIf { it.isNotBlank() } ?: uri.lastPathSegment ?: "download"
+        )
+        val request = DownloadManager.Request(uri)
+            .setTitle(fileName)
+            .setDescription(safeUrl)
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            .setAllowedOverMetered(true)
+            .setAllowedOverRoaming(true)
+            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+
+        headers.orEmpty().forEach { (key, value) ->
+            request.addRequestHeader(key, value)
+        }
+
+        val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val downloadId = downloadManager.enqueue(request)
+        return downloadId.toString()
     }
 
     override fun onDetachedFromActivity() {

@@ -16,6 +16,7 @@
 #include <memory>
 #include <sstream>
 #include <algorithm>
+#include <array>
 #include <fstream>
 
 namespace {
@@ -73,12 +74,28 @@ std::vector<int64_t> WideStringToVector(const wchar_t* wideStr) {
 }
 
 std::wstring FileExtensionToFileFilter(std::string fileExtension) {
-  std::string fileExtensionName = fileExtension.substr(1);
+  if (fileExtension.empty()) {
+    return L"All Files\0*.*\0\0";
+  }
+  std::string fileExtensionName =
+      fileExtension[0] == '.' ? fileExtension.substr(1) : fileExtension;
   for (auto& c : fileExtensionName) c = (char) std::toupper(c);
 
-  std::wstring wideFileExtension = std::wstring(fileExtension.begin(), fileExtension.end());
+  std::wstring wideFileExtension = std::wstring(fileExtensionName.begin(), fileExtensionName.end());
   std::wstring wideFileExtensionName = std::wstring(fileExtensionName.begin(), fileExtensionName.end());
   return wideFileExtensionName + L" File\0*." + wideFileExtensionName + L"\0\0";
+}
+
+bool HasInvalidFileNameCharacter(const std::string& file_name) {
+  if (file_name.empty() || file_name == "." || file_name == "..") {
+    return true;
+  }
+
+  const std::string invalid_characters = "<>:\"/\\|?*";
+  return std::any_of(file_name.begin(), file_name.end(), [&](char c) {
+    return static_cast<unsigned char>(c) < 32 ||
+           invalid_characters.find(c) != std::string::npos;
+  });
 }
 
 void FileSaverPlugin::HandleMethodCall(
@@ -90,6 +107,10 @@ void FileSaverPlugin::HandleMethodCall(
 
     const flutter::EncodableValue& inputFileNameValue = mapArgs.at(flutter::EncodableValue("name"));
     const std::string inputFileName = std::get<std::string>(inputFileNameValue);
+    if (HasInvalidFileNameCharacter(inputFileName)) {
+      result->Error("INVALID_FILE_NAME", "The file name contains invalid Windows path characters");
+      return;
+    }
 
     const flutter::EncodableValue& inputExtensionValue = mapArgs.at(flutter::EncodableValue("fileExtension"));
     const std::string inputExtension = std::get<std::string>(inputExtensionValue);
@@ -99,8 +120,14 @@ void FileSaverPlugin::HandleMethodCall(
 
     const flutter::EncodableValue& inputFileValue = mapArgs.at(flutter::EncodableValue("bytes"));
     const std::vector<uint8_t> inputFileBytes = std::get<std::vector<uint8_t>>(inputFileValue);
+    std::string inputSourcePath = "";
+    const auto sourcePathIterator = mapArgs.find(flutter::EncodableValue("sourcePath"));
+    if (sourcePathIterator != mapArgs.end() &&
+        std::holds_alternative<std::string>(sourcePathIterator->second)) {
+      inputSourcePath = std::get<std::string>(sourcePathIterator->second);
+    }
 
-    const std::string defaultFileName = inputFileName + (inputIncludeExtension ? (inputExtension.find(".") != std::string::npos ? inputExtension : ("." + inputExtension)) : "");
+    const std::string defaultFileName = inputFileName + (inputIncludeExtension && !inputExtension.empty() ? (inputExtension.find(".") != std::string::npos ? inputExtension : ("." + inputExtension)) : "");
     static wchar_t szFile[MAX_PATH] = L"";
     wcscpy_s(szFile, std::wstring(defaultFileName.begin(), defaultFileName.end()).c_str());
 
@@ -124,7 +151,23 @@ void FileSaverPlugin::HandleMethodCall(
       std::ofstream file(filePath, std::ios::binary);
       
       if (file.is_open()) {
-        file.write(reinterpret_cast<const char*>(inputFileBytes.data()), inputFileBytes.size());
+        if (!inputSourcePath.empty()) {
+          std::ifstream source_file(
+              std::wstring(inputSourcePath.begin(), inputSourcePath.end()),
+              std::ios::binary);
+          if (!source_file.is_open()) {
+            result->Error("FILE_READ_ERROR", "Failed to read source file");
+            return;
+          }
+          std::array<char, 1024 * 1024> buffer;
+          while (source_file) {
+            source_file.read(buffer.data(), buffer.size());
+            file.write(buffer.data(), source_file.gcount());
+          }
+          source_file.close();
+        } else {
+          file.write(reinterpret_cast<const char*>(inputFileBytes.data()), inputFileBytes.size());
+        }
         file.close();
         
         std::vector<int64_t> value = WideStringToVector(szFile);

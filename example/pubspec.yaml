@@ -4,7 +4,7 @@ description: Demonstrates how to use the file_saver plugin.
 publish_to: "none"
 
 environment:
-  sdk: ">=2.17.0 <4.0.0"
+  sdk: ^3.11.0
 
 dependencies:
   flutter:

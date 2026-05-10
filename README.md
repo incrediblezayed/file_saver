@@ -6,7 +6,7 @@
 
 This plugin package primarily focuses on one task: saving files on Android, iOS, Web, Windows, MacOS, and Linux. 
 It might not have a plethora of features, but it does this job well.
-This package depends on path_provider for Android and iOS and basic html anchor for Web. The main reason I built this plugin was to
+This package depends on path_provider for Android and iOS, browser download APIs for Web, and platform file APIs for desktop. The main reason I built this plugin was to
 avoid using HTML just for downloading files. The plugin is pretty simple and saves the file in Downloads folder in
 Windows, MacOS, Linux and directly downloads the file in Web, in iOS, the file is Saved in Application
 Documents Directory, and in Android it is saved in the applications files directory Android/data/your.package.name/file/your_file.extension.
@@ -66,7 +66,7 @@ _Uint8List Function(Uint8List) transformDioResponse_ this will be your function 
 MimeType is also included in my Package, I've included types for **Sheets, Presentation, Word, Plain Text, PDF,
 MP3, MP4 and many other common formats**
 
-or you can call saveAs() _only available for android, iOS, macOS & windows at the moment_
+or you can call saveAs() _available for Android, iOS, macOS, Windows, and Web_
 
 ```dart
 await FileSaver.instance.saveAs({
@@ -75,7 +75,7 @@ await FileSaver.instance.saveAs({
       File? file,
       String? filePath,
       LinkDetails? link,
-      required String fileExtension,
+      String fileExtension = "",
       bool includeExtension = true,
       required MimeType mimeType,
       String? customMimeType,
@@ -85,6 +85,73 @@ await FileSaver.instance.saveAs({
 ```
 
 All the parameters in this method is same as the saveFile() method.
+
+For very large direct URL downloads, prefer handing the URL to the browser on
+web or Android DownloadManager so the app does not fetch the full file into
+memory:
+
+```dart
+await FileSaver.instance.downloadLink(
+  link: LinkDetails(link: "https://example.com/large-file.zip"),
+  name: "large-file.zip",
+);
+```
+
+`downloadLink` is a browser/system handoff. On Web it cannot attach custom
+headers such as `Authorization`. Browser-managed cookies may be sent only if the
+URL and cookie policy allow it. On Android, `downloadLink` uses
+DownloadManager and can pass request headers.
+
+For authenticated large downloads on Web, use `saveLinkAsStream`. It uses
+`fetch`, so request headers and browser-managed credentials can be included,
+then it streams the response into a user-selected file:
+
+```dart
+await FileSaver.instance.saveLinkAsStream(
+  name: "private-export",
+  link: LinkDetails(
+    link: "https://example.com/private/export.zip",
+    headers: {"Authorization": "Bearer token"},
+  ),
+  fileExtension: "zip",
+  includeCredentials: true,
+);
+```
+
+This Web path requires the File System Access API and CORS permission from the
+server. JavaScript cannot manually set the `Cookie` header; use normal browser
+session cookies, a signed URL, or an `Authorization` header instead.
+
+For native platforms, prefer `filePath`/`file` or `saveAsStream` for large
+generated content so the final save step can stream/copy from disk. On Web,
+`saveAsStream` uses the File System Access API where the browser supports it:
+
+```dart
+await FileSaver.instance.saveAsStream(
+  name: "large-export",
+  stream: myByteStream,
+  fileExtension: "zip",
+  mimeType: MimeType.zip,
+);
+```
+
+### Large files on Web
+
+Web has different behavior depending on where the data comes from:
+
+| Use case | Recommended API | Memory behavior | Browser support |
+| --- | --- | --- | --- |
+| Direct public/signed URL | `downloadLink` | Browser handles the download; the Flutter app does not hold the full file | Chrome, Edge, Firefox, Safari |
+| Direct URL with request headers | `saveLinkAsStream` | Fetch streams the response into a user-selected file | Chrome/Edge and other browsers that implement the File System Access API |
+| Already have `Uint8List` bytes | `saveFile` / `saveAs` | Creates a `Blob`, so the full file is held in browser memory | Chrome, Edge, Firefox, Safari |
+| App-generated stream | `saveAsStream` | Writes chunks to a user-selected file without creating a giant `Blob` | Chrome/Edge and other browsers that implement the File System Access API |
+| Local file path | Not supported on Web | Browsers do not expose real local file paths to web apps | Not available |
+
+Firefox/Mozilla and Safari do not currently provide the writable File System
+Access API needed by `saveAsStream`. For very large files in those browsers,
+use `downloadLink` with a direct server/CDN/S3 URL so the browser download
+manager streams the file to disk. Avoid passing multi-GB `Uint8List` values to
+`saveFile`/`saveAs` on Web because that path must create a `Blob` in memory.
 
 ### Note: customMimeType can only be used when mimeType is set to MimeType.custom
 

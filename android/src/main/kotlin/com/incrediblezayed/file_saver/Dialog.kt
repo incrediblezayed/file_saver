@@ -8,9 +8,11 @@ import android.provider.DocumentsContract
 import android.util.Log
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.PluginRegistry
+import java.io.FileInputStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 private const val SAVE_FILE = 886325063
@@ -18,6 +20,7 @@ private const val SAVE_FILE = 886325063
 class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultListener {
     private var result: MethodChannel.Result? = null
     private var bytes: ByteArray? = null
+    private var sourcePath: String? = null
     private var fileName: String? = null
     private val TAG = "Dialog Activity"
 
@@ -42,22 +45,22 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
         fileName: String?,
         fileExtension: String?,
         bytes: ByteArray?,
+        sourcePath: String?,
         type: String?,
         includeExtension: Boolean?,
         result: MethodChannel.Result
     ) {
         Log.d(TAG, "Opening File Manager")
-        val nonNullExtension = fileExtension ?: "";
-        var fileNameWithExtension = fileName
+        var fileNameWithExtension = sanitizeFileName(fileName)
         if (includeExtension == true) {
-            fileNameWithExtension += if (nonNullExtension.startsWith('.')) {
-                nonNullExtension;
-            } else {
-                ".$nonNullExtension"
+            val safeExtension = sanitizeExtension(fileExtension)
+            if (safeExtension.isNotEmpty()) {
+                fileNameWithExtension += safeExtension
             }
         }
         this.result = result
         this.bytes = bytes
+        this.sourcePath = sourcePath
         this.fileName = fileName
         val intent =
             Intent(Intent.ACTION_CREATE_DOCUMENT)
@@ -72,35 +75,60 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
     }
 
     private fun completeFileOperation(uri: Uri) {
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 saveFile(uri)
-                val fileUtils = FileUtils(activity)
-                result?.success(fileUtils.getPath(uri));
-                result = null
-                //result?.success(getRealPathFromUri(activity, uri))
+                withContext(Dispatchers.Main) {
+                    result?.success(uri.toString())
+                    result = null
+                }
             } catch (e: SecurityException) {
                 Log.d(TAG, "Security Exception while saving file" + e.message)
-
-                result?.error("Security Exception", e.localizedMessage, e)
-                result = null
+                withContext(Dispatchers.Main) {
+                    result?.error("Security Exception", e.localizedMessage, e)
+                    result = null
+                }
             } catch (e: Exception) {
                 Log.d(TAG, "Exception while saving file" + e.message)
-                result?.error("Error", e.localizedMessage, e)
-                result = null
+                withContext(Dispatchers.Main) {
+                    result?.error("Error", e.localizedMessage, e)
+                    result = null
+                }
             }
         }
     }
 
     private fun saveFile(uri: Uri) {
-        try {
-            Log.d(TAG, "Saving file")
+        Log.d(TAG, "Saving file")
 
-            val opStream = activity.contentResolver.openOutputStream(uri)
-            opStream?.write(bytes)
+        activity.contentResolver.openOutputStream(uri)?.use { outputStream ->
+            if (sourcePath != null) {
+                FileInputStream(sourcePath!!).use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            } else {
+                val data = bytes ?: throw IllegalArgumentException("bytes is null")
+                outputStream.write(data)
+            }
+        } ?: throw IllegalStateException("Unable to open output stream")
+    }
 
-        } catch (e: Exception) {
-            Log.d(TAG, "Error while writing file" + e.message)
+    private fun sanitizeFileName(fileName: String?): String {
+        val safeName = java.io.File(fileName ?: "file").name
+            .replace(Regex("[\\\\/:*?\"<>|\\p{Cntrl}]"), "_")
+            .trim()
+        return if (safeName.isBlank() || safeName == "." || safeName == "..") {
+            "file"
+        } else {
+            safeName
         }
+    }
+
+    private fun sanitizeExtension(extension: String?): String {
+        val safeExtension = extension.orEmpty()
+            .trim()
+            .trimStart('.')
+            .replace(Regex("[\\\\/:*?\"<>|\\p{Cntrl}]"), "_")
+        return if (safeExtension.isEmpty()) "" else ".$safeExtension"
     }
 }

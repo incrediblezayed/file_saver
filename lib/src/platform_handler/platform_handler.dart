@@ -1,4 +1,5 @@
 import 'package:file_saver/src/models/file.model.dart';
+import 'package:file_saver/src/models/link_details.dart';
 import 'package:file_saver/src/platform_handler/platform_handler_stub.dart'
     // ignore: uri_does_not_exist
     if (dart.library.js_interop) 'package:file_saver/src/platform_handler/platform_handler_web.dart'
@@ -13,4 +14,6 @@ abstract class PlatformHandler {
   Future<String?> saveFile(FileModel fileModel);
 
   Future<String?> saveAs(FileModel fileModel);
+
+  Future<String?> downloadLink(LinkDetails link, {String? name});
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_saver/src/models/file.model.dart';
+import 'package:file_saver/src/models/link_details.dart';
 import 'package:file_saver/src/platform_handler/platform_handler.dart';
 import 'package:file_saver/src/utils/helpers.dart';
 import 'package:flutter/services.dart';
@@ -27,7 +28,7 @@ class PlatformHandlerAll extends PlatformHandler {
     try {
       directory =
           await _channel.invokeMethod<String>(_saveFile, fileModel.toMap()) ??
-              '';
+          '';
       return directory;
     } catch (e) {
       rethrow;
@@ -38,7 +39,9 @@ class PlatformHandlerAll extends PlatformHandler {
     String path = '';
     path = await Helpers.getDirectory() ?? '';
     if (path == '') {
-      log('The path was found null or empty, please report the issue at $_issueLink');
+      log(
+        'The path was found null or empty, please report the issue at $_issueLink',
+      );
       throw Exception('The path was found null or empty');
     } else {
       final slash = Helpers.getFilePathSlash();
@@ -72,12 +75,28 @@ class PlatformHandlerAll extends PlatformHandler {
     if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
       path = await _channel.invokeMethod<String>(_saveAs, fileModel.toMap());
     } else if (Platform.isWindows) {
-      final Int64List? bytes =
-          await _channel.invokeMethod<Int64List?>('saveAs', fileModel.toMap());
+      final Int64List? bytes = await _channel.invokeMethod<Int64List?>(
+        'saveAs',
+        fileModel.toMap(),
+      );
       path = bytes == null ? null : String.fromCharCodes(bytes);
     } else {
       throw UnimplementedError('Unimplemented Error');
     }
     return path;
+  }
+
+  @override
+  Future<String?> downloadLink(LinkDetails link, {String? name}) async {
+    if (Platform.isAndroid) {
+      return _channel.invokeMethod<String>('downloadLink', {
+        'url': link.link,
+        'name': name,
+        'headers': link.headers,
+      });
+    }
+    throw UnsupportedError(
+      'downloadLink is only supported on Android and web. Use saveFile/saveAs with filePath for other native streamed writes.',
+    );
   }
 }

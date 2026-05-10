@@ -9,12 +9,14 @@ class FileModel {
   final String fileExtension;
   final String mimeType;
   final bool includeExtension;
+  final String? sourcePath;
   FileModel({
     required this.name,
     required this.bytes,
     required this.fileExtension,
     required this.mimeType,
     required this.includeExtension,
+    this.sourcePath,
   });
 
   FileModel copyWith({
@@ -23,6 +25,7 @@ class FileModel {
     String? fileExtension,
     String? mimeType,
     bool? includeExtension,
+    String? sourcePath,
   }) {
     return FileModel(
       name: name ?? this.name,
@@ -30,6 +33,7 @@ class FileModel {
       fileExtension: fileExtension ?? this.fileExtension,
       mimeType: mimeType ?? this.mimeType,
       includeExtension: includeExtension ?? this.includeExtension,
+      sourcePath: sourcePath ?? this.sourcePath,
     );
   }
 
@@ -40,6 +44,7 @@ class FileModel {
       'fileExtension': fileExtension,
       'mimeType': mimeType,
       'includeExtension': includeExtension,
+      'sourcePath': sourcePath,
     };
   }
 
@@ -50,6 +55,7 @@ class FileModel {
       fileExtension: map['fileExtension'] as String,
       mimeType: map['mimeType'] as String,
       includeExtension: map['includeExtension'] as bool,
+      sourcePath: map['sourcePath'] as String?,
     );
   }
 
