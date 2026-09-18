@@ -52,10 +52,10 @@ class _SaveWithFileProxyState extends State<SaveWithFileProxy> {
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       onPressed: () async {
-                        FilePickerResult? result =
-                            await FilePicker.platform.pickFiles();
+                        final files = await FilePicker.pickFiles();
 
-                        final resultPath = result?.files.single.path;
+                        final resultPath =
+                            files.isEmpty ? null : files.single.path;
 
                         if (resultPath != null) {
                           File file = File(resultPath);
