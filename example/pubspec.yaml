@@ -10,11 +10,11 @@ dependencies:
   flutter:
     sdk: flutter
   excel: ^4.0.6
-  file_picker: ^10.2.0
+  file_picker: ^13.1.0
   file_saver:
     path: ../
   cupertino_icons: ^1.0.8
-  permission_handler: ^12.0.0+1 
+  permission_handler: ^13.0.2 
 
 dev_dependencies:
   flutter_test:

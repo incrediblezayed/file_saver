@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:file_saver/src/models/file.model.dart';
 import 'package:file_saver/src/models/link_details.dart';
-import 'package:file_saver/src/saver.dart';
 import 'package:file_saver/src/platform_handler/platform_handler.dart';
+import 'package:file_saver/src/saver.dart';
 import 'package:file_saver/src/utils/file_ops_stub.dart'
     if (dart.library.io) 'package:file_saver/src/utils/file_ops_io.dart'
     as file_ops;
@@ -126,7 +126,7 @@ class FileSaver {
     String? customMimeType,
   }) async {
     try {
-      return file_ops.copyFileToDirectory(
+      return await file_ops.copyFileToDirectory(
         file: file,
         name: name,
         fileExtension: fileExtension,

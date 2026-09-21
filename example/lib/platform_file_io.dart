@@ -14,8 +14,9 @@ const bool supportsFilePathTests = true;
 const String filePathUnsupportedMessage = '';
 
 Future<String?> pickFilePath() async {
-  final result = await FilePicker.platform.pickFiles(withData: false);
-  return result?.files.single.path;
+  final files = await FilePicker.pickFiles();
+  if (files.isEmpty) return null;
+  return files.single.path;
 }
 
 Future<GeneratedTestFile> createLargeTestFile({required int sizeMb}) async {

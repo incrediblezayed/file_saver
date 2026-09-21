@@ -1,12 +1,12 @@
 name: file_saver
 description: Save files from bytes, paths, streams, and URLs across Android, iOS, Web, Windows, macOS, and Linux.
-version: 0.4.0
+version: 0.5.0
 repository: https://github.com/incrediblezayed/file_saver
 homepage: https://hassanansari.dev
 
 environment:
-  sdk: ^3.11.0
-  flutter: ">=3.41.0"
+  sdk: ^3.12.0
+  flutter: ">=3.44.0"
 
 dependencies:
   collection: ^1.19.1
