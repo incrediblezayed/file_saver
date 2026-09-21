@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0]
+
+* Migrated Android to built-in Kotlin / AGP 9 compatibility. Requires Flutter 3.44+.
+  * Fixes [#145](https://github.com/incrediblezayed/file_saver/issues/145), [#148](https://github.com/incrediblezayed/file_saver/issues/148).
+
 ## [0.4.0]
  * Added Swift Package Manager support for iOS and macOS.
  * Split native file helpers behind conditional imports to keep Web/Wasm analysis away from `dart:io` and platform-specific path provider implementations.

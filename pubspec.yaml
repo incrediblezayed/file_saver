@@ -5,8 +5,8 @@ repository: https://github.com/incrediblezayed/file_saver
 homepage: https://hassanansari.dev
 
 environment:
-  sdk: ^3.11.0
-  flutter: ">=3.41.0"
+  sdk: ^3.12.0
+  flutter: ">=3.44.0"
 
 dependencies:
   collection: ^1.19.1
