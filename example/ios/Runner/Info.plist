@@ -70,5 +70,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Saves files you export into your photo library.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Needed to place exported files into an album.</string>
 </dict>
 </plist>

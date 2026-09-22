@@ -5,143 +5,128 @@
 //  Created by Hassan Ansari on 22/06/21.
 //
 
-import Foundation
 import Flutter
+import Foundation
 import UIKit
 
 class Dialog: NSObject, UIDocumentPickerDelegate {
-    private var result: FlutterResult?
-    private var tempURL: URL?
-    private var fileManager = FileManager.default
-    private var bytes: [UInt8]?
+    /// The call waiting on the picker; nil when no dialog is open.
+    private var continuation: CheckedContinuation<String?, Error>?
+    private var tempDirectory: URL?
+    private let fileManager = FileManager.default
 
-    func openFileManager(
-        byteData: [UInt8]?,
-        sourcePath: String?,
-        fileName: String,
-        fileExtension: String,
-        includeExtension: Bool,
-        initialDirectory: String? = nil,
-        result: @escaping FlutterResult
-    ) {
-        self.result = result
-        self.bytes = byteData
-        guard
-            let viewController = UIApplication.shared.keyWindow?
-                .rootViewController
-        else {
-            result(
-                FlutterError(
-                    code: "failure",
-                    message: "Failed to launch document Picker",
-                    details: nil
-                )
+    /// Stages the payload in a temp file, shows the export picker, and resolves
+    /// to the chosen path, or nil when the user cancels.
+    func saveAs(_ request: SaveRequest) async throws -> String? {
+        if continuation != nil {
+            throw PigeonError(code: "busy", message: "A saveAs dialog is already open", details: nil)
+        }
+        let bytes = request.bytes?.data
+        let sourcePath = request.sourcePath
+        guard bytes != nil || sourcePath != nil else {
+            throw PigeonError(
+                code: "invalid_arguments",
+                message: "Either bytes or sourcePath must be supplied",
+                details: nil
             )
-            return
         }
-        var fileNameWithExtension = fileName
-        if includeExtension && !fileExtension.isEmpty {
-            if fileExtension.starts(with: ".") {
-                fileNameWithExtension += fileExtension
-            } else {
-                fileNameWithExtension += ".\(fileExtension)"
-            }
-        }
-        let temp = NSTemporaryDirectory()
-        let fileURL = NSURL.fileURL(withPathComponents: [
-            temp, fileNameWithExtension,
-        ])
+
+        // A private directory per call: same-named files never collide.
+        let directory = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString)
+        let fileURL = directory.appendingPathComponent(request.fileNameWithExtension)
+        tempDirectory = directory
         do {
-            if let sourcePath = sourcePath {
-                try fileManager.copyItem(
-                    at: URL(fileURLWithPath: sourcePath),
-                    to: fileURL!
-                )
-            } else if let byteData = byteData {
-                let d = Data(bytes: byteData, count: byteData.count)
-                try d.write(to: fileURL!)
-            } else {
-                result(
-                    FlutterError(
-                        code: "invalid_arguments",
-                        message: "Either bytes or sourcePath must be supplied",
-                        details: nil
-                    )
-                )
-                return
-            }
-
+            try await Dialog.stage(bytes: bytes, sourcePath: sourcePath, directory: directory, fileURL: fileURL)
         } catch {
-            result(
-                FlutterError(
-                    code: "creating_temp_file_failed",
-                    message: error.localizedDescription,
-                    details: nil
-                )
+            deleteTemp()
+            throw PigeonError(
+                code: "creating_temp_file_failed",
+                message: error.localizedDescription,
+                details: nil
             )
+        }
+
+        let initialDirectory = request.initialDirectory
+        return try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+            DispatchQueue.main.async {
+                self.present(fileURL: fileURL, initialDirectory: initialDirectory)
+            }
+        }
+    }
+
+    /// Copies or writes the payload off the main thread.
+    private static func stage(bytes: Data?, sourcePath: String?, directory: URL, fileURL: URL) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+                    if let sourcePath = sourcePath {
+                        try FileManager.default.copyItem(at: URL(fileURLWithPath: sourcePath), to: fileURL)
+                    } else if let bytes = bytes {
+                        try bytes.write(to: fileURL)
+                    }
+                    continuation.resume()
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+
+    private func present(fileURL: URL, initialDirectory: String?) {
+        guard let viewController = Dialog.topViewController() else {
+            finish(.failure(PigeonError(code: "failure", message: "Failed to launch document Picker", details: nil)))
             return
         }
-        self.tempURL = fileURL
-        var docPicker: UIDocumentPickerViewController?
+        let picker: UIDocumentPickerViewController
         if #available(iOS 14.0, *) {
-            docPicker = UIDocumentPickerViewController(
-                forExporting: [fileURL!],
-                asCopy: true
-            )
+            picker = UIDocumentPickerViewController(forExporting: [fileURL], asCopy: true)
         } else {
-            docPicker = UIDocumentPickerViewController(
-                url: fileURL!,
-                in: .exportToService
-            )
+            picker = UIDocumentPickerViewController(url: fileURL, in: .exportToService)
         }
-        docPicker!.delegate = self
+        picker.delegate = self
         if let initialDirectory = initialDirectory, !initialDirectory.isEmpty {
-            docPicker!.directoryURL = URL(fileURLWithPath: initialDirectory)
+            picker.directoryURL = URL(fileURLWithPath: initialDirectory)
         }
-        viewController.present(docPicker!, animated: true, completion: nil)
+        viewController.present(picker, animated: true, completion: nil)
+    }
+
+    /// Resumes the waiting call exactly once and clears state for the next one.
+    private func finish(_ result: Result<String?, Error>) {
+        deleteTemp()
+        let pending = continuation
+        continuation = nil
+        pending?.resume(with: result)
     }
 
     private func deleteTemp() {
-        if tempURL != nil {
-            do {
-                if fileManager.fileExists(atPath: tempURL!.path) {
-                    try fileManager.removeItem(at: tempURL!)
-                }
-                tempURL = nil
+        guard let tempDirectory = tempDirectory else { return }
+        self.tempDirectory = nil
+        try? fileManager.removeItem(at: tempDirectory)
+    }
 
-            } catch {
-                print(error.localizedDescription)
-            }
+    /// The controller that can present right now, even when a sheet is already up.
+    private static func topViewController() -> UIViewController? {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let windows = scenes.flatMap { $0.windows }
+        let window = windows.first { $0.isKeyWindow } ?? windows.first
+        var top = window?.rootViewController
+        while let presented = top?.presentedViewController {
+            top = presented
         }
+        return top
     }
 
-    func documentPickerWasCancelled(
-        _ controller: UIDocumentPickerViewController
-    ) {
-        deleteTemp()
-        print("Cancelled")
-        result?(nil)
-    }
-
-    func documentPicker(
-        _ controller: UIDocumentPickerViewController,
-        didPickDocumentAt url: URL
-    ) {
-        deleteTemp()
-
-        print("in didPickDocumentAt " + url.path)
-
-        result?(url.path)
+    func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+        finish(.success(nil))
     }
 
     func documentPicker(
         _ controller: UIDocumentPickerViewController,
         didPickDocumentsAt urls: [URL]
     ) {
-        deleteTemp()
-
-        print("in didPickDocumentAt " + urls[0].path)
-
-        result?(urls[0].path)
+        finish(.success(urls.first?.path))
     }
 }

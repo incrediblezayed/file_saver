@@ -18,6 +18,9 @@ let package = Package(
             name: "file_saver",
             dependencies: [
                 .product(name: "FlutterFramework", package: "FlutterFramework")
+            ],
+            linkerSettings: [
+                .linkedFramework("Photos")
             ]
         )
     ]

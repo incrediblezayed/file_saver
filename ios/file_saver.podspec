@@ -15,6 +15,7 @@ A Flutter plugin for saving files across all platforms.
   s.source           = { :path => '.' }
   s.source_files = 'file_saver/Sources/file_saver/**/*.swift'
   s.dependency 'Flutter'
+  s.frameworks = 'Photos'
   s.platform = :ios, '13.0'
 
   # Flutter.framework does not contain a i386 slice.
