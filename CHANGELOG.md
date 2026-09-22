@@ -4,14 +4,33 @@ All notable changes to this project will be documented in this file.
 
 ## [0.5.0]
 
+* **Breaking:** replaced the `dio` dependency with `package:http`.
+  * `dioClient` is now `httpClient` (`http.Client?`) on `saveFile`, `saveAs` and `saveLinkAsStream`.
+  * `transformDioResponse` is removed; responses are always bytes. Fetch and transform yourself, then pass `bytes:`.
+  * `LinkDetails.responseType` is removed. `LinkDetails.uri` exposes the link with `queryParameters` merged.
+  * HTTP 4xx/5xx responses now throw `http.ClientException` instead of writing the error body to disk.
+  * Fixes [#102](https://github.com/incrediblezayed/file_saver/issues/102).
+* macOS: sandbox failures now say which entitlement is missing — `com.apple.security.files.downloads.read-write` when the Downloads write fails, `com.apple.security.network.client` when the download fails.
+  * Fixes [#143](https://github.com/incrediblezayed/file_saver/issues/143).
 * Migrated Android to built-in Kotlin / AGP 9 compatibility. Requires Flutter 3.44+.
   * Fixes [#145](https://github.com/incrediblezayed/file_saver/issues/145), [#148](https://github.com/incrediblezayed/file_saver/issues/148).
 * Added `initialDirectory` to `saveAs`, `saveAsStream` and `saveLinkAsStream` so the save dialog can open in a chosen folder (macOS, Windows, iOS, Android).
   * Fixes [#134](https://github.com/incrediblezayed/file_saver/issues/134), [#147](https://github.com/incrediblezayed/file_saver/issues/147).
+* Added `saveToGallery` for saving images and videos to the photo library — MediaStore on Android, Photos on iOS — with an optional `album`.
+  * Fixes [#64](https://github.com/incrediblezayed/file_saver/issues/64).
 * Added `dialogTitle` to `saveAs`, `saveAsStream` and `saveLinkAsStream` (macOS, Windows).
   * Fixes [#146](https://github.com/incrediblezayed/file_saver/issues/146).
-* Windows `saveAs` now converts the new dialog strings from UTF-8 correctly.
-* Removed the unused duplicate `macos/Classes` sources; macOS builds from `macos/file_saver/Sources` for both CocoaPods and Swift Package Manager.
+* Windows `saveAs` converts `initialDirectory` and `dialogTitle` from UTF-8 with `MultiByteToWideChar`.
+* **Breaking:** Android `saveFile` now throws a `PlatformException` on failure instead of returning an error message as the path.
+* Threading and streaming hardening across platforms:
+  * Android: file copies run on a supervised IO scope and reply exactly once; `saveAs` survives rotation while the picker is open, fails cleanly when the Activity is destroyed or no app can show the picker, and rejects a second `saveAs` while one is open instead of silently dropping the first. Error details no longer carry a `Throwable` the channel codec cannot encode.
+  * iOS: temp-file writes and copies run off the main thread, payloads are no longer copied into `[UInt8]`, the picker is presented on the top-most controller, and a second `saveAs` while one is open is rejected.
+  * macOS: copies stream in 1 MiB chunks off the main thread and failures throw instead of returning `"Failed to save file"` as the path.
+  * Windows: the dialog is owned by the app window, uses heap buffers instead of a 1 MiB stack array and fixed `MAX_PATH` statics (a long file name aborted the process), builds the filter correctly, converts names and paths from UTF-8, and reports dialog errors instead of treating them as cancel.
+  * Web: cancelling the File System Access picker resolves to `null` like other platforms; a failed stream is aborted without masking the original error.
+  * `saveAsStream` deletes its temp file when the stream fails.
+* Platform channels are now generated with [Pigeon](https://pub.dev/packages/pigeon) from `pigeons/messages.dart` (regenerate with `tool/pigeon.sh`), so argument mismatches fail at compile time. Windows `saveAs` returns the path as a UTF-8 string. macOS deployment target is now 10.15.
+* Removed the unused `FileUtils.kt` and the duplicate `macos/Classes` sources — macOS builds from `macos/file_saver/Sources` for both CocoaPods and Swift Package Manager.
 * Documented macOS entitlement file naming and Windows SDK requirements.
 
 ## [0.4.0]

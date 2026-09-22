@@ -26,8 +26,7 @@ await FileSaver.instance.saveFile({
       bool includeExtension = true,
       MimeType mimeType = MimeType.other,
       String? customMimeType,
-      Dio? dioClient,
-      Uint8List Function(Uint8List)? transformDioResponse,
+      http.Client? httpClient,
 });
 ```
 
@@ -59,9 +58,7 @@ type
 
 _String customMimeType_ this will be your custom mime type, if you want to use your own mime type, you can use this parameter
 
-_Dio dioClient_ this will be your dio client, if you want to use dio for downloading the file, you can use this parameter
-
-_Uint8List Function(Uint8List) transformDioResponse_ this will be your function to transform the response, if you want to transform the response as per your requirement, you can use this parameter
+_http.Client httpClient_ optional `package:http` client used when downloading from `link`. Pass your own for proxies, retries, cookies or logging; otherwise a client is created and closed per call
 
 MimeType is also included in my Package, I've included types for **Sheets, Presentation, Word, Plain Text, PDF,
 MP3, MP4 and many other common formats**
@@ -81,8 +78,7 @@ await FileSaver.instance.saveAs({
       String? customMimeType,
       String? initialDirectory,
       String? dialogTitle,
-      Dio? dioClient,
-      Uint8List Function(Uint8List)? transformDioResponse,
+      http.Client? httpClient,
 });
 ```
 
@@ -96,6 +92,32 @@ dialog options (also accepted by `saveAsStream` and `saveLinkAsStream`):
 
 Both are ignored on platforms that don't support them, so it's safe to pass
 them unconditionally.
+
+### Save to the gallery
+
+`saveToGallery` puts an image or video into the device's photo library without
+showing a dialog. Android and iOS only; other platforms throw `UnsupportedError`.
+
+```dart
+await FileSaver.instance.saveToGallery(
+  name: "holiday",
+  bytes: pngBytes,          // or file / filePath / link
+  fileExtension: "png",
+  mimeType: MimeType.png,   // must be an image/* or video/* type
+  album: "My App",          // optional
+);
+```
+
+Returns the MediaStore content URI on Android and the `PHAsset` local
+identifier on iOS.
+
+- **Android 10+**: no permission needed. Files land in `Pictures/<album>` or
+  `Movies/<album>`.
+- **Android 9 and below**: your app must hold `WRITE_EXTERNAL_STORAGE` at
+  runtime. The plugin already declares it with `maxSdkVersion="28"`.
+- **iOS**: add `NSPhotoLibraryAddUsageDescription` to `Info.plist`. Passing
+  `album` also needs `NSPhotoLibraryUsageDescription`, because finding or
+  creating an album requires read access to the library.
 
 For very large direct URL downloads, prefer handing the URL to the browser on
 web or Android DownloadManager so the app does not fetch the full file into
@@ -273,7 +295,7 @@ you have to add this key in the DebugProfile.entitlements and Release.entitlemen
 
 #### Windows:
 
-No extra setup. The plugin only uses the classic Win32 `GetSaveFileName` API
+No extra setup. The plugin only uses the Win32 `GetSaveFileName` API
 from `Commdlg.h`, so it has no SDK requirement beyond what Flutter desktop
 itself needs (Visual Studio 2022 with the *Desktop development with C++*
 workload, which includes the Windows 10 SDK). Windows 10 or newer is required

@@ -54,6 +54,10 @@ class _FileSaverTestPageState extends State<FileSaverTestPage> {
   bool _isRunning = false;
   String? _pickedFilePath;
 
+  /// A 1x1 red PNG, enough to show up in the gallery.
+  static const _onePixelPng =
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==';
+
   /// Parent folder of the last picked file, used as the saveAs starting point.
   String? get _pickedDirectory {
     final path = _pickedFilePath;
@@ -142,6 +146,23 @@ class _FileSaverTestPageState extends State<FileSaverTestPage> {
             mimeType: MimeType.text,
             initialDirectory: _pickedDirectory,
             dialogTitle: 'Choose where to save the file',
+          ),
+        ),
+      ),
+      _ExampleAction(
+        icon: Icons.photo_library,
+        title: 'saveToGallery (PNG)',
+        detail:
+            'Puts a 1x1 PNG into Photos / Pictures under a "File Saver" album. '
+            'Android and iOS only.',
+        onRun: () => _run(
+          'saveToGallery',
+          () => FileSaver.instance.saveToGallery(
+            name: _fileName('gallery'),
+            bytes: base64Decode(_onePixelPng),
+            fileExtension: 'png',
+            mimeType: MimeType.png,
+            album: 'File Saver',
           ),
         ),
       ),
