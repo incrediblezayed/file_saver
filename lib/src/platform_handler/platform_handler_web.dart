@@ -23,6 +23,12 @@ class PlatformHandlerWeb extends PlatformHandler {
   }
 
   @override
+  Future<String?> saveToDownloads(SaveRequest request) {
+    // The browser decides where downloads go; subfolder cannot apply.
+    return saveFile(request);
+  }
+
+  @override
   Future<String?> saveToGallery(SaveRequest request) {
     throw UnsupportedError(
       'saveToGallery is only supported on Android and iOS.',

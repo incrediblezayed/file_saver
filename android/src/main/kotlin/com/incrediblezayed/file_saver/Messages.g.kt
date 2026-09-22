@@ -212,7 +212,8 @@ data class SaveRequest (
   val mimeType: String,
   val initialDirectory: String? = null,
   val dialogTitle: String? = null,
-  val album: String? = null
+  /** Album for saveToGallery, subfolder for saveToDownloads. */
+  val folder: String? = null
 )
  {
   companion object {
@@ -225,8 +226,8 @@ data class SaveRequest (
       val mimeType = pigeonVar_list[5] as String
       val initialDirectory = pigeonVar_list[6] as String?
       val dialogTitle = pigeonVar_list[7] as String?
-      val album = pigeonVar_list[8] as String?
-      return SaveRequest(name, bytes, sourcePath, fileExtension, includeExtension, mimeType, initialDirectory, dialogTitle, album)
+      val folder = pigeonVar_list[8] as String?
+      return SaveRequest(name, bytes, sourcePath, fileExtension, includeExtension, mimeType, initialDirectory, dialogTitle, folder)
     }
   }
   fun toList(): List<Any?> {
@@ -239,7 +240,7 @@ data class SaveRequest (
       mimeType,
       initialDirectory,
       dialogTitle,
-      album,
+      folder,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -250,7 +251,7 @@ data class SaveRequest (
       return true
     }
     val other = other as SaveRequest
-    return MessagesPigeonUtils.deepEquals(this.name, other.name) && MessagesPigeonUtils.deepEquals(this.bytes, other.bytes) && MessagesPigeonUtils.deepEquals(this.sourcePath, other.sourcePath) && MessagesPigeonUtils.deepEquals(this.fileExtension, other.fileExtension) && MessagesPigeonUtils.deepEquals(this.includeExtension, other.includeExtension) && MessagesPigeonUtils.deepEquals(this.mimeType, other.mimeType) && MessagesPigeonUtils.deepEquals(this.initialDirectory, other.initialDirectory) && MessagesPigeonUtils.deepEquals(this.dialogTitle, other.dialogTitle) && MessagesPigeonUtils.deepEquals(this.album, other.album)
+    return MessagesPigeonUtils.deepEquals(this.name, other.name) && MessagesPigeonUtils.deepEquals(this.bytes, other.bytes) && MessagesPigeonUtils.deepEquals(this.sourcePath, other.sourcePath) && MessagesPigeonUtils.deepEquals(this.fileExtension, other.fileExtension) && MessagesPigeonUtils.deepEquals(this.includeExtension, other.includeExtension) && MessagesPigeonUtils.deepEquals(this.mimeType, other.mimeType) && MessagesPigeonUtils.deepEquals(this.initialDirectory, other.initialDirectory) && MessagesPigeonUtils.deepEquals(this.dialogTitle, other.dialogTitle) && MessagesPigeonUtils.deepEquals(this.folder, other.folder)
   }
 
   override fun hashCode(): Int {
@@ -263,11 +264,11 @@ data class SaveRequest (
     result = 31 * result + MessagesPigeonUtils.deepHash(this.mimeType)
     result = 31 * result + MessagesPigeonUtils.deepHash(this.initialDirectory)
     result = 31 * result + MessagesPigeonUtils.deepHash(this.dialogTitle)
-    result = 31 * result + MessagesPigeonUtils.deepHash(this.album)
+    result = 31 * result + MessagesPigeonUtils.deepHash(this.folder)
     return result
   }
   override fun toString(): String {
-    return "SaveRequest(name=$name, bytes=${bytes?.contentToString()}, sourcePath=$sourcePath, fileExtension=$fileExtension, includeExtension=$includeExtension, mimeType=$mimeType, initialDirectory=$initialDirectory, dialogTitle=$dialogTitle, album=$album)"
+    return "SaveRequest(name=$name, bytes=${bytes?.contentToString()}, sourcePath=$sourcePath, fileExtension=$fileExtension, includeExtension=$includeExtension, mimeType=$mimeType, initialDirectory=$initialDirectory, dialogTitle=$dialogTitle, folder=$folder)"
   }
 }
 
@@ -355,6 +356,11 @@ interface FileSaverHostApi {
   suspend fun saveAs(request: SaveRequest): String?
   /** Adds an image or video to the photo library. Android and iOS only. */
   suspend fun saveToGallery(request: SaveRequest): String?
+  /**
+   * Writes into the shared Downloads folder without a dialog. Android only;
+   * the other platforms handle it in Dart.
+   */
+  suspend fun saveToDownloads(request: SaveRequest): String?
   /** Hands a URL to the system downloader. Android only. */
   fun downloadLink(request: DownloadRequest): String
 
@@ -414,6 +420,25 @@ interface FileSaverHostApi {
             CoroutineScope(Dispatchers.Main).launch {
               val wrapped: List<Any?> = try {
                 listOf(api.saveToGallery(requestArg))
+              } catch (exception: Throwable) {
+                MessagesPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.file_saver.FileSaverHostApi.saveToDownloads$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val requestArg = args[0] as SaveRequest
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.saveToDownloads(requestArg))
               } catch (exception: Throwable) {
                 MessagesPigeonUtils.wrapError(exception)
               }

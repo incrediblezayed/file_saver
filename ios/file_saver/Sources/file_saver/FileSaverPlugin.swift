@@ -26,6 +26,14 @@ public class FileSaverPlugin: NSObject, FlutterPlugin, FileSaverHostApi {
         try await gallery.save(request)
     }
 
+    func saveToDownloads(request: SaveRequest) async throws -> String? {
+        throw PigeonError(
+            code: "unsupported",
+            message: "iOS has no shared Downloads folder. Use saveFile (the app's Documents folder, visible in Files) or saveAs.",
+            details: nil
+        )
+    }
+
     func downloadLink(request: DownloadRequest) throws -> String {
         throw PigeonError(
             code: "unsupported",

@@ -119,6 +119,28 @@ identifier on iOS.
   `album` also needs `NSPhotoLibraryUsageDescription`, because finding or
   creating an album requires read access to the library.
 
+### Save to Downloads without a dialog
+
+`saveToDownloads` writes straight into the shared Downloads folder.
+
+```dart
+await FileSaver.instance.saveToDownloads(
+  name: "report",
+  bytes: pdfBytes,            // or file / filePath / link
+  fileExtension: "pdf",
+  mimeType: MimeType.pdf,
+  subfolder: "My App",        // optional: Download/My App/report.pdf
+);
+```
+
+| Platform | Where it goes | Notes |
+|---|---|---|
+| Android 10+ | `Download/` or `Download/<subfolder>` via MediaStore | No permission needed. Returns the content URI. |
+| Android 9 and below | Same path on external storage | Your app must hold `WRITE_EXTERNAL_STORAGE` at runtime. |
+| macOS, Windows, Linux | The user's Downloads directory | Returns the file path. macOS needs the Downloads entitlement (see below). |
+| Web | Browser download | `subfolder` is ignored; the browser decides. |
+| iOS | — | Throws `UnsupportedError`: iOS has no shared Downloads folder. Use `saveFile` (app Documents, visible in Files) or `saveAs`. |
+
 For very large direct URL downloads, prefer handing the URL to the browser on
 web or Android DownloadManager so the app does not fetch the full file into
 memory:

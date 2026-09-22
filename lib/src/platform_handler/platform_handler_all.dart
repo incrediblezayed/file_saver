@@ -12,7 +12,6 @@ PlatformHandler getPlatformHandler() {
 }
 
 class PlatformHandlerAll extends PlatformHandler {
-
   @visibleForTesting
   static FileSaverHostApi? hostApiOverride;
 
@@ -22,21 +21,32 @@ class PlatformHandlerAll extends PlatformHandler {
       'https://www.github.com/incrediblezayed/file_saver/issues';
 
   Future<String> saveFileForOtherPlatforms(SaveRequest request) async {
-    final path = await Helpers.getDirectory() ?? '';
-    if (path == '') {
+    final base = await Helpers.getDirectory() ?? '';
+    if (base == '') {
       log(
         'The path was found null or empty, please report the issue at $_issueLink',
       );
       throw Exception('The path was found null or empty');
     }
     final slash = Helpers.getFilePathSlash();
+    var directory = base;
+    final folder = request.folder?.trim();
+    if (folder != null && folder.isNotEmpty) {
+      directory = '$base$slash$folder';
+      await Directory(directory).create(recursive: true);
+    }
     final File file = File(
-      '$path$slash${request.name}${request.fileExtension}',
+      '$directory$slash${request.name}${request.fileExtension}',
     );
     try {
-      await file.writeAsBytes(
-        request.bytes ?? (throw ArgumentError('bytes is null')),
-      );
+      final sourcePath = request.sourcePath;
+      if (sourcePath != null) {
+        await File(sourcePath).copy(file.path);
+      } else {
+        await file.writeAsBytes(
+          request.bytes ?? (throw ArgumentError('bytes is null')),
+        );
+      }
     } on FileSystemException catch (e) {
       if (Platform.isMacOS) {
         throw FileSystemException(
@@ -70,6 +80,20 @@ class PlatformHandlerAll extends PlatformHandler {
       return _api.saveAs(request);
     }
     throw UnimplementedError('Unimplemented Error');
+  }
+
+  @override
+  Future<String?> saveToDownloads(SaveRequest request) {
+    if (Platform.isAndroid) {
+      return _api.saveToDownloads(request);
+    }
+    if (Platform.isIOS) {
+      throw UnsupportedError(
+        'iOS has no shared Downloads folder. Use saveFile (app Documents, '
+        'visible in the Files app) or saveAs.',
+      );
+    }
+    return saveFileForOtherPlatforms(request);
   }
 
   @override

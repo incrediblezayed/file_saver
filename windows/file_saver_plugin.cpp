@@ -127,6 +127,13 @@ void FileSaverPlugin::SaveToGallery(
                       "saveToGallery is only supported on Android and iOS"));
 }
 
+void FileSaverPlugin::SaveToDownloads(
+    const SaveRequest & /*request*/,
+    std::function<void(ErrorOr<std::optional<std::string>> reply)> result) {
+  result(FlutterError("unsupported",
+                      "saveToDownloads is handled in Dart on Windows"));
+}
+
 ErrorOr<std::string> FileSaverPlugin::DownloadLink(
     const DownloadRequest & /*request*/) {
   return FlutterError("unsupported",

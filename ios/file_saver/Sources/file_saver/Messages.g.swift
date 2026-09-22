@@ -196,7 +196,8 @@ struct SaveRequest: Hashable, CustomStringConvertible {
   var mimeType: String
   var initialDirectory: String? = nil
   var dialogTitle: String? = nil
-  var album: String? = nil
+  /// Album for saveToGallery, subfolder for saveToDownloads.
+  var folder: String? = nil
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -209,7 +210,7 @@ struct SaveRequest: Hashable, CustomStringConvertible {
     let mimeType = pigeonVar_list[5] as! String
     let initialDirectory: String? = nilOrValue(pigeonVar_list[6])
     let dialogTitle: String? = nilOrValue(pigeonVar_list[7])
-    let album: String? = nilOrValue(pigeonVar_list[8])
+    let folder: String? = nilOrValue(pigeonVar_list[8])
 
     return SaveRequest(
       name: name,
@@ -220,7 +221,7 @@ struct SaveRequest: Hashable, CustomStringConvertible {
       mimeType: mimeType,
       initialDirectory: initialDirectory,
       dialogTitle: dialogTitle,
-      album: album
+      folder: folder
     )
   }
   func toList() -> [Any?] {
@@ -233,14 +234,14 @@ struct SaveRequest: Hashable, CustomStringConvertible {
       mimeType,
       initialDirectory,
       dialogTitle,
-      album,
+      folder,
     ]
   }
   static func == (lhs: SaveRequest, rhs: SaveRequest) -> Bool {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
     }
-    return MessagesPigeonInternal.deepEquals(lhs.name, rhs.name) && MessagesPigeonInternal.deepEquals(lhs.bytes, rhs.bytes) && MessagesPigeonInternal.deepEquals(lhs.sourcePath, rhs.sourcePath) && MessagesPigeonInternal.deepEquals(lhs.fileExtension, rhs.fileExtension) && MessagesPigeonInternal.deepEquals(lhs.includeExtension, rhs.includeExtension) && MessagesPigeonInternal.deepEquals(lhs.mimeType, rhs.mimeType) && MessagesPigeonInternal.deepEquals(lhs.initialDirectory, rhs.initialDirectory) && MessagesPigeonInternal.deepEquals(lhs.dialogTitle, rhs.dialogTitle) && MessagesPigeonInternal.deepEquals(lhs.album, rhs.album)
+    return MessagesPigeonInternal.deepEquals(lhs.name, rhs.name) && MessagesPigeonInternal.deepEquals(lhs.bytes, rhs.bytes) && MessagesPigeonInternal.deepEquals(lhs.sourcePath, rhs.sourcePath) && MessagesPigeonInternal.deepEquals(lhs.fileExtension, rhs.fileExtension) && MessagesPigeonInternal.deepEquals(lhs.includeExtension, rhs.includeExtension) && MessagesPigeonInternal.deepEquals(lhs.mimeType, rhs.mimeType) && MessagesPigeonInternal.deepEquals(lhs.initialDirectory, rhs.initialDirectory) && MessagesPigeonInternal.deepEquals(lhs.dialogTitle, rhs.dialogTitle) && MessagesPigeonInternal.deepEquals(lhs.folder, rhs.folder)
   }
 
   func hash(into hasher: inout Hasher) {
@@ -253,11 +254,11 @@ struct SaveRequest: Hashable, CustomStringConvertible {
     MessagesPigeonInternal.deepHash(value: mimeType, hasher: &hasher)
     MessagesPigeonInternal.deepHash(value: initialDirectory, hasher: &hasher)
     MessagesPigeonInternal.deepHash(value: dialogTitle, hasher: &hasher)
-    MessagesPigeonInternal.deepHash(value: album, hasher: &hasher)
+    MessagesPigeonInternal.deepHash(value: folder, hasher: &hasher)
   }
 
   public var description: String {
-    return "SaveRequest(name: \(String(describing: name)), bytes: \(String(describing: bytes)), sourcePath: \(String(describing: sourcePath)), fileExtension: \(String(describing: fileExtension)), includeExtension: \(String(describing: includeExtension)), mimeType: \(String(describing: mimeType)), initialDirectory: \(String(describing: initialDirectory)), dialogTitle: \(String(describing: dialogTitle)), album: \(String(describing: album)))"
+    return "SaveRequest(name: \(String(describing: name)), bytes: \(String(describing: bytes)), sourcePath: \(String(describing: sourcePath)), fileExtension: \(String(describing: fileExtension)), includeExtension: \(String(describing: includeExtension)), mimeType: \(String(describing: mimeType)), initialDirectory: \(String(describing: initialDirectory)), dialogTitle: \(String(describing: dialogTitle)), folder: \(String(describing: folder)))"
   }
 }
 
@@ -356,6 +357,9 @@ protocol FileSaverHostApi {
   func saveAs(request: SaveRequest) async throws -> String?
   /// Adds an image or video to the photo library. Android and iOS only.
   func saveToGallery(request: SaveRequest) async throws -> String?
+  /// Writes into the shared Downloads folder without a dialog. Android only;
+  /// the other platforms handle it in Dart.
+  func saveToDownloads(request: SaveRequest) async throws -> String?
   /// Hands a URL to the system downloader. Android only.
   func downloadLink(request: DownloadRequest) throws -> String
 }
@@ -419,6 +423,25 @@ class FileSaverHostApiSetup {
       }
     } else {
       saveToGalleryChannel.setMessageHandler(nil)
+    }
+    /// Writes into the shared Downloads folder without a dialog. Android only;
+    /// the other platforms handle it in Dart.
+    let saveToDownloadsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.file_saver.FileSaverHostApi.saveToDownloads\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      saveToDownloadsChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let requestArg = args[0] as! SaveRequest
+        Task { @MainActor in
+          do {
+            let result = try await api.saveToDownloads(request: requestArg)
+            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      saveToDownloadsChannel.setMessageHandler(nil)
     }
     /// Hands a URL to the system downloader. Android only.
     let downloadLinkChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.file_saver.FileSaverHostApi.downloadLink\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)

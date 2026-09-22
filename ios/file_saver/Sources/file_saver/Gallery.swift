@@ -53,7 +53,7 @@ class Gallery {
             }
         }
 
-        let albumTitle = request.album?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let albumTitle = request.folder?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let wantsAlbum = !albumTitle.isEmpty
         // Adding to an album means reading the library, which needs full access.
         guard await Gallery.requestAccess(readWrite: wantsAlbum) else {

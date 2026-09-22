@@ -27,6 +27,14 @@ public class FileSaverPlugin: NSObject, FlutterPlugin, FileSaverHostApi {
         )
     }
 
+    func saveToDownloads(request: SaveRequest) async throws -> String? {
+        throw PigeonError(
+            code: "unsupported",
+            message: "saveToDownloads is handled in Dart on macOS",
+            details: nil
+        )
+    }
+
     func downloadLink(request: DownloadRequest) throws -> String {
         throw PigeonError(
             code: "unsupported",

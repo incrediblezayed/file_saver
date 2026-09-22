@@ -150,6 +150,23 @@ class _FileSaverTestPageState extends State<FileSaverTestPage> {
         ),
       ),
       _ExampleAction(
+        icon: Icons.download_done,
+        title: 'saveToDownloads',
+        detail:
+            'Writes a text file into Downloads/File Saver with no dialog. '
+            'Android, desktop and web; iOS throws.',
+        onRun: () => _run(
+          'saveToDownloads',
+          () => FileSaver.instance.saveToDownloads(
+            name: _fileName('downloads'),
+            bytes: Uint8List.fromList('Saved to Downloads'.codeUnits),
+            fileExtension: 'txt',
+            mimeType: MimeType.text,
+            subfolder: 'File Saver',
+          ),
+        ),
+      ),
+      _ExampleAction(
         icon: Icons.photo_library,
         title: 'saveToGallery (PNG)',
         detail:

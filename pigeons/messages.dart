@@ -24,7 +24,7 @@ class SaveRequest {
     required this.mimeType,
     this.initialDirectory,
     this.dialogTitle,
-    this.album,
+    this.folder,
   });
 
   String name;
@@ -35,7 +35,9 @@ class SaveRequest {
   String mimeType;
   String? initialDirectory;
   String? dialogTitle;
-  String? album;
+
+  /// Album for saveToGallery, subfolder for saveToDownloads.
+  String? folder;
 }
 
 class DownloadRequest {
@@ -59,6 +61,11 @@ abstract class FileSaverHostApi {
   /// Adds an image or video to the photo library. Android and iOS only.
   @async
   String? saveToGallery(SaveRequest request);
+
+  /// Writes into the shared Downloads folder without a dialog. Android only;
+  /// the other platforms handle it in Dart.
+  @async
+  String? saveToDownloads(SaveRequest request);
 
   /// Hands a URL to the system downloader. Android only.
   String downloadLink(DownloadRequest request);
