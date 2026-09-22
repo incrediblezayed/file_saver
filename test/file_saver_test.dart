@@ -1,40 +1,84 @@
 import 'dart:io';
 
 import 'package:file_saver/file_saver.dart';
+import 'package:file_saver/src/messages.g.dart';
+import 'package:file_saver/src/platform_handler/platform_handler_all.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+/// Records every call instead of talking to a platform channel.
+class _FakeHostApi extends FileSaverHostApi {
+  final saveAsCalls = <SaveRequest>[];
+  final galleryCalls = <SaveRequest>[];
+
+  @override
+  Future<String?> saveFile(SaveRequest request) async => '/app/${request.name}';
+
+  @override
+  Future<String?> saveAs(SaveRequest request) async {
+    saveAsCalls.add(request);
+    return '/saved/path';
+  }
+
+  @override
+  Future<String?> saveToGallery(SaveRequest request) async {
+    galleryCalls.add(request);
+    return 'content://media/1';
+  }
+
+  @override
+  Future<String> downloadLink(DownloadRequest request) async => '1';
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const channel = MethodChannel('file_saver');
-  final calls = <MethodCall>[];
+  late _FakeHostApi api;
 
   setUp(() {
-    calls.clear();
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (call) async {
-          calls.add(call);
-          return '/saved/path';
-        });
+    api = _FakeHostApi();
+    PlatformHandlerAll.hostApiOverride = api;
   });
 
   tearDown(() {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, null);
+    PlatformHandlerAll.hostApiOverride = null;
   });
 
-  // saveAs only goes through the method channel on these hosts; Linux throws
-  // UnimplementedError before reaching it.
+  // saveAs reaches the host API on these hosts; Linux throws first.
   final hasNativeSaveAs =
       Platform.isMacOS ||
       Platform.isWindows ||
       Platform.isAndroid ||
       Platform.isIOS;
 
+  group('saveToGallery', () {
+    test('rejects mime types that are not image or video', () {
+      expect(
+        () => FileSaver.instance.saveToGallery(
+          name: 'doc',
+          bytes: Uint8List.fromList([1]),
+          mimeType: MimeType.pdf,
+        ),
+        throwsA(isA<ArgumentError>()),
+      );
+      expect(api.galleryCalls, isEmpty);
+    });
+
+    test('throws UnsupportedError on desktop hosts', () {
+      expect(
+        () => FileSaver.instance.saveToGallery(
+          name: 'pic',
+          bytes: Uint8List.fromList([1]),
+          mimeType: MimeType.png,
+        ),
+        throwsA(isA<UnsupportedError>()),
+      );
+    }, skip: !(Platform.isMacOS || Platform.isWindows || Platform.isLinux));
+  });
+
   group('saveAs', () {
     test('forwards initialDirectory and dialogTitle to the platform', () async {
-      await FileSaver.instance.saveAs(
+      final path = await FileSaver.instance.saveAs(
         name: 'report',
         bytes: Uint8List.fromList([1, 2, 3]),
         fileExtension: 'txt',
@@ -43,13 +87,14 @@ void main() {
         dialogTitle: 'Export report',
       );
 
-      expect(calls, hasLength(1));
-      expect(calls.single.method, 'saveAs');
-      final args = Map<String, dynamic>.from(calls.single.arguments as Map);
-      expect(args['name'], 'report');
-      expect(args['fileExtension'], '.txt');
-      expect(args['initialDirectory'], '/Users/me/Documents');
-      expect(args['dialogTitle'], 'Export report');
+      expect(path, '/saved/path');
+      final request = api.saveAsCalls.single;
+      expect(request.name, 'report');
+      expect(request.fileExtension, '.txt');
+      expect(request.bytes, [1, 2, 3]);
+      expect(request.sourcePath, isNull);
+      expect(request.initialDirectory, '/Users/me/Documents');
+      expect(request.dialogTitle, 'Export report');
     }, skip: !hasNativeSaveAs);
 
     test('sends null dialog options when not provided', () async {
@@ -59,10 +104,28 @@ void main() {
         mimeType: MimeType.text,
       );
 
-      final args = Map<String, dynamic>.from(calls.single.arguments as Map);
-      expect(args['initialDirectory'], isNull);
-      expect(args['dialogTitle'], isNull);
-      expect(args['fileExtension'], '');
+      final request = api.saveAsCalls.single;
+      expect(request.initialDirectory, isNull);
+      expect(request.dialogTitle, isNull);
+      expect(request.fileExtension, '');
+    }, skip: !hasNativeSaveAs);
+
+    test('streams from filePath without loading bytes', () async {
+      final file = File(
+        '${Directory.systemTemp.path}/file_saver_test_${DateTime.now().microsecondsSinceEpoch}.bin',
+      );
+      await file.writeAsBytes([9, 9, 9]);
+      addTearDown(() => file.delete());
+
+      await FileSaver.instance.saveAs(
+        name: 'big',
+        filePath: file.path,
+        mimeType: MimeType.other,
+      );
+
+      final request = api.saveAsCalls.single;
+      expect(request.sourcePath, file.path);
+      expect(request.bytes, isNull);
     }, skip: !hasNativeSaveAs);
   });
 }

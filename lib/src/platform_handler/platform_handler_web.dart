@@ -1,5 +1,5 @@
 import 'package:file_saver/file_saver_web.dart';
-import 'package:file_saver/src/models/file.model.dart';
+import 'package:file_saver/src/messages.g.dart';
 import 'package:file_saver/src/models/link_details.dart';
 import 'package:file_saver/src/platform_handler/platform_handler.dart';
 
@@ -9,8 +9,8 @@ PlatformHandler getPlatformHandler() {
 
 class PlatformHandlerWeb extends PlatformHandler {
   @override
-  Future<String?> saveFile(FileModel fileModel) async {
-    bool result = await FileSaverWeb.downloadFile(fileModel);
+  Future<String?> saveFile(SaveRequest request) async {
+    bool result = await FileSaverWeb.downloadFile(request);
     if (result) {
       return 'Downloads';
     }
@@ -18,8 +18,15 @@ class PlatformHandlerWeb extends PlatformHandler {
   }
 
   @override
-  Future<String?> saveAs(FileModel fileModel) async {
-    return saveFile(fileModel);
+  Future<String?> saveAs(SaveRequest request) async {
+    return saveFile(request);
+  }
+
+  @override
+  Future<String?> saveToGallery(SaveRequest request) {
+    throw UnsupportedError(
+      'saveToGallery is only supported on Android and iOS.',
+    );
   }
 
   @override

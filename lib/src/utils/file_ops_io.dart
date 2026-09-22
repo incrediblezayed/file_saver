@@ -17,6 +17,8 @@ Future<Uint8List> readPathBytes(String path) async {
   return File(path).readAsBytes();
 }
 
+bool get isMacOS => Platform.isMacOS;
+
 String? filePathFromObject(Object? file) {
   if (file is File) {
     return file.path;
@@ -60,7 +62,18 @@ Future<String> writeStreamToTempFile({
   final file = File(
     '${Directory.systemTemp.path}/file_saver_${DateTime.now().microsecondsSinceEpoch}$extension',
   );
-  await stream.pipe(file.openWrite());
+  final sink = file.openWrite();
+  try {
+    await sink.addStream(stream);
+    await sink.close();
+  } catch (_) {
+    // A failed stream must not leave a half-written temp file behind.
+    try {
+      await sink.close();
+    } catch (_) {}
+    await deleteFile(file.path);
+    rethrow;
+  }
   return file.path;
 }
 

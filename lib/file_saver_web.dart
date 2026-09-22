@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
-import 'package:file_saver/src/models/file.model.dart';
+import 'package:file_saver/src/messages.g.dart';
 import 'package:file_saver/src/models/link_details.dart';
-import 'package:flutter/services.dart';
+import 'dart:typed_data';
+
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 // In order to *not* need this ignore, consider extracting the "web" version
 // of your plugin as a separate package, instead of inlining it in the same
@@ -29,38 +30,17 @@ extension type _FileSystemWritableFileStream(JSObject _)
 /// A web implementation of the FileSaver plugin.
 class FileSaverWeb {
   static void registerWith(Registrar registrar) {
-    final MethodChannel channel = MethodChannel(
-      'file_saver',
-      const StandardMethodCodec(),
-      registrar,
-    );
-
-    final pluginInstance = FileSaverWeb();
-    channel.setMethodCallHandler(pluginInstance.handleMethodCall);
+    // Web is implemented in Dart and called directly; nothing to register.
   }
 
-  Future<dynamic> handleMethodCall(MethodCall call) async {
-    switch (call.method) {
-      case 'saveFile':
-        String args = call.arguments;
-
-        return downloadFile(FileModel.fromJson(args));
-      default:
-        throw PlatformException(
-          code: 'Unimplemented',
-          details: 'file_saver for web doesn\'t implement \'${call.method}\'',
-        );
-    }
-  }
-
-  static Future<bool> downloadFile(FileModel fileModel) async {
+  static Future<bool> downloadFile(SaveRequest request) async {
     bool success = false;
 
     try {
       String url = URL.createObjectURL(
         Blob(
-          <JSUint8Array>[fileModel.bytes.toJS].toJS,
-          BlobPropertyBag(type: fileModel.mimeType),
+          <JSUint8Array>[(request.bytes ?? Uint8List(0)).toJS].toJS,
+          BlobPropertyBag(type: request.mimeType),
         ),
       );
 
@@ -69,7 +49,7 @@ class FileSaverWeb {
           htmlDocument.createElement('a') as HTMLAnchorElement;
       anchor.href = url;
       anchor.style.display = 'none';
-      anchor.download = fileModel.name + fileModel.fileExtension;
+      anchor.download = request.name + request.fileExtension;
       document.body!.add(anchor);
       anchor.click();
       anchor.remove();
@@ -99,16 +79,18 @@ class FileSaverWeb {
     final options = JSObject();
     options.setProperty('suggestedName'.toJS, name.toJS);
 
-    final handle = await _showSaveFilePicker(options).toDart;
+    final handle = await _pickSaveFile(options);
+    if (handle == null) return false;
     final writable = await handle.createWritable().toDart;
     try {
       await for (final chunk in stream) {
-        await writable.write(Uint8List.fromList(chunk).toJS).toDart;
+        final bytes = chunk is Uint8List ? chunk : Uint8List.fromList(chunk);
+        await writable.write(bytes.toJS).toDart;
       }
       await writable.close().toDart;
       return true;
     } catch (_) {
-      await writable.abort().toDart;
+      await _abort(writable);
       rethrow;
     }
   }
@@ -140,7 +122,7 @@ class FileSaverWeb {
 
     final response = await window
         .fetch(
-          _linkWithQuery(link).toJS,
+          link.uri.toString().toJS,
           RequestInit(
             method: link.method,
             headers: headers,
@@ -160,15 +142,46 @@ class FileSaverWeb {
       throw Exception('Download response does not contain a streamable body.');
     }
 
-    final handle = await _showSaveFilePicker(options).toDart;
+    final handle = await _pickSaveFile(options);
+    if (handle == null) return false;
     final writable = await handle.createWritable().toDart;
     try {
       await body.pipeTo(writable).toDart;
       return true;
     } catch (_) {
-      await writable.abort().toDart;
+      await _abort(writable);
       rethrow;
     }
+  }
+
+  /// Shows the picker; null when the user cancels, like the other platforms.
+  static Future<_FileSystemFileHandle?> _pickSaveFile(JSObject options) async {
+    try {
+      return await _showSaveFilePicker(options).toDart;
+    } catch (error) {
+      if (_isAbortError(error)) return null;
+      rethrow;
+    }
+  }
+
+  static bool _isAbortError(Object error) {
+    // dart2js hands us the DOMException itself; the toString fallback covers
+    // dart2wasm, which wraps it. Neither path can throw.
+    // ignore: invalid_runtime_check_with_js_interop_types
+    if (error is JSObject) {
+      final name = error.getProperty<JSAny?>('name'.toJS);
+      if (name.isA<JSString>()) {
+        return (name as JSString).toDart == 'AbortError';
+      }
+    }
+    return error.toString().contains('AbortError');
+  }
+
+  /// Discards the partial file without masking the error that got us here.
+  static Future<void> _abort(_FileSystemWritableFileStream writable) async {
+    try {
+      await writable.abort().toDart;
+    } catch (_) {}
   }
 
   static bool downloadLink(String url, {String? name}) {
@@ -184,18 +197,5 @@ class FileSaverWeb {
     anchor.click();
     anchor.remove();
     return true;
-  }
-
-  static String _linkWithQuery(LinkDetails link) {
-    if (link.queryParameters == null || link.queryParameters!.isEmpty) {
-      return link.link;
-    }
-    final uri = Uri.parse(link.link);
-    final mergedParameters = <String, String>{
-      ...uri.queryParameters,
-      for (final entry in link.queryParameters!.entries)
-        entry.key: entry.value.toString(),
-    };
-    return uri.replace(queryParameters: mergedParameters).toString();
   }
 }

@@ -1,99 +1,93 @@
 import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
 
-import 'package:file_saver/src/models/file.model.dart';
+import 'package:file_saver/src/messages.g.dart';
 import 'package:file_saver/src/models/link_details.dart';
 import 'package:file_saver/src/platform_handler/platform_handler.dart';
 import 'package:file_saver/src/utils/helpers.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
 PlatformHandler getPlatformHandler() {
   return PlatformHandlerAll();
 }
 
 class PlatformHandlerAll extends PlatformHandler {
-  final MethodChannel _channel = const MethodChannel('file_saver');
-  final String _saveAs = 'saveAs';
-  final String _saveFile = 'saveFile';
 
-  final String _somethingWentWrong =
-      'Something went wrong, please report the issue https://www.github.com/incrediblezayed/file_saver/issues';
-  late String directory = _somethingWentWrong;
+  @visibleForTesting
+  static FileSaverHostApi? hostApiOverride;
+
+  final FileSaverHostApi _api = hostApiOverride ?? FileSaverHostApi();
 
   final String _issueLink =
       'https://www.github.com/incrediblezayed/file_saver/issues';
 
-  Future<String> saveFileForAndroid(FileModel fileModel) async {
-    try {
-      directory =
-          await _channel.invokeMethod<String>(_saveFile, fileModel.toMap()) ??
-          '';
-      return directory;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<String> saveFileForOtherPlatforms(FileModel fileModel) async {
-    String path = '';
-    path = await Helpers.getDirectory() ?? '';
+  Future<String> saveFileForOtherPlatforms(SaveRequest request) async {
+    final path = await Helpers.getDirectory() ?? '';
     if (path == '') {
       log(
         'The path was found null or empty, please report the issue at $_issueLink',
       );
       throw Exception('The path was found null or empty');
-    } else {
-      final slash = Helpers.getFilePathSlash();
-      String filePath =
-          '$path$slash${fileModel.name}${fileModel.fileExtension}';
-      final File file = File(filePath);
-      await file.writeAsBytes(fileModel.bytes);
-      bool exist = await file.exists();
-      if (exist) {
-        directory = file.path;
-      } else {
-        log('File was not created');
-      }
     }
-    return directory;
+    final slash = Helpers.getFilePathSlash();
+    final File file = File(
+      '$path$slash${request.name}${request.fileExtension}',
+    );
+    try {
+      await file.writeAsBytes(
+        request.bytes ?? (throw ArgumentError('bytes is null')),
+      );
+    } on FileSystemException catch (e) {
+      if (Platform.isMacOS) {
+        throw FileSystemException(
+          '${e.message}. On macOS, writing to Downloads from a sandboxed app '
+          'requires the com.apple.security.files.downloads.read-write '
+          'entitlement (see README).',
+          e.path,
+          e.osError,
+        );
+      }
+      rethrow;
+    }
+    return file.path;
   }
 
   @override
-  Future<String?> saveFile(FileModel fileModel) async {
+  Future<String?> saveFile(SaveRequest request) async {
     if (Platform.isAndroid) {
-      return await saveFileForAndroid(fileModel);
-    } else {
-      return await saveFileForOtherPlatforms(fileModel);
+      return _api.saveFile(request);
     }
+    return saveFileForOtherPlatforms(request);
   }
 
   ///Open File Manager
   @override
-  Future<String?> saveAs(FileModel fileModel) async {
-    String? path;
-    if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
-      path = await _channel.invokeMethod<String>(_saveAs, fileModel.toMap());
-    } else if (Platform.isWindows) {
-      final Int64List? bytes = await _channel.invokeMethod<Int64List?>(
-        'saveAs',
-        fileModel.toMap(),
-      );
-      path = bytes == null ? null : String.fromCharCodes(bytes);
-    } else {
-      throw UnimplementedError('Unimplemented Error');
+  Future<String?> saveAs(SaveRequest request) async {
+    if (Platform.isAndroid ||
+        Platform.isIOS ||
+        Platform.isMacOS ||
+        Platform.isWindows) {
+      return _api.saveAs(request);
     }
-    return path;
+    throw UnimplementedError('Unimplemented Error');
+  }
+
+  @override
+  Future<String?> saveToGallery(SaveRequest request) {
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      throw UnsupportedError(
+        'saveToGallery is only supported on Android and iOS.',
+      );
+    }
+    return _api.saveToGallery(request);
   }
 
   @override
   Future<String?> downloadLink(LinkDetails link, {String? name}) async {
     if (Platform.isAndroid) {
-      return _channel.invokeMethod<String>('downloadLink', {
-        'url': link.link,
-        'name': name,
-        'headers': link.headers,
-      });
+      return _api.downloadLink(
+        DownloadRequest(url: link.link, name: name, headers: link.headers),
+      );
     }
     throw UnsupportedError(
       'downloadLink is only supported on Android and web. Use saveFile/saveAs with filePath for other native streamed writes.',

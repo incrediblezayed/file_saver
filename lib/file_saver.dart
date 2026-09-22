@@ -1,7 +1,6 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
-import 'package:file_saver/src/models/file.model.dart';
+import 'package:file_saver/src/messages.g.dart';
 import 'package:file_saver/src/models/link_details.dart';
 import 'package:file_saver/src/platform_handler/platform_handler.dart';
 import 'package:file_saver/src/saver.dart';
@@ -13,6 +12,7 @@ import 'package:file_saver/src/utils/mime_types.dart';
 import 'package:file_saver/src/web_stream_saver_stub.dart'
     if (dart.library.js_interop) 'package:file_saver/src/web_stream_saver_web.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 export 'package:file_saver/src/models/link_details.dart';
 export 'package:file_saver/src/utils/mime_types.dart';
@@ -56,6 +56,10 @@ class FileSaver {
   ///
   /// mimeType (Mainly required for web): MimeType from enum MimeType..
   ///
+  /// [httpClient]: Optional `package:http` client used when [link] is given,
+  /// for proxies, retries, cookies or interceptors. A default client is created
+  /// and closed per call when omitted.
+  ///
   /// More Mimetypes will be added in future
   Future<String> saveFile({
     required String name,
@@ -67,8 +71,7 @@ class FileSaver {
     bool includeExtension = true,
     MimeType mimeType = MimeType.other,
     String? customMimeType,
-    Dio? dioClient,
-    Uint8List Function(dynamic data)? transformDioResponse,
+    http.Client? httpClient,
   }) async {
     if (mimeType == MimeType.custom && customMimeType == null) {
       throw Exception(
@@ -86,8 +89,7 @@ class FileSaver {
             file: file,
             filePath: filePath,
             link: link,
-            dioClient: dioClient,
-            transformDioResponse: transformDioResponse,
+            httpClient: httpClient,
           );
     }
     try {
@@ -102,9 +104,9 @@ class FileSaver {
             _somethingWentWrong;
       } else {
         _saver = Saver(
-          fileModel: FileModel(
+          request: SaveRequest(
             name: name,
-            bytes: bytes!,
+            bytes: bytes,
             fileExtension: extension,
             mimeType: mimeType.type.isEmpty ? customMimeType! : mimeType.type,
             includeExtension: includeExtension,
@@ -184,8 +186,7 @@ class FileSaver {
     String? customMimeType,
     String? initialDirectory,
     String? dialogTitle,
-    Dio? dioClient,
-    Uint8List Function(dynamic data)? transformDioResponse,
+    http.Client? httpClient,
   }) async {
     if (mimeType == MimeType.custom && customMimeType == null) {
       throw Exception(
@@ -204,15 +205,14 @@ class FileSaver {
             file: file,
             filePath: filePath,
             link: link,
-            dioClient: dioClient,
-            transformDioResponse: transformDioResponse,
+            httpClient: httpClient,
           );
     }
 
     _saver = Saver(
-      fileModel: FileModel(
+      request: SaveRequest(
         name: name,
-        bytes: bytes ?? Uint8List(0),
+        bytes: shouldStreamFromPath ? null : bytes,
         fileExtension: extension,
         includeExtension: includeExtension,
         mimeType: mimeType == MimeType.custom ? customMimeType! : mimeType.type,
@@ -223,6 +223,74 @@ class FileSaver {
     );
     String? path = await _saver.saveAs();
     return path;
+  }
+
+  /// Saves an image or video into the device gallery without showing a dialog.
+  ///
+  /// Android writes through MediaStore into `Pictures/` or `Movies/` (no
+  /// permission needed on Android 10+; `WRITE_EXTERNAL_STORAGE` must be granted
+  /// on Android 9 and below). iOS adds the item to the Photos library and needs
+  /// `NSPhotoLibraryAddUsageDescription` in Info.plist; passing [album] also
+  /// needs `NSPhotoLibraryUsageDescription` because albums require read access.
+  ///
+  /// [mimeType] (or [customMimeType]) must be an `image/*` or `video/*` type.
+  /// Source options are the same as [saveAs]: [bytes], [file], [filePath] or
+  /// [link]. [album] is the optional folder/album name.
+  ///
+  /// Returns the MediaStore content URI on Android and the `PHAsset` local
+  /// identifier on iOS. Throws [UnsupportedError] on other platforms.
+  Future<String?> saveToGallery({
+    required String name,
+    Uint8List? bytes,
+    Object? file,
+    String? filePath,
+    LinkDetails? link,
+    String fileExtension = '',
+    bool includeExtension = true,
+    required MimeType mimeType,
+    String? customMimeType,
+    String? album,
+    http.Client? httpClient,
+  }) async {
+    if (mimeType == MimeType.custom && customMimeType == null) {
+      throw Exception(
+        'customMimeType is required when mimeType is MimeType.custom',
+      );
+    }
+    final type = mimeType == MimeType.custom ? customMimeType! : mimeType.type;
+    if (!type.startsWith('image/') && !type.startsWith('video/')) {
+      throw ArgumentError.value(
+        type,
+        'mimeType',
+        'saveToGallery only accepts image/* or video/* mime types',
+      );
+    }
+    final extension = includeExtension
+        ? Helpers.getExtension(fileExtension: fileExtension)
+        : '';
+    final sourcePath = filePath ?? file_ops.filePathFromObject(file);
+    final shouldStreamFromPath = !kIsWeb && sourcePath != null;
+    if (!shouldStreamFromPath) {
+      bytes =
+          bytes ??
+          await Helpers.getBytes(
+            file: file,
+            filePath: filePath,
+            link: link,
+            httpClient: httpClient,
+          );
+    }
+    return _platformHandler.saveToGallery(
+      SaveRequest(
+        name: name,
+        bytes: shouldStreamFromPath ? null : bytes,
+        fileExtension: extension,
+        includeExtension: includeExtension,
+        mimeType: type,
+        sourcePath: shouldStreamFromPath ? sourcePath : null,
+        album: album,
+      ),
+    );
   }
 
   /// Starts a browser/system URL download without loading the file into Dart memory.
@@ -262,7 +330,7 @@ class FileSaver {
     String? customMimeType,
     String? initialDirectory,
     String? dialogTitle,
-    Dio? dioClient,
+    http.Client? httpClient,
   }) async {
     if (mimeType == MimeType.custom && customMimeType == null) {
       throw Exception(
@@ -281,27 +349,22 @@ class FileSaver {
       );
     }
 
-    final dio = dioClient ?? Dio();
-    final response = await dio.request<ResponseBody>(
-      link.link,
-      data: link.body,
-      queryParameters: link.queryParameters,
-      options: Options(
-        method: link.method,
-        headers: link.headers,
-        responseType: ResponseType.stream,
-      ),
-    );
-    return saveAsStream(
-      name: name,
-      stream: response.data!.stream,
-      fileExtension: fileExtension,
-      includeExtension: includeExtension,
-      mimeType: mimeType,
-      customMimeType: customMimeType,
-      initialDirectory: initialDirectory,
-      dialogTitle: dialogTitle,
-    );
+    final client = httpClient ?? http.Client();
+    try {
+      final response = await Helpers.sendRequest(client, link);
+      return await saveAsStream(
+        name: name,
+        stream: response.stream,
+        fileExtension: fileExtension,
+        includeExtension: includeExtension,
+        mimeType: mimeType,
+        customMimeType: customMimeType,
+        initialDirectory: initialDirectory,
+        dialogTitle: dialogTitle,
+      );
+    } finally {
+      if (httpClient == null) client.close();
+    }
   }
 
   /// Writes [stream] to a temporary file, then saves from that file path.

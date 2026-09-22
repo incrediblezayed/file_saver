@@ -10,11 +10,11 @@ environment:
 
 dependencies:
   collection: ^1.19.1
-  dio: ^5.9.2
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
+  http: ^1.6.0
   path_provider: ^2.1.5
   web: ^1.1.1
 
@@ -22,6 +22,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
+  pigeon: ^29.0.2
 
 flutter:
   plugin:

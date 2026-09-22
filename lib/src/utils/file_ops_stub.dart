@@ -10,6 +10,8 @@ Future<Uint8List> readPathBytes(String path) {
   throw UnsupportedError('File paths are only supported on native platforms.');
 }
 
+bool get isMacOS => false;
+
 String? filePathFromObject(Object? file) => null;
 
 Future<String?> getDirectory() {
