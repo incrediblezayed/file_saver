@@ -17,5 +17,7 @@ abstract class PlatformHandler {
 
   Future<String?> saveToGallery(SaveRequest request);
 
+  Future<String?> saveToDownloads(SaveRequest request);
+
   Future<String?> downloadLink(LinkDetails link, {String? name});
 }

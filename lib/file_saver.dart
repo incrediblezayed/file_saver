@@ -288,7 +288,79 @@ class FileSaver {
         includeExtension: includeExtension,
         mimeType: type,
         sourcePath: shouldStreamFromPath ? sourcePath : null,
-        album: album,
+        folder: album,
+      ),
+    );
+  }
+
+  /// Saves into the shared Downloads folder without showing a dialog.
+  ///
+  /// Android writes through MediaStore into `Download/` or
+  /// `Download/<subfolder>` (no permission needed on Android 10+;
+  /// `WRITE_EXTERNAL_STORAGE` must be granted on Android 9 and below). macOS,
+  /// Windows and Linux write to the user's Downloads directory, and web
+  /// triggers a browser download ([subfolder] is ignored there). iOS has no
+  /// shared Downloads folder and throws [UnsupportedError]; use [saveFile]
+  /// (app Documents, visible in the Files app) or [saveAs] instead.
+  ///
+  /// Source options are the same as [saveAs]: [bytes], [file], [filePath] or
+  /// [link]. [subfolder] is a single folder name, no path separators.
+  ///
+  /// Returns the MediaStore content URI on Android and the file path elsewhere.
+  Future<String?> saveToDownloads({
+    required String name,
+    Uint8List? bytes,
+    Object? file,
+    String? filePath,
+    LinkDetails? link,
+    String fileExtension = '',
+    bool includeExtension = true,
+    MimeType mimeType = MimeType.other,
+    String? customMimeType,
+    String? subfolder,
+    http.Client? httpClient,
+  }) async {
+    if (mimeType == MimeType.custom && customMimeType == null) {
+      throw Exception(
+        'customMimeType is required when mimeType is MimeType.custom',
+      );
+    }
+    final folder = subfolder?.trim();
+    if (folder != null &&
+        (folder.contains('/') ||
+            folder.contains(r'\') ||
+            folder == '.' ||
+            folder == '..')) {
+      throw ArgumentError.value(
+        subfolder,
+        'subfolder',
+        'must be a single folder name without path separators',
+      );
+    }
+    final extension = includeExtension
+        ? Helpers.getExtension(fileExtension: fileExtension)
+        : '';
+    final sourcePath = filePath ?? file_ops.filePathFromObject(file);
+    final shouldStreamFromPath = !kIsWeb && sourcePath != null;
+    if (!shouldStreamFromPath) {
+      bytes =
+          bytes ??
+          await Helpers.getBytes(
+            file: file,
+            filePath: filePath,
+            link: link,
+            httpClient: httpClient,
+          );
+    }
+    return _platformHandler.saveToDownloads(
+      SaveRequest(
+        name: name,
+        bytes: shouldStreamFromPath ? null : bytes,
+        fileExtension: extension,
+        includeExtension: includeExtension,
+        mimeType: mimeType == MimeType.custom ? customMimeType! : mimeType.type,
+        sourcePath: shouldStreamFromPath ? sourcePath : null,
+        folder: folder,
       ),
     );
   }

@@ -5,6 +5,8 @@ import 'package:file_saver/src/messages.g.dart';
 import 'package:file_saver/src/platform_handler/platform_handler_all.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 /// Records every call instead of talking to a platform channel.
 class _FakeHostApi extends FileSaverHostApi {
@@ -28,6 +30,19 @@ class _FakeHostApi extends FileSaverHostApi {
 
   @override
   Future<String> downloadLink(DownloadRequest request) async => '1';
+}
+
+/// Points path_provider at a temp directory so desktop saves are observable.
+class _FakePathProvider extends PathProviderPlatform
+    with MockPlatformInterfaceMixin {
+  _FakePathProvider(this.directory);
+  final String directory;
+
+  @override
+  Future<String?> getDownloadsPath() async => directory;
+
+  @override
+  Future<String?> getApplicationDocumentsPath() async => directory;
 }
 
 void main() {
@@ -73,6 +88,52 @@ void main() {
         ),
         throwsA(isA<UnsupportedError>()),
       );
+    }, skip: !(Platform.isMacOS || Platform.isWindows || Platform.isLinux));
+  });
+
+  group('saveToDownloads', () {
+    test('rejects a subfolder that is a path', () {
+      expect(
+        () => FileSaver.instance.saveToDownloads(
+          name: 'report',
+          bytes: Uint8List.fromList([1]),
+          subfolder: '../escape',
+        ),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test('desktop: writes into Downloads/<subfolder>', () async {
+      final downloads = await Directory.systemTemp.createTemp('file_saver_dl');
+      addTearDown(() => downloads.delete(recursive: true));
+      PathProviderPlatform.instance = _FakePathProvider(downloads.path);
+
+      final path = await FileSaver.instance.saveToDownloads(
+        name: 'report',
+        bytes: Uint8List.fromList([1, 2, 3]),
+        fileExtension: 'txt',
+        subfolder: 'My App',
+      );
+
+      expect(path, '${downloads.path}/My App/report.txt');
+      expect(await File(path!).readAsBytes(), [1, 2, 3]);
+      expect(api.galleryCalls, isEmpty);
+    }, skip: !(Platform.isMacOS || Platform.isWindows || Platform.isLinux));
+
+    test('desktop: copies from filePath without loading bytes', () async {
+      final downloads = await Directory.systemTemp.createTemp('file_saver_dl');
+      addTearDown(() => downloads.delete(recursive: true));
+      PathProviderPlatform.instance = _FakePathProvider(downloads.path);
+      final source = File('${downloads.path}/source.bin');
+      await source.writeAsBytes([7, 8, 9]);
+
+      final path = await FileSaver.instance.saveToDownloads(
+        name: 'copy',
+        filePath: source.path,
+        fileExtension: 'bin',
+      );
+
+      expect(await File(path!).readAsBytes(), [7, 8, 9]);
     }, skip: !(Platform.isMacOS || Platform.isWindows || Platform.isLinux));
   });
 
