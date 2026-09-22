@@ -68,7 +68,15 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, FileSaverHostApi {
         val context = applicationContext
             ?: throw FlutterError("GalleryError", "Context is unavailable")
         return withContext(Dispatchers.IO) {
-            flutterErrors("GalleryError") { Gallery(context).save(request) }
+            flutterErrors("GalleryError") { PublicStorage(context).saveToGallery(request) }
+        }
+    }
+
+    override suspend fun saveToDownloads(request: SaveRequest): String? {
+        val context = applicationContext
+            ?: throw FlutterError("DownloadsError", "Context is unavailable")
+        return withContext(Dispatchers.IO) {
+            flutterErrors("DownloadsError") { PublicStorage(context).saveToDownloads(request) }
         }
     }
 
