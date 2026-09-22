@@ -108,7 +108,7 @@ class SaveRequest {
     required this.mimeType,
     this.initialDirectory,
     this.dialogTitle,
-    this.album,
+    this.folder,
   });
 
   String name;
@@ -127,7 +127,8 @@ class SaveRequest {
 
   String? dialogTitle;
 
-  String? album;
+  /// Album for saveToGallery, subfolder for saveToDownloads.
+  String? folder;
 
   List<Object?> _toList() {
     return <Object?>[
@@ -139,7 +140,7 @@ class SaveRequest {
       mimeType,
       initialDirectory,
       dialogTitle,
-      album,
+      folder,
     ];
   }
 
@@ -158,7 +159,7 @@ class SaveRequest {
       mimeType: result[5]! as String,
       initialDirectory: result[6] as String?,
       dialogTitle: result[7] as String?,
-      album: result[8] as String?,
+      folder: result[8] as String?,
     );
   }
 
@@ -179,7 +180,7 @@ class SaveRequest {
         _deepEquals(mimeType, other.mimeType) &&
         _deepEquals(initialDirectory, other.initialDirectory) &&
         _deepEquals(dialogTitle, other.dialogTitle) &&
-        _deepEquals(album, other.album);
+        _deepEquals(folder, other.folder);
   }
 
   @override
@@ -188,7 +189,7 @@ class SaveRequest {
 
   @override
   String toString() {
-    return 'SaveRequest(name: $name, bytes: $bytes, sourcePath: $sourcePath, fileExtension: $fileExtension, includeExtension: $includeExtension, mimeType: $mimeType, initialDirectory: $initialDirectory, dialogTitle: $dialogTitle, album: $album)';
+    return 'SaveRequest(name: $name, bytes: $bytes, sourcePath: $sourcePath, fileExtension: $fileExtension, includeExtension: $includeExtension, mimeType: $mimeType, initialDirectory: $initialDirectory, dialogTitle: $dialogTitle, folder: $folder)';
   }
 }
 
@@ -338,6 +339,29 @@ class FileSaverHostApi {
   Future<String?> saveToGallery(SaveRequest request) async {
     final pigeonVar_channelName =
         'dev.flutter.pigeon.file_saver.FileSaverHostApi.saveToGallery$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[request],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
+    return pigeonVar_replyValue as String?;
+  }
+
+  /// Writes into the shared Downloads folder without a dialog. Android only;
+  /// the other platforms handle it in Dart.
+  Future<String?> saveToDownloads(SaveRequest request) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.file_saver.FileSaverHostApi.saveToDownloads$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,

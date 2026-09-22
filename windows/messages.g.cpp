@@ -340,7 +340,7 @@ SaveRequest::SaveRequest(
   const std::string& mime_type,
   const std::string* initial_directory,
   const std::string* dialog_title,
-  const std::string* album)
+  const std::string* folder)
  : name_(name),
     bytes_(bytes ? std::optional<std::vector<uint8_t>>(*bytes) : std::nullopt),
     source_path_(source_path ? std::optional<std::string>(*source_path) : std::nullopt),
@@ -349,7 +349,7 @@ SaveRequest::SaveRequest(
     mime_type_(mime_type),
     initial_directory_(initial_directory ? std::optional<std::string>(*initial_directory) : std::nullopt),
     dialog_title_(dialog_title ? std::optional<std::string>(*dialog_title) : std::nullopt),
-    album_(album ? std::optional<std::string>(*album) : std::nullopt) {}
+    folder_(folder ? std::optional<std::string>(*folder) : std::nullopt) {}
 
 const std::string& SaveRequest::name() const {
   return name_;
@@ -439,16 +439,16 @@ void SaveRequest::set_dialog_title(std::string_view value_arg) {
 }
 
 
-const std::string* SaveRequest::album() const {
-  return album_ ? &(*album_) : nullptr;
+const std::string* SaveRequest::folder() const {
+  return folder_ ? &(*folder_) : nullptr;
 }
 
-void SaveRequest::set_album(const std::string_view* value_arg) {
-  album_ = value_arg ? std::optional<std::string>(*value_arg) : std::nullopt;
+void SaveRequest::set_folder(const std::string_view* value_arg) {
+  folder_ = value_arg ? std::optional<std::string>(*value_arg) : std::nullopt;
 }
 
-void SaveRequest::set_album(std::string_view value_arg) {
-  album_ = value_arg;
+void SaveRequest::set_folder(std::string_view value_arg) {
+  folder_ = value_arg;
 }
 
 
@@ -463,7 +463,7 @@ EncodableList SaveRequest::ToEncodableList() const {
   list.push_back(EncodableValue(mime_type_));
   list.push_back(initial_directory_ ? EncodableValue(*initial_directory_) : EncodableValue());
   list.push_back(dialog_title_ ? EncodableValue(*dialog_title_) : EncodableValue());
-  list.push_back(album_ ? EncodableValue(*album_) : EncodableValue());
+  list.push_back(folder_ ? EncodableValue(*folder_) : EncodableValue());
   return list;
 }
 
@@ -489,15 +489,15 @@ SaveRequest SaveRequest::FromEncodableList(const EncodableList& list) {
   if (!encodable_dialog_title.IsNull()) {
     decoded.set_dialog_title(std::get<std::string>(encodable_dialog_title));
   }
-  auto& encodable_album = list[8];
-  if (!encodable_album.IsNull()) {
-    decoded.set_album(std::get<std::string>(encodable_album));
+  auto& encodable_folder = list[8];
+  if (!encodable_folder.IsNull()) {
+    decoded.set_folder(std::get<std::string>(encodable_folder));
   }
   return decoded;
 }
 
 bool SaveRequest::operator==(const SaveRequest& other) const {
-  return PigeonInternalDeepEquals(name_, other.name_) && PigeonInternalDeepEquals(bytes_, other.bytes_) && PigeonInternalDeepEquals(source_path_, other.source_path_) && PigeonInternalDeepEquals(file_extension_, other.file_extension_) && PigeonInternalDeepEquals(include_extension_, other.include_extension_) && PigeonInternalDeepEquals(mime_type_, other.mime_type_) && PigeonInternalDeepEquals(initial_directory_, other.initial_directory_) && PigeonInternalDeepEquals(dialog_title_, other.dialog_title_) && PigeonInternalDeepEquals(album_, other.album_);
+  return PigeonInternalDeepEquals(name_, other.name_) && PigeonInternalDeepEquals(bytes_, other.bytes_) && PigeonInternalDeepEquals(source_path_, other.source_path_) && PigeonInternalDeepEquals(file_extension_, other.file_extension_) && PigeonInternalDeepEquals(include_extension_, other.include_extension_) && PigeonInternalDeepEquals(mime_type_, other.mime_type_) && PigeonInternalDeepEquals(initial_directory_, other.initial_directory_) && PigeonInternalDeepEquals(dialog_title_, other.dialog_title_) && PigeonInternalDeepEquals(folder_, other.folder_);
 }
 
 bool SaveRequest::operator!=(const SaveRequest& other) const {
@@ -514,7 +514,7 @@ size_t SaveRequest::Hash() const {
   result = result * 31 + PigeonInternalDeepHash(mime_type_);
   result = result * 31 + PigeonInternalDeepHash(initial_directory_);
   result = result * 31 + PigeonInternalDeepHash(dialog_title_);
-  result = result * 31 + PigeonInternalDeepHash(album_);
+  result = result * 31 + PigeonInternalDeepHash(folder_);
   return result;
 }
 
@@ -558,9 +558,9 @@ std::ostream& operator<<(
   else {
     os << "null";
   }
-  os << ", album: ";
-  if (obj.album_) {
-    os << PigeonInternalToString(*obj.album_);
+  os << ", folder: ";
+  if (obj.folder_) {
+    os << PigeonInternalToString(*obj.folder_);
   }
   else {
     os << "null";
@@ -822,6 +822,40 @@ void FileSaverHostApi::SetUp(
           }
           const auto& request_arg = std::any_cast<const SaveRequest&>(std::get<CustomEncodableValue>(encodable_request_arg));
           api->SaveToGallery(request_arg, [reply](ErrorOr<std::optional<std::string>>&& output) {
+            if (output.has_error()) {
+              reply(WrapError(output.error()));
+              return;
+            }
+            EncodableList wrapped;
+            auto output_optional = std::move(output).TakeValue();
+            if (output_optional) {
+              wrapped.push_back(EncodableValue(std::move(output_optional).value()));
+            } else {
+              wrapped.push_back(EncodableValue());
+            }
+            reply(EncodableValue(std::move(wrapped)));
+          });
+        } catch (const std::exception& exception) {
+          reply(WrapError(exception.what()));
+        }
+      });
+    } else {
+      channel.SetMessageHandler(nullptr);
+    }
+  }
+  {
+    BasicMessageChannel<> channel(binary_messenger, "dev.flutter.pigeon.file_saver.FileSaverHostApi.saveToDownloads" + prepended_suffix, &GetCodec());
+    if (api != nullptr) {
+      channel.SetMessageHandler([api](const EncodableValue& message, const ::flutter::MessageReply<EncodableValue>& reply) {
+        try {
+          const auto& args = std::get<EncodableList>(message);
+          const auto& encodable_request_arg = args.at(0);
+          if (encodable_request_arg.IsNull()) {
+            reply(WrapError("request_arg unexpectedly null."));
+            return;
+          }
+          const auto& request_arg = std::any_cast<const SaveRequest&>(std::get<CustomEncodableValue>(encodable_request_arg));
+          api->SaveToDownloads(request_arg, [reply](ErrorOr<std::optional<std::string>>&& output) {
             if (output.has_error()) {
               reply(WrapError(output.error()));
               return;

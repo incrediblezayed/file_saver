@@ -80,7 +80,7 @@ class SaveRequest {
     const std::string& mime_type,
     const std::string* initial_directory,
     const std::string* dialog_title,
-    const std::string* album);
+    const std::string* folder);
 
   const std::string& name() const;
   void set_name(std::string_view value_arg);
@@ -110,9 +110,10 @@ class SaveRequest {
   void set_dialog_title(const std::string_view* value_arg);
   void set_dialog_title(std::string_view value_arg);
 
-  const std::string* album() const;
-  void set_album(const std::string_view* value_arg);
-  void set_album(std::string_view value_arg);
+  // Album for saveToGallery, subfolder for saveToDownloads.
+  const std::string* folder() const;
+  void set_folder(const std::string_view* value_arg);
+  void set_folder(std::string_view value_arg);
 
   bool operator==(const SaveRequest& other) const;
   bool operator!=(const SaveRequest& other) const;
@@ -133,7 +134,7 @@ class SaveRequest {
   std::string mime_type_;
   std::optional<std::string> initial_directory_;
   std::optional<std::string> dialog_title_;
-  std::optional<std::string> album_;
+  std::optional<std::string> folder_;
 };
 
 
@@ -210,6 +211,11 @@ class FileSaverHostApi {
     std::function<void(ErrorOr<std::optional<std::string>> reply)> result) = 0;
   // Adds an image or video to the photo library. Android and iOS only.
   virtual void SaveToGallery(
+    const SaveRequest& request,
+    std::function<void(ErrorOr<std::optional<std::string>> reply)> result) = 0;
+  // Writes into the shared Downloads folder without a dialog. Android only;
+  // the other platforms handle it in Dart.
+  virtual void SaveToDownloads(
     const SaveRequest& request,
     std::function<void(ErrorOr<std::optional<std::string>> reply)> result) = 0;
   // Hands a URL to the system downloader. Android only.
