@@ -37,6 +37,10 @@ class FileSaverPlugin : public flutter::Plugin, public FileSaverHostApi {
       const SaveRequest &request,
       std::function<void(ErrorOr<std::optional<std::string>> reply)> result)
       override;
+  void SaveToDownloads(
+      const SaveRequest &request,
+      std::function<void(ErrorOr<std::optional<std::string>> reply)> result)
+      override;
   ErrorOr<std::string> DownloadLink(const DownloadRequest &request) override;
 
  private:
