@@ -7,7 +7,12 @@ on:
 
 jobs:
   add-contributors:
+    permissions:
+      contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
+    # Cosmetic: a contributors hiccup must not mark a successful release failed.
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: BobAnkh/add-contributors@master
@@ -20,6 +25,8 @@ jobs:
           PATH: "/README.md"
           COMMIT_MESSAGE: "docs(README): update contributors"
           AVATAR_SHAPE: "round"
+          # main requires a pull request, so raise one instead of pushing to it.
+          PULL_REQUEST: "main"
   publish:
     permissions:
       id-token: write
