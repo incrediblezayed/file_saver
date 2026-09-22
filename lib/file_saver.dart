@@ -164,6 +164,14 @@ class FileSaver {
   ///
   /// mimeType (Mainly required for web): MimeType from enum MimeType..
   ///
+  /// [initialDirectory]: Directory the save dialog opens in. macOS, Windows
+  /// and iOS take a file system path. Android takes a `content://` document
+  /// URI (for example a value returned by a previous [saveAs] call) or an
+  /// absolute path under external storage, which is mapped to the matching
+  /// document URI. Ignored on Web.
+  ///
+  /// [dialogTitle]: Title shown on the save dialog. Supported on macOS and
+  /// Windows; Android, iOS and Web use the system dialog title.
   Future<String?> saveAs({
     required String name,
     Uint8List? bytes,
@@ -174,6 +182,8 @@ class FileSaver {
     bool includeExtension = true,
     required MimeType mimeType,
     String? customMimeType,
+    String? initialDirectory,
+    String? dialogTitle,
     Dio? dioClient,
     Uint8List Function(dynamic data)? transformDioResponse,
   }) async {
@@ -207,6 +217,8 @@ class FileSaver {
         includeExtension: includeExtension,
         mimeType: mimeType == MimeType.custom ? customMimeType! : mimeType.type,
         sourcePath: shouldStreamFromPath ? sourcePath : null,
+        initialDirectory: initialDirectory,
+        dialogTitle: dialogTitle,
       ),
     );
     String? path = await _saver.saveAs();
@@ -248,6 +260,8 @@ class FileSaver {
     bool includeCredentials = true,
     MimeType mimeType = MimeType.other,
     String? customMimeType,
+    String? initialDirectory,
+    String? dialogTitle,
     Dio? dioClient,
   }) async {
     if (mimeType == MimeType.custom && customMimeType == null) {
@@ -285,6 +299,8 @@ class FileSaver {
       includeExtension: includeExtension,
       mimeType: mimeType,
       customMimeType: customMimeType,
+      initialDirectory: initialDirectory,
+      dialogTitle: dialogTitle,
     );
   }
 
@@ -301,6 +317,8 @@ class FileSaver {
     bool includeExtension = true,
     required MimeType mimeType,
     String? customMimeType,
+    String? initialDirectory,
+    String? dialogTitle,
   }) async {
     if (kIsWeb) {
       final extension = includeExtension
@@ -323,6 +341,8 @@ class FileSaver {
         includeExtension: includeExtension,
         mimeType: mimeType,
         customMimeType: customMimeType,
+        initialDirectory: initialDirectory,
+        dialogTitle: dialogTitle,
       );
     } finally {
       await file_ops.deleteFile(tempFilePath);

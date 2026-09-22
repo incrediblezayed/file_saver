@@ -49,6 +49,7 @@ public class FileSaverPlugin: NSObject, FlutterPlugin {
                     fileName: params.fileName!,
                     fileExtension: params.fileExtension!,
                     includeExtension: params.includeExtension,
+                    initialDirectory: params.initialDirectory,
                     result: result
                 )
             }
@@ -65,6 +66,7 @@ struct Params {
     let sourcePath: String?
     let fileExtension: String?
     let includeExtension: Bool
+    let initialDirectory: String?
     init(_ d: [String: Any?]) {
         fileName = d["name"] as? String
         let uint8List = d["bytes"] as? FlutterStandardTypedData
@@ -76,5 +78,6 @@ struct Params {
         sourcePath = d["sourcePath"] as? String
         fileExtension = d["fileExtension"] as? String
         includeExtension = d["includeExtension"] as? Bool ?? true
+        initialDirectory = d["initialDirectory"] as? String
     }
 }

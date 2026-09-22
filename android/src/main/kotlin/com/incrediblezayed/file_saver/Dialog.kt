@@ -3,6 +3,7 @@ package com.incrediblezayed.file_saver
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.util.Log
@@ -48,6 +49,7 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
         sourcePath: String?,
         type: String?,
         includeExtension: Boolean?,
+        initialDirectory: String?,
         result: MethodChannel.Result
     ) {
         Log.d(TAG, "Opening File Manager")
@@ -66,10 +68,11 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
             Intent(Intent.ACTION_CREATE_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.putExtra(Intent.EXTRA_TITLE, "$fileNameWithExtension")
-        intent.putExtra(
-            DocumentsContract.EXTRA_INITIAL_URI,
-            Environment.getExternalStorageDirectory().path
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            initialDirectoryUri(initialDirectory)?.let {
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, it)
+            }
+        }
         intent.type = type
         activity.startActivityForResult(intent, SAVE_FILE)
     }
@@ -111,6 +114,25 @@ class Dialog(private val activity: Activity) : PluginRegistry.ActivityResultList
                 outputStream.write(data)
             }
         } ?: throw IllegalStateException("Unable to open output stream")
+    }
+
+    /**
+     * Maps [initialDirectory] to a document URI that the SAF picker understands.
+     * A `content://` value is used as-is. An absolute path under external
+     * storage is converted to the matching ExternalStorageProvider document URI.
+     */
+    private fun initialDirectoryUri(initialDirectory: String?): Uri? {
+        val value = initialDirectory?.trim().orEmpty()
+        if (value.isEmpty()) return null
+        if (value.startsWith("content://")) return Uri.parse(value)
+        val root = Environment.getExternalStorageDirectory().absolutePath
+        val absolute = java.io.File(value).absolutePath
+        if (!absolute.startsWith(root)) return null
+        val relative = absolute.removePrefix(root).trimStart('/')
+        return DocumentsContract.buildDocumentUri(
+            "com.android.externalstorage.documents",
+            "primary:$relative"
+        )
     }
 
     private fun sanitizeFileName(fileName: String?): String {

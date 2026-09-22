@@ -12,11 +12,17 @@ class Dialog: NSObject {
 
     func openSaveAsDialog(params: Params, result: @escaping FlutterResult) {
         let panel = NSSavePanel()
-        panel.directoryURL =
-            FileManager.default.urls(
-                for: .desktopDirectory,
-                in: .userDomainMask
-            ).first
+        if let initialDirectory = params.initialDirectory,
+            !initialDirectory.isEmpty
+        {
+            panel.directoryURL = URL(fileURLWithPath: initialDirectory)
+        } else {
+            panel.directoryURL =
+                FileManager.default.urls(
+                    for: .desktopDirectory,
+                    in: .userDomainMask
+                ).first
+        }
 
         var fileNameWithExtension = params.fileName ?? "file"
         if params.includeExtension, let fileExtension = params.fileExtension,
@@ -31,8 +37,15 @@ class Dialog: NSObject {
         panel.nameFieldStringValue = fileNameWithExtension
         panel.canCreateDirectories = true
         panel.allowsOtherFileTypes = true
-        panel.title =
-            Bundle.main.infoDictionary?[kCFBundleNameKey as String] as? String
+        if let dialogTitle = params.dialogTitle, !dialogTitle.isEmpty {
+            // NSSavePanel.title is not rendered on macOS 11+, message is.
+            panel.title = dialogTitle
+            panel.message = dialogTitle
+        } else {
+            panel.title =
+                Bundle.main.infoDictionary?[kCFBundleNameKey as String]
+                as? String
+        }
         panel.level = .mainMenu
         panel.begin { (response) in
             if response.rawValue == NSApplication.ModalResponse.OK.rawValue {

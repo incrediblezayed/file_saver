@@ -10,6 +10,8 @@ class FileModel {
   final String mimeType;
   final bool includeExtension;
   final String? sourcePath;
+  final String? initialDirectory;
+  final String? dialogTitle;
   FileModel({
     required this.name,
     required this.bytes,
@@ -17,6 +19,8 @@ class FileModel {
     required this.mimeType,
     required this.includeExtension,
     this.sourcePath,
+    this.initialDirectory,
+    this.dialogTitle,
   });
 
   FileModel copyWith({
@@ -26,6 +30,8 @@ class FileModel {
     String? mimeType,
     bool? includeExtension,
     String? sourcePath,
+    String? initialDirectory,
+    String? dialogTitle,
   }) {
     return FileModel(
       name: name ?? this.name,
@@ -34,6 +40,8 @@ class FileModel {
       mimeType: mimeType ?? this.mimeType,
       includeExtension: includeExtension ?? this.includeExtension,
       sourcePath: sourcePath ?? this.sourcePath,
+      initialDirectory: initialDirectory ?? this.initialDirectory,
+      dialogTitle: dialogTitle ?? this.dialogTitle,
     );
   }
 
@@ -45,6 +53,8 @@ class FileModel {
       'mimeType': mimeType,
       'includeExtension': includeExtension,
       'sourcePath': sourcePath,
+      'initialDirectory': initialDirectory,
+      'dialogTitle': dialogTitle,
     };
   }
 
@@ -56,6 +66,8 @@ class FileModel {
       mimeType: map['mimeType'] as String,
       includeExtension: map['includeExtension'] as bool,
       sourcePath: map['sourcePath'] as String?,
+      initialDirectory: map['initialDirectory'] as String?,
+      dialogTitle: map['dialogTitle'] as String?,
     );
   }
 

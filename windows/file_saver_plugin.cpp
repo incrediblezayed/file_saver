@@ -86,6 +86,27 @@ std::wstring FileExtensionToFileFilter(std::string fileExtension) {
   return wideFileExtensionName + L" File\0*." + wideFileExtensionName + L"\0\0";
 }
 
+std::wstring Utf8ToWide(const std::string& utf8) {
+  if (utf8.empty()) {
+    return L"";
+  }
+  int length = MultiByteToWideChar(CP_UTF8, 0, utf8.data(),
+                                   static_cast<int>(utf8.size()), nullptr, 0);
+  std::wstring wide(static_cast<size_t>(length), L'\0');
+  MultiByteToWideChar(CP_UTF8, 0, utf8.data(), static_cast<int>(utf8.size()),
+                      wide.data(), length);
+  return wide;
+}
+
+std::string OptionalStringArg(const flutter::EncodableMap& args,
+                              const char* key) {
+  const auto it = args.find(flutter::EncodableValue(key));
+  if (it != args.end() && std::holds_alternative<std::string>(it->second)) {
+    return std::get<std::string>(it->second);
+  }
+  return "";
+}
+
 bool HasInvalidFileNameCharacter(const std::string& file_name) {
   if (file_name.empty() || file_name == "." || file_name == "..") {
     return true;
@@ -120,12 +141,11 @@ void FileSaverPlugin::HandleMethodCall(
 
     const flutter::EncodableValue& inputFileValue = mapArgs.at(flutter::EncodableValue("bytes"));
     const std::vector<uint8_t> inputFileBytes = std::get<std::vector<uint8_t>>(inputFileValue);
-    std::string inputSourcePath = "";
-    const auto sourcePathIterator = mapArgs.find(flutter::EncodableValue("sourcePath"));
-    if (sourcePathIterator != mapArgs.end() &&
-        std::holds_alternative<std::string>(sourcePathIterator->second)) {
-      inputSourcePath = std::get<std::string>(sourcePathIterator->second);
-    }
+    const std::string inputSourcePath = OptionalStringArg(mapArgs, "sourcePath");
+    const std::wstring initialDirectory =
+        Utf8ToWide(OptionalStringArg(mapArgs, "initialDirectory"));
+    const std::wstring dialogTitle =
+        Utf8ToWide(OptionalStringArg(mapArgs, "dialogTitle"));
 
     const std::string defaultFileName = inputFileName + (inputIncludeExtension && !inputExtension.empty() ? (inputExtension.find(".") != std::string::npos ? inputExtension : ("." + inputExtension)) : "");
     static wchar_t szFile[MAX_PATH] = L"";
@@ -143,6 +163,8 @@ void FileSaverPlugin::HandleMethodCall(
     ofn.lpstrFilter = lpstrFilter;
     ofn.lpstrFile = szFile;
     ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrInitialDir = initialDirectory.empty() ? NULL : initialDirectory.c_str();
+    ofn.lpstrTitle = dialogTitle.empty() ? NULL : dialogTitle.c_str();
     ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;
 
     if (GetSaveFileName(&ofn)) {

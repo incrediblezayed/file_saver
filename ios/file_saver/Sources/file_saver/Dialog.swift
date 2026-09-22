@@ -21,6 +21,7 @@ class Dialog: NSObject, UIDocumentPickerDelegate {
         fileName: String,
         fileExtension: String,
         includeExtension: Bool,
+        initialDirectory: String? = nil,
         result: @escaping FlutterResult
     ) {
         self.result = result
@@ -94,6 +95,9 @@ class Dialog: NSObject, UIDocumentPickerDelegate {
             )
         }
         docPicker!.delegate = self
+        if let initialDirectory = initialDirectory, !initialDirectory.isEmpty {
+            docPicker!.directoryURL = URL(fileURLWithPath: initialDirectory)
+        }
         viewController.present(docPicker!, animated: true, completion: nil)
     }
 

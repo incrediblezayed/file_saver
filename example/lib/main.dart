@@ -54,6 +54,14 @@ class _FileSaverTestPageState extends State<FileSaverTestPage> {
   bool _isRunning = false;
   String? _pickedFilePath;
 
+  /// Parent folder of the last picked file, used as the saveAs starting point.
+  String? get _pickedDirectory {
+    final path = _pickedFilePath;
+    if (path == null) return null;
+    final separator = path.lastIndexOf(RegExp(r'[/\\]'));
+    return separator <= 0 ? null : path.substring(0, separator);
+  }
+
   bool get _supportsDirectDownload =>
       kIsWeb || defaultTargetPlatform == TargetPlatform.android;
 
@@ -115,6 +123,25 @@ class _FileSaverTestPageState extends State<FileSaverTestPage> {
             bytes: Uint8List.fromList('Saved without extension'.codeUnits),
             includeExtension: false,
             mimeType: MimeType.text,
+          ),
+        ),
+      ),
+      _ExampleAction(
+        icon: Icons.folder_open,
+        title: 'saveAs with initialDirectory & title',
+        detail:
+            'Opens the picker in the folder of the last picked file '
+            '(or the default) with a custom dialog title on macOS/Windows.',
+        onRun: () => _run(
+          'saveAs initialDirectory',
+          () => FileSaver.instance.saveAs(
+            name: _fileName('initial_directory'),
+            bytes: Uint8List.fromList('Saved via initialDirectory'.codeUnits),
+            fileExtension: _extension('txt'),
+            includeExtension: _includeExtension,
+            mimeType: MimeType.text,
+            initialDirectory: _pickedDirectory,
+            dialogTitle: 'Choose where to save the file',
           ),
         ),
       ),

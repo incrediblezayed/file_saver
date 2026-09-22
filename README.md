@@ -79,12 +79,23 @@ await FileSaver.instance.saveAs({
       bool includeExtension = true,
       required MimeType mimeType,
       String? customMimeType,
+      String? initialDirectory,
+      String? dialogTitle,
       Dio? dioClient,
       Uint8List Function(Uint8List)? transformDioResponse,
 });
 ```
 
-All the parameters in this method is same as the saveFile() method.
+All the parameters in this method is same as the saveFile() method, plus two
+dialog options (also accepted by `saveAsStream` and `saveLinkAsStream`):
+
+| Parameter | What it does | Supported on |
+|---|---|---|
+| `initialDirectory` | Folder the save dialog opens in. macOS, Windows and iOS take a file system path. Android takes a `content://` document URI (for example the value returned by an earlier `saveAs`) or an absolute path under external storage such as `/storage/emulated/0/Download`, which is mapped to the matching document URI. | macOS, Windows, iOS, Android 8+ |
+| `dialogTitle` | Title shown on the save dialog. | macOS, Windows |
+
+Both are ignored on platforms that don't support them, so it's safe to pass
+them unconditionally.
 
 For very large direct URL downloads, prefer handing the URL to the browser on
 web or Android DownloadManager so the app does not fetch the full file into
@@ -252,6 +263,21 @@ you have to add this key in the DebugProfile.entitlements and Release.entitlemen
 ```
 
 *You can find these files in the project_folder/macos/Runner/ directory.*
+
+> **Which entitlements file?** The Flutter template ships `DebugProfile.entitlements`
+> (used by Debug and Profile builds) and `Release.entitlements`. If your project
+> has renamed build configurations, the files may be called something like
+> `RunnerDebug.entitlements` / `RunnerRelease.entitlements` instead. To be sure,
+> open the Runner target in Xcode → *Build Settings* → *Code Signing Entitlements*
+> and edit whichever file is listed for each configuration.
+
+#### Windows:
+
+No extra setup. The plugin only uses the classic Win32 `GetSaveFileName` API
+from `Commdlg.h`, so it has no SDK requirement beyond what Flutter desktop
+itself needs (Visual Studio 2022 with the *Desktop development with C++*
+workload, which includes the Windows 10 SDK). Windows 10 or newer is required
+at runtime, same as Flutter.
 
 #### And You're done
 

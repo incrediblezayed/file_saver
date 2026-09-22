@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 * Migrated Android to built-in Kotlin / AGP 9 compatibility. Requires Flutter 3.44+.
   * Fixes [#145](https://github.com/incrediblezayed/file_saver/issues/145), [#148](https://github.com/incrediblezayed/file_saver/issues/148).
+* Added `initialDirectory` to `saveAs`, `saveAsStream` and `saveLinkAsStream` so the save dialog can open in a chosen folder (macOS, Windows, iOS, Android).
+  * Fixes [#134](https://github.com/incrediblezayed/file_saver/issues/134), [#147](https://github.com/incrediblezayed/file_saver/issues/147).
+* Added `dialogTitle` to `saveAs`, `saveAsStream` and `saveLinkAsStream` (macOS, Windows).
+  * Fixes [#146](https://github.com/incrediblezayed/file_saver/issues/146).
+* Windows `saveAs` now converts the new dialog strings from UTF-8 correctly.
+* Removed the unused duplicate `macos/Classes` sources; macOS builds from `macos/file_saver/Sources` for both CocoaPods and Swift Package Manager.
+* Documented macOS entitlement file naming and Windows SDK requirements.
 
 ## [0.4.0]
  * Added Swift Package Manager support for iOS and macOS.

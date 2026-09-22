@@ -76,6 +76,7 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, MethodCallHandler {
                         sourcePath = call.argument("sourcePath"),
                         type = call.argument("mimeType"),
                         includeExtension = call.argument("includeExtension"),
+                        initialDirectory = call.argument("initialDirectory"),
                         result = result
                     )
                 }
