@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "file_saver",
     platforms: [
-        .macOS("10.14")
+        .macOS("10.15")
     ],
     products: [
         .library(name: "file-saver", targets: ["file_saver"])

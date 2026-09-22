@@ -1,64 +1,45 @@
 import Cocoa
 import FlutterMacOS
 
-public class FileSaverPlugin: NSObject, FlutterPlugin {
+public class FileSaverPlugin: NSObject, FlutterPlugin, FileSaverHostApi {
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(
-            name: "file_saver",
-            binaryMessenger: registrar.messenger
-        )
         let instance = FileSaverPlugin()
-        registrar.addMethodCallDelegate(instance, channel: channel)
+        FileSaverHostApiSetup.setUp(binaryMessenger: registrar.messenger, api: instance)
     }
 
-    public func handle(
-        _ call: FlutterMethodCall,
-        result: @escaping FlutterResult
-    ) {
-        switch call.method {
-        case "saveAs":
-            guard let arguments = call.arguments as? [String: Any?] else {
-                result(
-                    FlutterError(
-                        code: "Invalid Arguments",
-                        message: "Invalid Arguments were supplied",
-                        details: nil
-                    )
-                )
-                return
-            }
-            let params = Params(arguments)
-            DispatchQueue.main.async {
-                let dialog = Dialog()
-                dialog.openSaveAsDialog(params: params, result: result)
-            }
-        default:
-            result(FlutterMethodNotImplemented)
-        }
+    func saveFile(request: SaveRequest) async throws -> String? {
+        throw PigeonError(
+            code: "unsupported",
+            message: "saveFile is implemented in Dart on macOS",
+            details: nil
+        )
     }
 
+    func saveAs(request: SaveRequest) async throws -> String? {
+        try await Dialog().saveAs(request)
+    }
+
+    func saveToGallery(request: SaveRequest) async throws -> String? {
+        throw PigeonError(
+            code: "unsupported",
+            message: "saveToGallery is only supported on Android and iOS",
+            details: nil
+        )
+    }
+
+    func downloadLink(request: DownloadRequest) throws -> String {
+        throw PigeonError(
+            code: "unsupported",
+            message: "downloadLink is only supported on Android and web",
+            details: nil
+        )
+    }
 }
 
-struct Params {
-    let fileName: String?
-    let bytes: [UInt8]?
-    let sourcePath: String?
-    let fileExtension: String?
-    let includeExtension: Bool
-    let initialDirectory: String?
-    let dialogTitle: String?
-    init(_ d: [String: Any?]) {
-        fileName = d["name"] as? String
-        let uint8List = d["bytes"] as? FlutterStandardTypedData
-        if uint8List == nil {
-            bytes = nil
-        } else {
-            bytes = [UInt8](uint8List!.data)
-        }
-        sourcePath = d["sourcePath"] as? String
-        fileExtension = d["fileExtension"] as? String
-        includeExtension = d["includeExtension"] as? Bool ?? true
-        initialDirectory = d["initialDirectory"] as? String
-        dialogTitle = d["dialogTitle"] as? String
+extension SaveRequest {
+    /// `name.ext`, or just the name when the extension is switched off.
+    var fileNameWithExtension: String {
+        guard includeExtension, !fileExtension.isEmpty else { return name }
+        return name + (fileExtension.hasPrefix(".") ? fileExtension : ".\(fileExtension)")
     }
 }
