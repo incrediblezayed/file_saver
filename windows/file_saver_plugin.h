@@ -1,30 +1,49 @@
 #ifndef FLUTTER_PLUGIN_FILE_SAVER_PLUGIN_H_
 #define FLUTTER_PLUGIN_FILE_SAVER_PLUGIN_H_
 
-#include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
+#include <windows.h>
 
-#include <memory>
+#include <functional>
+#include <optional>
+#include <string>
+
+#include "messages.g.h"
 
 namespace file_saver {
 
-class FileSaverPlugin : public flutter::Plugin {
+class FileSaverPlugin : public flutter::Plugin, public FileSaverHostApi {
  public:
   static void RegisterWithRegistrar(flutter::PluginRegistrarWindows *registrar);
 
-  FileSaverPlugin();
+  explicit FileSaverPlugin(flutter::PluginRegistrarWindows *registrar);
 
   virtual ~FileSaverPlugin();
 
   // Disallow copy and assign.
-  FileSaverPlugin(const FileSaverPlugin&) = delete;
-  FileSaverPlugin& operator=(const FileSaverPlugin&) = delete;
+  FileSaverPlugin(const FileSaverPlugin &) = delete;
+  FileSaverPlugin &operator=(const FileSaverPlugin &) = delete;
+
+  // FileSaverHostApi
+  void SaveFile(
+      const SaveRequest &request,
+      std::function<void(ErrorOr<std::optional<std::string>> reply)> result)
+      override;
+  void SaveAs(
+      const SaveRequest &request,
+      std::function<void(ErrorOr<std::optional<std::string>> reply)> result)
+      override;
+  void SaveToGallery(
+      const SaveRequest &request,
+      std::function<void(ErrorOr<std::optional<std::string>> reply)> result)
+      override;
+  ErrorOr<std::string> DownloadLink(const DownloadRequest &request) override;
 
  private:
-  // Called when a method is called on this plugin's channel from Dart.
-  void HandleMethodCall(
-      const flutter::MethodCall<flutter::EncodableValue> &method_call,
-      std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
+  // Top-level window of the Flutter view, so the dialog is modal to the app.
+  HWND OwnerWindow() const;
+
+  flutter::PluginRegistrarWindows *registrar_;
 };
 
 }  // namespace file_saver
