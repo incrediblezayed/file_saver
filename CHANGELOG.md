@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0]
+
+* Added `saveToDownloads` for writing into the shared Downloads folder without a dialog, with an optional `subfolder`. Android uses MediaStore (no permission on Android 10+); macOS, Windows and Linux write to the user's Downloads directory; web triggers a browser download; iOS throws `UnsupportedError`.
+  * Fixes [#108](https://github.com/incrediblezayed/file_saver/issues/108) and the "save into `Download/<folder>`" half of [#47](https://github.com/incrediblezayed/file_saver/issues/47).
+* Desktop saves now honour a `sourcePath`, so `saveToDownloads(filePath:)` copies without loading the file into memory.
+
 ## [0.5.0]
 
 * **Breaking:** replaced the `dio` dependency with `package:http`.
