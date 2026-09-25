@@ -1,5 +1,5 @@
-#ifndef FLUTTER_PLUGIN_FILE_SAVER_PLUGIN_H_
-#define FLUTTER_PLUGIN_FILE_SAVER_PLUGIN_H_
+#ifndef FLUTTER_PLUGIN_FILE_SAVER_PLUGIN_H__
+#define FLUTTER_PLUGIN_FILE_SAVER_PLUGIN_H__
 
 #include <flutter_plugin_registrar.h>
 
@@ -20,4 +20,4 @@ FLUTTER_PLUGIN_EXPORT void FileSaverPluginRegisterWithRegistrar(
 }  // extern "C"
 #endif
 
-#endif  // FLUTTER_PLUGIN_FILE_SAVER_PLUGIN_H_
+#endif  // FLUTTER_PLUGIN_FILE_SAVER_PLUGIN_H__
