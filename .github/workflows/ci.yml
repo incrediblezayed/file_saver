@@ -86,11 +86,15 @@ jobs:
           channel: stable
           cache: true
       - name: Create a consumer app
+        # bash, not the Windows default PowerShell: the JSON path descriptor
+        # below does not survive PowerShell's quoting rules.
+        shell: bash
         run: |
           flutter create --platforms=windows consumer
           cd consumer
           flutter pub add 'file_saver:{"path":"../file_saver"}'
       - name: Build it
+        shell: bash
         run: flutter build windows --debug
         working-directory: consumer
       - name: Confirm the plugin produced an import library
