@@ -326,6 +326,3 @@ at runtime, same as Flutter.
 #### And You're done
 
 ## Thank You For Reading this far :)
-
-### Contributors
-
