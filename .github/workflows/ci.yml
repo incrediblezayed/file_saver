@@ -40,7 +40,6 @@ jobs:
           - { os: ubuntu-latest, target: linux, args: --debug }
           - { os: macos-latest, target: macos, args: --debug }
           - { os: macos-latest, target: ios, args: --simulator --no-codesign }
-          - { os: windows-latest, target: windows, args: --debug }
     steps:
       - uses: actions/checkout@v4
 
@@ -68,3 +67,34 @@ jobs:
       # regression only showed up at this step.
       - run: flutter build ${{ matrix.target }} ${{ matrix.args }}
         working-directory: example
+
+  # The example depends on permission_handler, whose Windows plugin fails to
+  # compile on current MSVC (STL1011: <experimental/coroutine> is now a hard
+  # error). That is upstream and unrelated to this package, so Windows builds a
+  # throwaway app that depends on file_saver alone. It still exercises the step
+  # that matters: linking the plugin into a real app, which is what the 0.5.0
+  # regression broke and what compiling the plugin sources alone never catches.
+  build-windows:
+    name: Build consumer app (windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: file_saver
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Create a consumer app
+        run: |
+          flutter create --platforms=windows consumer
+          cd consumer
+          flutter pub add 'file_saver:{"path":"../file_saver"}'
+      - name: Build it
+        run: flutter build windows --debug
+        working-directory: consumer
+      - name: Confirm the plugin produced an import library
+        shell: bash
+        run: |
+          find consumer/build/windows -name 'file_saver_plugin.lib' -print -quit | grep . \
+            || { echo 'file_saver_plugin.lib was not produced'; exit 1; }
