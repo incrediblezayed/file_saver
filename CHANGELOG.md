@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0]
+
+* Added `saveAs` on Linux. It uses `GtkFileChooserNative`, so sandboxed apps (Flatpak, Snap) get the XDG desktop portal and everything else gets the GTK dialog. `initialDirectory` and `dialogTitle` are supported, and the file is written with GIO's async API so large files never block the UI thread.
+  * Fixes [#157](https://github.com/incrediblezayed/file_saver/issues/157).
+* The Linux plugin now uses the Pigeon-generated API like every other platform. `tool/pigeon.sh` also formats the generated Dart file, so regenerating no longer produces a formatting-only diff.
+* `saveAs` on an unsupported platform throws `UnsupportedError` naming the platform, instead of `UnimplementedError('Unimplemented Error')`.
+
 ## [0.6.0]
 
 * Added `saveToDownloads` for writing into the shared Downloads folder without a dialog, with an optional `subfolder`. Android uses MediaStore (no permission on Android 10+); macOS, Windows and Linux write to the user's Downloads directory; web triggers a browser download; iOS throws `UnsupportedError`.
