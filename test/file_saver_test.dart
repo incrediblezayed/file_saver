@@ -59,10 +59,11 @@ void main() {
     PlatformHandlerAll.hostApiOverride = null;
   });
 
-  // saveAs reaches the host API on these hosts; Linux throws first.
+  // saveAs reaches the host API on every native host.
   final hasNativeSaveAs =
       Platform.isMacOS ||
       Platform.isWindows ||
+      Platform.isLinux ||
       Platform.isAndroid ||
       Platform.isIOS;
 

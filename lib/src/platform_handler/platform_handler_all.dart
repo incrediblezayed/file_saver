@@ -76,10 +76,13 @@ class PlatformHandlerAll extends PlatformHandler {
     if (Platform.isAndroid ||
         Platform.isIOS ||
         Platform.isMacOS ||
-        Platform.isWindows) {
+        Platform.isWindows ||
+        Platform.isLinux) {
       return _api.saveAs(request);
     }
-    throw UnimplementedError('Unimplemented Error');
+    throw UnsupportedError(
+      'saveAs is not supported on ${Platform.operatingSystem}.',
+    );
   }
 
   @override

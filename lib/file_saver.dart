@@ -166,14 +166,14 @@ class FileSaver {
   ///
   /// mimeType (Mainly required for web): MimeType from enum MimeType..
   ///
-  /// [initialDirectory]: Directory the save dialog opens in. macOS, Windows
-  /// and iOS take a file system path. Android takes a `content://` document
+  /// [initialDirectory]: Directory the save dialog opens in. macOS, Windows,
+  /// Linux and iOS take a file system path. Android takes a `content://` document
   /// URI (for example a value returned by a previous [saveAs] call) or an
   /// absolute path under external storage, which is mapped to the matching
   /// document URI. Ignored on Web.
   ///
-  /// [dialogTitle]: Title shown on the save dialog. Supported on macOS and
-  /// Windows; Android, iOS and Web use the system dialog title.
+  /// [dialogTitle]: Title shown on the save dialog. Supported on macOS,
+  /// Windows and Linux; Android, iOS and Web use the system dialog title.
   Future<String?> saveAs({
     required String name,
     Uint8List? bytes,

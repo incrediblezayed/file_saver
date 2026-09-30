@@ -63,7 +63,7 @@ _http.Client httpClient_ optional `package:http` client used when downloading fr
 MimeType is also included in my Package, I've included types for **Sheets, Presentation, Word, Plain Text, PDF,
 MP3, MP4 and many other common formats**
 
-or you can call saveAs() _available for Android, iOS, macOS, Windows, and Web_
+or you can call saveAs() _available for Android, iOS, macOS, Windows, Linux, and Web_
 
 ```dart
 await FileSaver.instance.saveAs({
@@ -87,8 +87,8 @@ dialog options (also accepted by `saveAsStream` and `saveLinkAsStream`):
 
 | Parameter | What it does | Supported on |
 |---|---|---|
-| `initialDirectory` | Folder the save dialog opens in. macOS, Windows and iOS take a file system path. Android takes a `content://` document URI (for example the value returned by an earlier `saveAs`) or an absolute path under external storage such as `/storage/emulated/0/Download`, which is mapped to the matching document URI. | macOS, Windows, iOS, Android 8+ |
-| `dialogTitle` | Title shown on the save dialog. | macOS, Windows |
+| `initialDirectory` | Folder the save dialog opens in. macOS, Windows, Linux and iOS take a file system path. Android takes a `content://` document URI (for example the value returned by an earlier `saveAs`) or an absolute path under external storage such as `/storage/emulated/0/Download`, which is mapped to the matching document URI. | macOS, Windows, Linux, iOS, Android 8+ |
+| `dialogTitle` | Title shown on the save dialog. | macOS, Windows, Linux |
 
 Both are ignored on platforms that don't support them, so it's safe to pass
 them unconditionally.
