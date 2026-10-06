@@ -11,6 +11,9 @@ import 'package:pigeon/pigeon.dart';
     cppHeaderOut: 'windows/messages.g.h',
     cppSourceOut: 'windows/messages.g.cpp',
     cppOptions: CppOptions(namespace: 'file_saver'),
+    gobjectHeaderOut: 'linux/messages.g.h',
+    gobjectSourceOut: 'linux/messages.g.cc',
+    gobjectOptions: GObjectOptions(module: 'FileSaver'),
   ),
 )
 /// Everything a native save needs. `bytes` or `sourcePath` is set, not both.

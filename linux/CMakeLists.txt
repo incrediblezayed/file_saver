@@ -8,6 +8,7 @@ set(PLUGIN_NAME "file_saver_plugin")
 
 add_library(${PLUGIN_NAME} SHARED
   "file_saver_plugin.cc"
+  "messages.g.cc"
 )
 apply_standard_settings(${PLUGIN_NAME})
 set_target_properties(${PLUGIN_NAME} PROPERTIES
