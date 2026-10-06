@@ -11,14 +11,18 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/** Runs [block], turning any failure into a [FlutterError] with [code] for Dart. */
-private inline fun <T> flutterErrors(code: String, block: () -> T): T {
+/**
+ * Runs [block], turning any unexpected failure into a [FlutterError] with a
+ * fixed [message]. The exception's own message can carry file paths, URIs or
+ * process ids (CWE-209), so only its class name goes to Dart, as `details`.
+ */
+private inline fun <T> flutterErrors(code: String, message: String, block: () -> T): T {
     try {
         return block()
     } catch (e: FlutterError) {
         throw e
     } catch (e: Exception) {
-        throw FlutterError(code, e.message)
+        throw FlutterError(code, message, e.javaClass.simpleName)
     }
 }
 
@@ -48,7 +52,7 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, FileSaverHostApi {
         val context = applicationContext
             ?: throw FlutterError("NoContext", "Context is unavailable")
         return withContext(Dispatchers.IO) {
-            flutterErrors("SaveFileError") {
+            flutterErrors("SaveFileError", "Failed to save the file") {
                 val directory = context.getExternalFilesDir(null)
                     ?: throw IllegalStateException("External files directory is unavailable")
                 val file = FileNames.safeChild(directory, FileNames.withExtension(request))
@@ -68,7 +72,7 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, FileSaverHostApi {
         val context = applicationContext
             ?: throw FlutterError("GalleryError", "Context is unavailable")
         return withContext(Dispatchers.IO) {
-            flutterErrors("GalleryError") { PublicStorage(context).saveToGallery(request) }
+            flutterErrors("GalleryError", "Failed to save to the gallery") { PublicStorage(context).saveToGallery(request) }
         }
     }
 
@@ -76,11 +80,11 @@ class FileSaverPlugin : FlutterPlugin, ActivityAware, FileSaverHostApi {
         val context = applicationContext
             ?: throw FlutterError("DownloadsError", "Context is unavailable")
         return withContext(Dispatchers.IO) {
-            flutterErrors("DownloadsError") { PublicStorage(context).saveToDownloads(request) }
+            flutterErrors("DownloadsError", "Failed to save to Downloads") { PublicStorage(context).saveToDownloads(request) }
         }
     }
 
-    override fun downloadLink(request: DownloadRequest): String = flutterErrors("DownloadError") {
+    override fun downloadLink(request: DownloadRequest): String = flutterErrors("DownloadError", "Failed to start the download") {
         val context = applicationContext ?: throw IllegalStateException("Context is unavailable")
         val uri = Uri.parse(request.url)
         val fileName = FileNames.sanitizeFileName(

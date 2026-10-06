@@ -61,7 +61,7 @@ class Dialog(var activity: Activity) : PluginRegistry.ActivityResultListener {
             } catch (e: Exception) {
                 pending = null
                 continuation.resumeWithException(
-                    FlutterError("NoFileManager", "No app can show the save dialog: ${e.message}")
+                    FlutterError("NoFileManager", "No app can show the save dialog", e.javaClass.simpleName)
                 )
             }
         } ?: return null
@@ -72,11 +72,16 @@ class Dialog(var activity: Activity) : PluginRegistry.ActivityResultListener {
                 writeTo(resolver, uri, request)
                 uri.toString()
             } catch (e: SecurityException) {
-                Log.d(TAG, "Security Exception while saving file: ${e.message}")
-                throw FlutterError("Security Exception", e.localizedMessage)
+                // Never the exception's message: it can carry the URI, pid and uid (CWE-209).
+                Log.d(TAG, "Security Exception while saving file: ${e.javaClass.simpleName}")
+                throw FlutterError(
+                    "Security Exception",
+                    "Permission denied while writing the file",
+                    e.javaClass.simpleName
+                )
             } catch (e: Exception) {
-                Log.d(TAG, "Exception while saving file: ${e.message}")
-                throw FlutterError("Error", e.localizedMessage)
+                Log.d(TAG, "Exception while saving file: ${e.javaClass.simpleName}")
+                throw FlutterError("Error", "Failed to write the file", e.javaClass.simpleName)
             }
         }
     }

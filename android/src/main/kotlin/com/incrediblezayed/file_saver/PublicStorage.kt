@@ -37,7 +37,10 @@ class PublicStorage(private val context: Context) {
         val target = when {
             type.startsWith("image/") -> Target.IMAGES
             type.startsWith("video/") -> Target.VIDEOS
-            else -> throw IllegalArgumentException(
+            // A FlutterError passes through flutterErrors() unchanged, so this
+            // fixed guidance reaches Dart instead of a generic message.
+            else -> throw FlutterError(
+                "InvalidMimeType",
                 "saveToGallery only accepts image/* or video/* mime types, got '$type'"
             )
         }
@@ -115,7 +118,8 @@ class PublicStorage(private val context: Context) {
             context.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
             PackageManager.PERMISSION_GRANTED
         ) {
-            throw SecurityException(
+            throw FlutterError(
+                "PermissionDenied",
                 "WRITE_EXTERNAL_STORAGE must be granted to write to shared storage on Android 9 and below"
             )
         }
@@ -124,7 +128,7 @@ class PublicStorage(private val context: Context) {
             target = FileNames.safeChild(target, folder)
         }
         if (!target.exists() && !target.mkdirs()) {
-            throw IllegalStateException("Unable to create ${target.path}")
+            throw IllegalStateException("Unable to create the target folder")
         }
         val file = uniqueChild(target, name)
         FileOutputStream(file).use { output ->

@@ -72,8 +72,8 @@ class Dialog: NSObject {
                     continuation.resume(
                         throwing: PigeonError(
                             code: "save_failed",
-                            message: error.localizedDescription,
-                            details: nil
+                            message: "Failed to write the file",
+                            details: error.safeDetails
                         )
                     )
                 }
@@ -88,7 +88,7 @@ class Dialog: NSObject {
             throw NSError(
                 domain: NSCocoaErrorDomain,
                 code: NSFileNoSuchFileError,
-                userInfo: [NSLocalizedDescriptionKey: "Unable to open \(source.path)"]
+                userInfo: [NSLocalizedDescriptionKey: "Unable to open the source file"]
             )
         }
         input.open()

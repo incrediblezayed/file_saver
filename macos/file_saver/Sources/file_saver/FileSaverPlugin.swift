@@ -51,3 +51,12 @@ extension SaveRequest {
         return name + (fileExtension.hasPrefix(".") ? fileExtension : ".\(fileExtension)")
     }
 }
+
+extension Error {
+    /// "<domain> <code>", e.g. "NSCocoaErrorDomain 4". Identifies the failure
+    /// without the localized description, which can carry file paths (CWE-209).
+    var safeDetails: String {
+        let error = self as NSError
+        return "\(error.domain) \(error.code)"
+    }
+}

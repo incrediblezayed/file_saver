@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 * Added `saveAs` on Linux. It uses `GtkFileChooserNative`, so sandboxed apps (Flatpak, Snap) get the XDG desktop portal and everything else gets the GTK dialog. `initialDirectory` and `dialogTitle` are supported, and the file is written with GIO's async API so large files never block the UI thread.
   * Fixes [#157](https://github.com/incrediblezayed/file_saver/issues/157).
 * The Linux plugin now uses the Pigeon-generated API like every other platform. `tool/pigeon.sh` also formats the generated Dart file, so regenerating no longer produces a formatting-only diff.
+* Native errors no longer include raw exception text (CWE-209). Platform exception messages are now fixed strings per failure, and `details` carries only a non-sensitive identifier: the exception class name on Android (`FileNotFoundException`), `"<domain> <code>"` on iOS, macOS and Linux. Previously the message could contain file paths, content URIs, or a process's pid/uid, and Android also logged it. Error codes are unchanged. If you matched on `PlatformException.message`, match on `code` instead.
+  * Fixes [#159](https://github.com/incrediblezayed/file_saver/issues/159).
+* Android: a missing `WRITE_EXTERNAL_STORAGE` grant on Android 9 and below now reports code `PermissionDenied`, and a non-media mime type passed to `saveToGallery` reports `InvalidMimeType`, instead of the generic gallery/Downloads error.
 * `saveAs` on an unsupported platform throws `UnsupportedError` naming the platform, instead of `UnimplementedError('Unimplemented Error')`.
 
 ## [0.6.0]

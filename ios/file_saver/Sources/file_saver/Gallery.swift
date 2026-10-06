@@ -41,8 +41,8 @@ class Gallery {
             } catch {
                 throw PigeonError(
                     code: "creating_temp_file_failed",
-                    message: error.localizedDescription,
-                    details: nil
+                    message: "Failed to prepare the file for the photo library",
+                    details: error.safeDetails
                 )
             }
             tempDirectory = directory
@@ -154,8 +154,8 @@ class Gallery {
                     continuation.resume(
                         throwing: PigeonError(
                             code: "save_failed",
-                            message: error?.localizedDescription ?? "Unknown error",
-                            details: nil
+                            message: "Failed to save to the photo library",
+                            details: error?.safeDetails
                         )
                     )
                 }

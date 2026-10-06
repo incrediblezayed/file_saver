@@ -42,8 +42,8 @@ class Dialog: NSObject, UIDocumentPickerDelegate {
             deleteTemp()
             throw PigeonError(
                 code: "creating_temp_file_failed",
-                message: error.localizedDescription,
-                details: nil
+                message: "Failed to prepare the file for export",
+                details: error.safeDetails
             )
         }
 

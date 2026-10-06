@@ -59,10 +59,19 @@ static void save_as_operation_finish(SaveAsOperation* operation,
   save_as_operation_free(operation);
 }
 
+// Fails with a fixed message. GIO's error message names the file, so only
+// "<domain> <code>" goes to Dart, as details (CWE-209).
 static void save_as_operation_fail(SaveAsOperation* operation,
-                                   const gchar* code, const gchar* message) {
+                                   const gchar* code, const gchar* message,
+                                   const GError* error) {
+  g_autoptr(FlValue) details = nullptr;
+  if (error != nullptr) {
+    g_autofree gchar* identifier = g_strdup_printf(
+        "%s %d", g_quark_to_string(error->domain), error->code);
+    details = fl_value_new_string(identifier);
+  }
   file_saver_file_saver_host_api_respond_error_save_as(
-      operation->response_handle, code, message, nullptr);
+      operation->response_handle, code, message, details);
   save_as_operation_free(operation);
 }
 
@@ -77,7 +86,8 @@ static void on_copy_finished(GObject* source, GAsyncResult* result,
   SaveAsOperation* operation = static_cast<SaveAsOperation*>(user_data);
   g_autoptr(GError) error = nullptr;
   if (!g_file_copy_finish(G_FILE(source), result, &error)) {
-    save_as_operation_fail(operation, "save_failed", error->message);
+    save_as_operation_fail(operation, "save_failed", "Failed to write the file",
+                           error);
     return;
   }
   g_autofree gchar* location = destination_location(operation->destination);
@@ -90,7 +100,8 @@ static void on_write_finished(GObject* source, GAsyncResult* result,
   g_autoptr(GError) error = nullptr;
   if (!g_file_replace_contents_finish(G_FILE(source), result, nullptr,
                                       &error)) {
-    save_as_operation_fail(operation, "save_failed", error->message);
+    save_as_operation_fail(operation, "save_failed", "Failed to write the file",
+                           error);
     return;
   }
   g_autofree gchar* location = destination_location(operation->destination);
@@ -138,7 +149,8 @@ static void on_dialog_response(GtkNativeDialog* dialog, gint response,
     return;
   }
   if (operation->destination == nullptr) {
-    save_as_operation_fail(operation, "save_failed", "No file was selected");
+    save_as_operation_fail(operation, "save_failed", "No file was selected",
+                           nullptr);
     return;
   }
   write_payload(operation);
