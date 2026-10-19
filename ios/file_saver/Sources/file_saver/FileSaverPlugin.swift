@@ -8,7 +8,9 @@ public class FileSaverPlugin: NSObject, FlutterPlugin, FileSaverHostApi {
     }
 
     private let dialog = Dialog()
+    #if FILE_SAVER_PHOTOS
     private let gallery = Gallery()
+    #endif
 
     func saveFile(request: SaveRequest) async throws -> String? {
         throw PigeonError(
@@ -23,7 +25,15 @@ public class FileSaverPlugin: NSObject, FlutterPlugin, FileSaverHostApi {
     }
 
     func saveToGallery(request: SaveRequest) async throws -> String? {
+        #if FILE_SAVER_PHOTOS
         try await gallery.save(request)
+        #else
+        throw PigeonError(
+            code: "unsupported",
+            message: "Gallery support was not built in. Add NSPhotoLibraryAddUsageDescription to Info.plist (or build with FILE_SAVER_PHOTOS=1), clear the build cache and rebuild. See 'Gallery support on iOS' in the file_saver README.",
+            details: nil
+        )
+        #endif
     }
 
     func saveToDownloads(request: SaveRequest) async throws -> String? {

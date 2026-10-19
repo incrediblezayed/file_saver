@@ -119,6 +119,40 @@ identifier on iOS.
   `album` also needs `NSPhotoLibraryUsageDescription`, because finding or
   creating an album requires read access to the library.
 
+#### Gallery support on iOS
+
+On iOS, gallery support is only included when your app asks for photo access.
+Apps that never save to the gallery then don't need a photo permission text for
+the App Store.
+
+| Your `ios/Runner/Info.plist` has                                        | Gallery support                                                      |
+|-------------------------------------------------------------------------|----------------------------------------------------------------------|
+| `NSPhotoLibraryAddUsageDescription` or `NSPhotoLibraryUsageDescription` | On                                                                   |
+| Neither key                                                             | Off: `saveToGallery` throws `PlatformException(code: 'unsupported')` |
+
+Added or removed a key and nothing changed? The old result is cached. Clear it
+and build again:
+
+```bash
+# Swift Package Manager (clears Xcode's build cache for all projects)
+rm -rf ~/Library/Developer/Xcode/DerivedData ~/Library/Caches/org.swift.swiftpm/manifests
+
+# CocoaPods
+cd ios && pod install
+```
+
+To set it manually instead, use `FILE_SAVER_PHOTOS` with `0` (off) or `1` (on):
+
+```bash
+# Swift Package Manager: terminal builds only; clear the cache as above first
+FILE_SAVER_PHOTOS=0 flutter build ios
+```
+
+```ruby
+# CocoaPods: add at the top of ios/Podfile, then run pod install
+ENV['FILE_SAVER_PHOTOS'] = '0'
+```
+
 ### Save to Downloads without a dialog
 
 `saveToDownloads` writes straight into the shared Downloads folder.

@@ -1,3 +1,4 @@
+#if FILE_SAVER_PHOTOS
 import Flutter
 import Foundation
 import Photos
@@ -163,3 +164,4 @@ class Gallery {
         }
     }
 }
+#endif
